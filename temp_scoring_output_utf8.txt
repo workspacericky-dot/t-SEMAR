@@ -1,0 +1,93 @@
+{
+  "Tabel Pengisian Nilai (A s.d. E).xlsx": [
+    [
+      "Pilihan Jawaban",
+      "Nilai",
+      "Penjelasan"
+    ],
+    [
+      "AA",
+      100,
+      "Jika seluruh kriteria telah terpenuhi (100%) dan telah dipertahankan dalam setidaknya 5 tahun terakhir."
+    ],
+    [
+      "A",
+      90,
+      "Jika seluruh kriteria telah terpenuhi (100%) dan telah dipertahankan dalam setidaknya 1 tahun terakhir."
+    ],
+    [
+      "BB",
+      80,
+      "Jika kualitas seluruh kriteria telah terpenuhi (100%) sesuai dengan mandat kebijakan nasional."
+    ],
+    [
+      "B",
+      70,
+      "Jika kualitas sebagian besar kriteria telah terpenuhi (>75% - 100%)."
+    ],
+    [
+      "CC",
+      60,
+      "Jika kualitas sebagian besar kriteria telah terpenuhi (>50% - 75%)."
+    ],
+    [
+      "C",
+      50,
+      "Jika kualitas sebagian kecil kriteria telah terpenuhi (>25% - 50%)."
+    ],
+    [
+      "D",
+      30,
+      "Jika kriteria penilaian akuntabilitas kinerja telah mulai dipenuhi (>0% - 25%)."
+    ],
+    [
+      "E",
+      0,
+      "Jika sama sekali tidak ada upaya dalam pemenuhan kriteria penilaian akuntabilitas kinerja."
+    ]
+  ],
+  "Tabel Skor Penilaian Evaluasi AKIP.xlsx": [
+    [
+      "Komponen",
+      "Sub-Komponen 1: Keberadaan (20%)",
+      "Sub-Komponen 2: Kualitas (30%)",
+      "Sub-Komponen 3: Pemanfaatan (50%)",
+      "Total Bobot"
+    ],
+    [
+      "Perencanaan Kinerja",
+      6,
+      9,
+      15,
+      30
+    ],
+    [
+      "Pengukuran Kinerja",
+      6,
+      9,
+      15,
+      30
+    ],
+    [
+      "Pelaporan Kinerja",
+      3,
+      4.5,
+      7.5,
+      15
+    ],
+    [
+      "Evaluasi Akuntabilitas Kinerja Internal",
+      5,
+      7.5,
+      12.5,
+      25
+    ],
+    [
+      "Nilai Akuntabilitas Kinerja",
+      20,
+      30,
+      50,
+      100
+    ]
+  ]
+}

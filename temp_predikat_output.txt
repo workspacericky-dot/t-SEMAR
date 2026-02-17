@@ -1,0 +1,10 @@
+Sheet: Tabel Interpretasi Predikat Pen
+
+["Predikat (Nilai)","Interpretasi"]
+["AA (> 90 - 100)","Sangat Memuaskan: Telah terwujud Good Governance. Seluruh kinerja dikelola dengan sangat memuaskan di seluruh unit kerja. Telah terbentuk pemerintah yang dinamis, adaptif, dan efisien (Reform). Pengukuran kinerja telah dilakukan sampai ke level individu."]
+["A (> 80 - 90)","Memuaskan: Terdapat gambaran bahwa Mahkamah Agung RI dan Badan Peradilan di bawahnya dapat memimpin perubahan dalam mewujudkan pemerintahan berorientasi hasil. Pengukuran kinerja telah dilakukan sampai ke level eselon 4/Pengawas/Subkoordinator."]
+["BB (> 70 - 80)","Sangat Baik: AKIP sangat baik pada 2/3 unit kerja, baik unit kerja utama maupun pendukung. Ditandai dengan mulai terwujudnya efisiensi penggunaan anggaran, memiliki sistem manajemen kinerja yang andal berbasis IT. Pengukuran kinerja telah dilakukan sampai ke level eselon 3/koordinator."]
+["B (> 60 - 70)","Baik: AKIP sudah baik pada 1/3 unit kerja, khususnya unit kerja utama. Masih perlu sedikit perbaikan pada unit kerja serta komitmen dalam manajemen kinerja. Pengukuran kinerja baru dilaksanakan sampai level eselon 2/unit kerja."]
+["CC (> 50 - 60)","Cukup (Memadai): AKIP cukup baik, namun masih perlu banyak perbaikan walaupun tidak mendasar, khususnya akuntabilitas kinerja pada unit kerja."]
+["C (> 30 - 50)","Kurang: Sistem dan tatanan dalam AKIP kurang dapat diandalkan. Belum terimplementasi sistem manajemen kinerja sehingga perlu banyak perbaikan mendasar di level pusat."]
+["D (> 0 - 30)","Sangat Kurang: Sistem dan tatanan dalam AKIP sama sekali tidak dapat diandalkan. Belum terdapat penerapan manajemen kinerja sehingga perlu perbaikan/perubahan yang sangat mendasar dalam implementasi SAKIP."]
