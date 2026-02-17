@@ -45,10 +45,43 @@ export async function updateSession(request: NextRequest) {
         return NextResponse.redirect(url);
     }
 
-    if (user && isPublicPath) {
-        const url = request.nextUrl.clone();
-        url.pathname = '/dashboard';
-        return NextResponse.redirect(url);
+    if (user) {
+        // If user is logged in, check if they need onboarding
+        // We only do this check for dashboard routes to avoid infinite loops on static assets
+        const isDashboardRoute = request.nextUrl.pathname.startsWith('/dashboard');
+        const isOnboardingRoute = request.nextUrl.pathname === '/onboarding';
+
+        if (isDashboardRoute || isOnboardingRoute) {
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('role, training_group')
+                .eq('id', user.id)
+                .single();
+
+            // Logic:
+            // 1. If NOT superadmin AND NO training_group -> MUST go to /onboarding
+            // 2. If (Superadmin OR HAS training_group) AND IS /onboarding -> MUST go to /dashboard
+
+            const needsOnboarding = profile && profile.role !== 'superadmin' && !profile.training_group;
+
+            if (needsOnboarding && !isOnboardingRoute) {
+                const url = request.nextUrl.clone();
+                url.pathname = '/onboarding';
+                return NextResponse.redirect(url);
+            }
+
+            if (!needsOnboarding && isOnboardingRoute) {
+                const url = request.nextUrl.clone();
+                url.pathname = '/dashboard';
+                return NextResponse.redirect(url);
+            }
+        }
+
+        if (isPublicPath) {
+            const url = request.nextUrl.clone();
+            url.pathname = '/dashboard';
+            return NextResponse.redirect(url);
+        }
     }
 
     return supabaseResponse;

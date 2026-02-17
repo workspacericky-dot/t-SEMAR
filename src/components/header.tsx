@@ -15,11 +15,14 @@ const roleBadge: Record<string, { label: string; color: string }> = {
     auditee: { label: 'Auditee', color: 'bg-teal-500/15 text-teal-400 border-teal-500/20' },
 };
 
+import { ProfileEditModal } from '@/components/profile-edit-modal';
+
 export function Header() {
     const profile = useAuthStore((s) => s.profile);
     const { isDark, toggle: toggleDark } = useThemeStore();
     const { query, setQuery, clear } = useSearchStore();
     const [open, setOpen] = useState(false);
+    const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const router = useRouter();
@@ -128,8 +131,17 @@ export function Header() {
                             : 'bg-white border-white/50 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)] hover:shadow-[0_4px_12px_-4px_rgba(0,0,0,0.1)]'
                             }`}
                     >
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow-md">
-                            {profile?.full_name?.[0]?.toUpperCase() || <User className="w-5 h-5" />}
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow-md overflow-hidden relative">
+                            {profile?.avatar_url ? (
+                                <Image
+                                    src={profile.avatar_url}
+                                    alt="Avatar"
+                                    fill
+                                    className="object-cover"
+                                />
+                            ) : (
+                                profile?.full_name?.[0]?.toUpperCase() || <User className="w-5 h-5" />
+                            )}
                         </div>
                         <div className="text-left hidden sm:block">
                             <p className={`text-sm font-semibold leading-none transition-colors ${isDark ? 'text-white group-hover:text-blue-400' : 'text-slate-800 group-hover:text-blue-600'}`}>
@@ -155,6 +167,39 @@ export function Header() {
                                     {profile?.satker_name || 'Mahkamah Agung RI'}
                                 </p>
                             </div>
+
+                            <button
+                                onClick={() => { setOpen(false); setIsEditProfileOpen(true); }}
+                                className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-xl transition-colors ${isDark ? 'text-slate-300 hover:bg-white/5' : 'text-slate-600 hover:bg-slate-50'}`}
+                            >
+                                <User className="w-4 h-4" />
+                                Edit Profile
+                            </button>
+
+                            {/* Role Switcher for Students (Auditor <-> Auditee) */}
+                            {profile?.role !== 'superadmin' && (
+                                <button
+                                    onClick={async () => {
+                                        if (!profile) return;
+                                        setOpen(false);
+                                        const newRole = profile.role === 'auditor' ? 'auditee' : 'auditor';
+
+                                        // Update in Supabase
+                                        await supabase.from('profiles').update({ role: newRole }).eq('id', profile.id);
+
+                                        // Update local state immediate for UI response
+                                        // Next.js router refresh might be needed for server components, 
+                                        // but client components (sidebar) typically use the store.
+                                        useAuthStore.setState({ profile: { ...profile, role: newRole } });
+                                        router.refresh();
+                                    }}
+                                    className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-xl transition-colors ${isDark ? 'text-slate-300 hover:bg-white/5' : 'text-slate-600 hover:bg-slate-50'}`}
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-left-right"><path d="M8 3 4 7l4 4" /><path d="M4 7h16" /><path d="m16 21 4-4-4-4" /><path d="M20 17H4" /></svg>
+                                    Switch to {profile?.role === 'auditor' ? 'Auditee' : 'Evaluator'}
+                                </button>
+                            )}
+
                             <button
                                 onClick={handleLogout}
                                 className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-red-500 rounded-xl transition-colors ${isDark ? 'hover:bg-red-500/10' : 'hover:bg-red-50/80'
@@ -167,6 +212,8 @@ export function Header() {
                     )}
                 </div>
             </div>
+
+            <ProfileEditModal isOpen={isEditProfileOpen} onClose={() => setIsEditProfileOpen(false)} />
         </header>
     );
 }

@@ -58,7 +58,7 @@ export default function LoginPage() {
                     options: {
                         data: {
                             full_name: fullName,
-                            role: 'auditee',
+                            role: 'auditor',
                         },
                     },
                 });

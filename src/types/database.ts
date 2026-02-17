@@ -19,6 +19,7 @@ export interface Profile {
   role: UserRole;
   satker_name: string;
   avatar_url: string;
+  training_group?: number;
   created_at: string;
   updated_at: string;
 }
