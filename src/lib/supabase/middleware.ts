@@ -59,10 +59,17 @@ export async function updateSession(request: NextRequest) {
                 .single();
 
             // Logic:
-            // 1. If NOT superadmin AND NO training_group -> MUST go to /onboarding
-            // 2. If (Superadmin OR HAS training_group) AND IS /onboarding -> MUST go to /dashboard
+            // 1. If NO profile -> MUST go to /onboarding (to create one)
+            // 2. If NOT superadmin AND NO training_group -> MUST go to /onboarding
+            // 3. If (Superadmin OR HAS training_group) AND IS /onboarding -> MUST go to /dashboard
 
-            const needsOnboarding = profile && profile.role !== 'superadmin' && !profile.training_group;
+            let needsOnboarding = false;
+
+            if (!profile) {
+                needsOnboarding = true;
+            } else {
+                needsOnboarding = profile.role !== 'superadmin' && !profile.training_group;
+            }
 
             if (needsOnboarding && !isOnboardingRoute) {
                 const url = request.nextUrl.clone();

@@ -19,6 +19,7 @@ export default function OnboardingPage() {
     const [fullName, setFullName] = useState('');
     const [avatarUrl, setAvatarUrl] = useState('');
     const [trainingGroup, setTrainingGroup] = useState<number | null>(null);
+    const [profileExists, setProfileExists] = useState(false);
 
     useEffect(() => {
         const checkUser = async () => {
@@ -40,17 +41,20 @@ export default function OnboardingPage() {
                     .single();
 
                 if (profile) {
+                    setProfileExists(true);
                     // Pre-fill fields
                     setFullName(profile.full_name || user.user_metadata.full_name || '');
                     setAvatarUrl(profile.avatar_url || user.user_metadata.avatar_url || '');
 
                     // If already has training group (and not superadmin), redirect to dashboard
-                    // But we'll let them edit if they landed here manually? 
-                    // No, for now assume strict onboarding flow.
                     if (profile.training_group && profile.role !== 'superadmin') {
                         router.replace('/dashboard');
                         return;
                     }
+                } else {
+                    // Profile doesn't exist (trigger failed?), pre-fill from metadata
+                    setFullName(user.user_metadata.full_name || '');
+                    setAvatarUrl(user.user_metadata.avatar_url || '');
                 }
 
             } catch (error) {
@@ -79,15 +83,33 @@ export default function OnboardingPage() {
         try {
             setSubmitting(true);
 
-            const { error } = await supabase
-                .from('profiles')
-                .update({
-                    full_name: fullName,
-                    avatar_url: avatarUrl,
-                    training_group: trainingGroup,
-                    updated_at: new Date().toISOString(),
-                })
-                .eq('id', userId);
+            let error;
+
+            if (profileExists) {
+                const { error: updateError } = await supabase
+                    .from('profiles')
+                    .update({
+                        full_name: fullName,
+                        avatar_url: avatarUrl,
+                        training_group: trainingGroup,
+                        updated_at: new Date().toISOString(),
+                    })
+                    .eq('id', userId);
+                error = updateError;
+            } else {
+                // Insert new profile if it doesn't exist
+                const { error: insertError } = await supabase
+                    .from('profiles')
+                    .insert({
+                        id: userId,
+                        full_name: fullName,
+                        avatar_url: avatarUrl,
+                        training_group: trainingGroup,
+                        role: 'auditor', // Default role for new users
+                        updated_at: new Date().toISOString(),
+                    });
+                error = insertError;
+            }
 
             if (error) throw error;
 
