@@ -1,14 +1,14 @@
 import { createClient } from '@/lib/supabase/client';
 import { AuditItem, AuditItemStatus } from '@/types/database';
 
-const supabase = createClient();
+const getSupabase = () => createClient();
 
 
 
 // Helper to check if audit is locked
 async function checkAuditLocked(itemId: string) {
     // 1. Get audit_id from item
-    const { data: item, error: itemError } = await supabase
+    const { data: item, error: itemError } = await getSupabase()
         .from('audit_items')
         .select('audit_id')
         .eq('id', itemId)
@@ -17,7 +17,7 @@ async function checkAuditLocked(itemId: string) {
     if (itemError || !item) throw new Error('Item not found');
 
     // 2. Check audit status
-    const { data: audit, error: auditError } = await supabase
+    const { data: audit, error: auditError } = await getSupabase()
         .from('audits')
         .select('status')
         .eq('id', item.audit_id)
@@ -42,7 +42,7 @@ async function updateItemStatus(
     const updates: any = { ...additionalFields };
     if (newStatus) updates.status = newStatus;
 
-    const { data, error } = await supabase
+    const { data, error } = await getSupabase()
         .from('audit_items')
         .update(updates)
         .eq('id', itemId)
@@ -69,7 +69,7 @@ export async function saveEvaluatorDraft(
 ) {
     await checkAuditLocked(itemId); // Enforce lock check
 
-    const { data, error } = await supabase
+    const { data, error } = await getSupabase()
         .from('audit_items')
         .update(fields)
         .eq('id', itemId)
@@ -87,7 +87,7 @@ export async function publishToAuditee(itemId: string) {
 
 /** Publish ALL drafting items in an audit at once */
 export async function publishAllToAuditee(auditId: string) {
-    const { data, error } = await supabase
+    const { data, error } = await getSupabase()
         .from('audit_items')
         .update({ status: 'PUBLISHED_TO_AUDITEE' as AuditItemStatus })
         .eq('audit_id', auditId)
@@ -137,7 +137,7 @@ export async function saveAuditeeSelfAssessment(
     // Log for debugging
     console.log('Saving auditee assessment:', itemId, fields);
 
-    const { data, error } = await supabase
+    const { data, error } = await getSupabase()
         .from('audit_items')
         .update(fields)
         .eq('id', itemId)
@@ -171,7 +171,7 @@ export async function submitActionPlan(itemId: string, plan: string) {
     if (!plan.trim()) {
         throw new Error('Rencana tindak lanjut harus diisi');
     }
-    const { data, error } = await supabase
+    const { data, error } = await getSupabase()
         .from('audit_items')
         .update({ auditee_action_plan: plan })
         .eq('id', itemId)
@@ -199,7 +199,7 @@ export async function updateActionPlanDetails(
     // Only allow updating action plan fields, not status (status update handled separately if needed)
     // Actually, updateItemStatus is a helper that also updates status.
     // Here we just want to update fields.
-    const { data, error } = await supabase
+    const { data, error } = await getSupabase()
         .from('audit_items')
         .update(details)
         .eq('id', itemId)

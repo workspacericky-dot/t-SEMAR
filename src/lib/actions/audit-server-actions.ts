@@ -4,7 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import { revalidatePath } from 'next/cache';
 import { Audit, AuditType, UserAuditRole, ExtendedAudit } from '@/types/database';
 
-const supabaseAdmin = createClient(
+const getSupabaseAdmin = () => createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
     {
@@ -21,7 +21,7 @@ const supabaseAdmin = createClient(
  */
 export async function getUserAudits(userId: string) {
     // 1. Get user's profile to find which groups they are in
-    const { data: groups, error: groupsError } = await supabaseAdmin
+    const { data: groups, error: groupsError } = await getSupabaseAdmin()
         .from('groups')
         .select('id')
         .contains('members', [userId]);
@@ -35,7 +35,7 @@ export async function getUserAudits(userId: string) {
     //    b) User's group is the AUDITOR group
     //    c) User's group is the AUDITEE group
 
-    let query = supabaseAdmin
+    let query = getSupabaseAdmin()
         .from('audits')
         .select(`
             *,
@@ -99,7 +99,7 @@ export async function getDashboardData(userId: string) {
 
     // 2. Get Items (if any audits exist)
     if (auditIds.length > 0) {
-        const { data: auditItems, error: itemsError } = await supabaseAdmin
+        const { data: auditItems, error: itemsError } = await getSupabaseAdmin()
             .from('audit_items')
             .select('*')
             .in('audit_id', auditIds);
@@ -117,7 +117,7 @@ export async function getDashboardData(userId: string) {
  */
 export async function getAuditById(auditId: string, userId: string) {
     // 1. Fetch audit with all relations
-    const { data: audit, error } = await supabaseAdmin
+    const { data: audit, error } = await getSupabaseAdmin()
         .from('audits')
         .select(`
             *,
@@ -138,7 +138,7 @@ export async function getAuditById(auditId: string, userId: string) {
     let effectiveRole: UserAuditRole = 'observer';
 
     // Fetch user profile to check for role preference (if needed)
-    const { data: userProfile } = await supabaseAdmin
+    const { data: userProfile } = await getSupabaseAdmin()
         .from('profiles')
         .select('role')
         .eq('id', userId)
@@ -180,7 +180,7 @@ export async function deleteAudit(auditId: string) {
     }
 
     // 1. Delete all items first (in case Cascade isn't set)
-    const { error: itemsError } = await supabaseAdmin
+    const { error: itemsError } = await getSupabaseAdmin()
         .from('audit_items')
         .delete()
         .eq('audit_id', auditId);
@@ -188,7 +188,7 @@ export async function deleteAudit(auditId: string) {
     if (itemsError) throw itemsError;
 
     // 2. Delete the audit itself
-    const { error: auditError } = await supabaseAdmin
+    const { error: auditError } = await getSupabaseAdmin()
         .from('audits')
         .delete()
         .eq('id', auditId);
@@ -204,7 +204,7 @@ export async function deleteAudit(auditId: string) {
  * Get all audits for a specific period (for Superadmin view)
  */
 export async function getAuditsByPeriod(periodId: string) {
-    const { data: audits, error } = await supabaseAdmin
+    const { data: audits, error } = await getSupabaseAdmin()
         .from('audits')
         .select(`
             *,
@@ -222,7 +222,7 @@ export async function getAuditsByPeriod(periodId: string) {
 // Helper function (internal)
 async function verifyGroupLeader(itemIds: string[], userId: string) {
     // 1. Get the audit_id from one of the items
-    const { data: item, error: itemError } = await supabaseAdmin
+    const { data: item, error: itemError } = await getSupabaseAdmin()
         .from('audit_items')
         .select('audit_id')
         .in('id', itemIds)
@@ -232,7 +232,7 @@ async function verifyGroupLeader(itemIds: string[], userId: string) {
     if (itemError || !item) throw new Error('Item not found or error fetching item');
 
     // 2. Get the audit to see the groups
-    const { data: audit, error: auditError } = await supabaseAdmin
+    const { data: audit, error: auditError } = await getSupabaseAdmin()
         .from('audits')
         .select(`
             auditor_group:groups!audits_auditor_group_id_fkey(lead_student_id),
@@ -269,7 +269,7 @@ export async function assignItemToMember(itemId: string, memberId: string | null
 
     await verifyGroupLeader([itemId], user.id);
 
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseAdmin()
         .from('audit_items')
         .update({ assigned_to: memberId })
         .eq('id', itemId)
@@ -291,7 +291,7 @@ export async function assignMultipleItemsToMember(itemIds: string[], memberId: s
 
     const assignCol = effectiveRole === 'auditee' ? 'auditee_assigned_to' : 'auditor_assigned_to';
 
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseAdmin()
         .from('audit_items')
         .update({ [assignCol]: memberId, assigned_to: null }) // Set legacy assigned_to to null to prefer new columns
         .in('id', itemIds)
@@ -319,7 +319,7 @@ export async function resetOrphanedTasks(auditId: string, currentMemberIds: stri
     // Let's use two steps for safety and clarity:
     // 1. Find orphaned items
     const assignCol = effectiveRole === 'auditee' ? 'auditee_assigned_to' : 'auditor_assigned_to';
-    const { data: items } = await supabaseAdmin
+    const { data: items } = await getSupabaseAdmin()
         .from('audit_items')
         .select(`id, assigned_to, ${assignCol}`)
         .eq('audit_id', auditId);
@@ -336,7 +336,7 @@ export async function resetOrphanedTasks(auditId: string, currentMemberIds: stri
     if (orphanedIds.length === 0) return [];
 
     // 2. Unassign them
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseAdmin()
         .from('audit_items')
         .update({ [assignCol]: null, assigned_to: null })
         .in('id', orphanedIds)
@@ -349,7 +349,7 @@ export async function resetOrphanedTasks(auditId: string, currentMemberIds: stri
 
 // Optimized helper that takes auditId directly (saves a DB roundtrip if we know the ID)
 async function verifyGroupLeaderByAuditId(auditId: string, userId: string) {
-    const { data: audit, error: auditError } = await supabaseAdmin
+    const { data: audit, error: auditError } = await getSupabaseAdmin()
         .from('audits')
         .select(`
             auditor_group:groups!audits_auditor_group_id_fkey(lead_student_id),

@@ -3,7 +3,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { revalidatePath } from 'next/cache';
 
-const supabaseAdmin = createClient(
+const getSupabaseAdmin = () => createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
     {
@@ -32,7 +32,7 @@ export async function createUser(data: CreateUserData) {
         const { email, password, fullName, role } = data;
 
         // 1. Create Auth User
-        const { data: user, error: createError } = await supabaseAdmin.auth.admin.createUser({
+        const { data: user, error: createError } = await getSupabaseAdmin().auth.admin.createUser({
             email,
             password,
             email_confirm: true, // Auto-confirm
@@ -53,7 +53,7 @@ export async function createUser(data: CreateUserData) {
         // We use the admin client to bypass RLS if needed, or just standard client?
         // Admin client is safer for setting roles.
 
-        const { error: profileError } = await supabaseAdmin
+        const { error: profileError } = await getSupabaseAdmin()
             .from('profiles')
             .upsert({
                 id: user.user.id,
@@ -87,7 +87,7 @@ export async function getUsers() {
         }
 
         // Fetch profiles (which mirror auth users)
-        const { data: profiles, error } = await supabaseAdmin
+        const { data: profiles, error } = await getSupabaseAdmin()
             .from('profiles')
             .select('*')
             .order('created_at', { ascending: false });
@@ -100,7 +100,7 @@ export async function getUsers() {
         // Wait, 'profiles' table doesn't have email column in my schema memory?
         // Checking schema... I should probably fetch auth.users too if needed, but admin.listUsers() is better.
 
-        const { data: { users }, error: authError } = await supabaseAdmin.auth.admin.listUsers();
+        const { data: { users }, error: authError } = await getSupabaseAdmin().auth.admin.listUsers();
         if (authError) throw authError;
 
         // Merge data
@@ -135,11 +135,11 @@ export async function deleteUser(userId: string) {
         // If we set up ON DELETE CASCADE in Postgres for 'profiles', that handles the DB.
 
         // 2. Delete Auth User (this is the big one)
-        const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
+        const { error } = await getSupabaseAdmin().auth.admin.deleteUser(userId);
         if (error) throw error;
 
         // 3. Delete Profile (if not cascaded)
-        // const { error: dbError } = await supabaseAdmin.from('profiles').delete().eq('id', userId);
+        // const { error: dbError } = await getSupabaseAdmin().from('profiles').delete().eq('id', userId);
         // if (dbError) console.error('Error deleting profile (might be cascaded):', dbError);
 
         revalidatePath('/dashboard');

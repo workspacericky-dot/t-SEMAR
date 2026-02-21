@@ -4,7 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import { revalidatePath } from 'next/cache';
 import { AuditPeriod, Group, Profile } from '@/types/database';
 
-const supabaseAdmin = createClient(
+const getSupabaseAdmin = () => createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
     {
@@ -20,7 +20,7 @@ const supabaseAdmin = createClient(
 // ============================================
 
 export async function createPeriod(name: string, year: number) {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseAdmin()
         .from('audit_periods')
         .insert({ name, year, is_active: true })
         .select()
@@ -32,7 +32,7 @@ export async function createPeriod(name: string, year: number) {
 }
 
 export async function deletePeriod(id: string) {
-    const { error } = await supabaseAdmin
+    const { error } = await getSupabaseAdmin()
         .from('audit_periods')
         .delete()
         .eq('id', id);
@@ -42,7 +42,7 @@ export async function deletePeriod(id: string) {
 }
 
 export async function togglePeriodStatus(id: string, isActive: boolean) {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseAdmin()
         .from('audit_periods')
         .update({ is_active: isActive })
         .eq('id', id)
@@ -55,7 +55,7 @@ export async function togglePeriodStatus(id: string, isActive: boolean) {
 }
 
 export async function getPeriods() {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseAdmin()
         .from('audit_periods')
         .select('*')
         .order('created_at', { ascending: false });
@@ -76,7 +76,7 @@ export async function createGroup(
     memberIds: string[]
 ) {
     // 1. Create the Group
-    const { data: group, error: groupError } = await supabaseAdmin
+    const { data: group, error: groupError } = await getSupabaseAdmin()
         .from('groups')
         .insert({
             period_id: periodId,
@@ -92,7 +92,7 @@ export async function createGroup(
 
     // 2. Update profiles to set 'training_group' (legacy support + easy visual)
     if (memberIds.length > 0) {
-        const { error: profileError } = await supabaseAdmin
+        const { error: profileError } = await getSupabaseAdmin()
             .from('profiles')
             .update({ training_group: groupNumber, role: 'participant' }) // Ensure role is participant
             .in('id', memberIds);
@@ -115,7 +115,7 @@ export async function updateGroup(
     leadStudentId: string | null,
     memberIds: string[]
 ) {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseAdmin()
         .from('groups')
         .update({
             name,
@@ -130,7 +130,7 @@ export async function updateGroup(
 
     // We also re-update the profiles to ensure they have the role
     if (memberIds.length > 0) {
-        await supabaseAdmin
+        await getSupabaseAdmin()
             .from('profiles')
             .update({ role: 'participant' })
             .in('id', memberIds);
@@ -144,7 +144,7 @@ export async function updateGroup(
 }
 
 export async function deleteGroup(groupId: string) {
-    const { error } = await supabaseAdmin
+    const { error } = await getSupabaseAdmin()
         .from('groups')
         .delete()
         .eq('id', groupId);
@@ -154,7 +154,7 @@ export async function deleteGroup(groupId: string) {
 }
 
 export async function getGroupsByPeriod(periodId: string) {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseAdmin()
         .from('groups')
         .select(`
             *,
@@ -180,7 +180,7 @@ export async function getGroupsByPeriod(periodId: string) {
 export async function getProfilesByIds(ids: string[]) {
     if (ids.length === 0) return [];
 
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseAdmin()
         .from('profiles')
         .select('id, full_name, role, satker_name, avatar_url')
         .in('id', ids);
@@ -193,7 +193,7 @@ export async function getProfilesByIds(ids: string[]) {
  * Fetch all students (participants/auditors/auditees) for group assignment
  */
 export async function getStudentsForGroupAssignment() {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseAdmin()
         .from('profiles')
         .select('id, full_name, role, satker_name, avatar_url')
         .neq('role', 'superadmin')

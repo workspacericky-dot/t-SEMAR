@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { Audit, AuditItem } from '@/types/database';
 import { AUDIT_CRITERIA_TEMPLATE } from '@/lib/data/criteria';
 
-const supabaseAdmin = createClient(
+const getSupabaseAdmin = () => createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
     {
@@ -31,7 +31,7 @@ export async function createGroupPracticeAudit(
     description: string
 ) {
     // 1. Get period year
-    const { data: period } = await supabaseAdmin
+    const { data: period } = await getSupabaseAdmin()
         .from('audit_periods')
         .select('year')
         .eq('id', periodId)
@@ -40,7 +40,7 @@ export async function createGroupPracticeAudit(
     if (!period) throw new Error('Periode audit tidak ditemukan');
 
     // 2. Create the Audit record
-    const { data: audit, error: auditError } = await supabaseAdmin
+    const { data: audit, error: auditError } = await getSupabaseAdmin()
         .from('audits')
         .insert({
             title,
@@ -71,7 +71,7 @@ export async function createGroupPracticeAudit(
         assigned_to: null, // Initially unassigned
     }));
 
-    const { error: itemsError } = await supabaseAdmin
+    const { error: itemsError } = await getSupabaseAdmin()
         .from('audit_items')
         .insert(items);
 
@@ -91,7 +91,7 @@ export async function createIndividualExamAudit(
     title: string,
     description: string
 ) {
-    const { data: period } = await supabaseAdmin
+    const { data: period } = await getSupabaseAdmin()
         .from('audit_periods')
         .select('year')
         .eq('id', periodId)
@@ -100,7 +100,7 @@ export async function createIndividualExamAudit(
     if (!period) throw new Error('Periode audit tidak ditemukan');
 
     // 1. Create Audit
-    const { data: audit, error: auditError } = await supabaseAdmin
+    const { data: audit, error: auditError } = await getSupabaseAdmin()
         .from('audits')
         .insert({
             title,
@@ -130,7 +130,7 @@ export async function createIndividualExamAudit(
         assigned_to: studentId, // Auto-assigned since it's individual
     }));
 
-    const { error: itemsError } = await supabaseAdmin
+    const { error: itemsError } = await getSupabaseAdmin()
         .from('audit_items')
         .insert(items);
 
@@ -152,7 +152,7 @@ export async function createBulkIndividualExamAudits(
 ) {
     if (studentIds.length === 0) return;
 
-    const { data: period } = await supabaseAdmin
+    const { data: period } = await getSupabaseAdmin()
         .from('audit_periods')
         .select('year')
         .eq('id', periodId)
@@ -173,7 +173,7 @@ export async function createBulkIndividualExamAudits(
     }));
 
     // Fetch profiles to append names to titles if needed
-    const { data: students } = await supabaseAdmin
+    const { data: students } = await getSupabaseAdmin()
         .from('profiles')
         .select('id, full_name')
         .in('id', studentIds);
@@ -187,7 +187,7 @@ export async function createBulkIndividualExamAudits(
     });
 
     // 2. Insert Audits
-    const { data: createdAudits, error: auditError } = await supabaseAdmin
+    const { data: createdAudits, error: auditError } = await getSupabaseAdmin()
         .from('audits')
         .insert(auditsWithNames)
         .select();
@@ -218,7 +218,7 @@ export async function createBulkIndividualExamAudits(
     const chunkSize = 1000;
     for (let i = 0; i < allItems.length; i += chunkSize) {
         const chunk = allItems.slice(i, i + chunkSize);
-        const { error: itemsError } = await supabaseAdmin
+        const { error: itemsError } = await getSupabaseAdmin()
             .from('audit_items')
             .insert(chunk);
         if (itemsError) {
@@ -246,7 +246,7 @@ export async function assignCriteriaToMember(
     itemIds: string[],
     memberId: string
 ) {
-    const { error } = await supabaseAdmin
+    const { error } = await getSupabaseAdmin()
         .from('audit_items')
         .update({ assigned_to: memberId })
         .in('id', itemIds)
@@ -266,7 +266,7 @@ export async function autoDistributeCriteria(
     if (memberIds.length === 0) return;
 
     // 1. Get all items
-    const { data: items, error: fetchError } = await supabaseAdmin
+    const { data: items, error: fetchError } = await getSupabaseAdmin()
         .from('audit_items')
         .select('id')
         .eq('audit_id', auditId)
@@ -293,7 +293,7 @@ export async function autoDistributeCriteria(
     });
 
     const promises = Object.entries(itemsByMember).map(([memberId, itemIds]) =>
-        supabaseAdmin
+        getSupabaseAdmin()
             .from('audit_items')
             .update({ assigned_to: memberId })
             .in('id', itemIds)
@@ -309,7 +309,7 @@ export async function autoDistributeCriteria(
 export async function toggleAuditLock(auditId: string, isLocked: boolean) {
     const status = isLocked ? 'locked' : 'active';
 
-    const { error } = await supabaseAdmin
+    const { error } = await getSupabaseAdmin()
         .from('audits')
         .update({ status })
         .eq('id', auditId);
@@ -326,7 +326,7 @@ export async function toggleAuditLock(auditId: string, isLocked: boolean) {
 export async function lockAllAudits(periodId: string, isLocked: boolean, type?: 'group_practice' | 'midterm') {
     const status = isLocked ? 'locked' : 'active';
 
-    let query = supabaseAdmin
+    let query = getSupabaseAdmin()
         .from('audits')
         .update({ status })
         .eq('period_id', periodId);
