@@ -50,11 +50,9 @@ export async function getUserAudits(userId: string) {
     const conditions = [`individual_auditor_id.eq.${userId}`];
 
     if (groupIds.length > 0) {
-        // Syntax for IN with OR in Supabase/PostgREST is tricky combined with other ORs
-        // Easier to fetch all relevant audits and filter in application if list is small, 
-        // OR use the .or() syntax with raw string.
-
-        const groupList = `(${groupIds.map(id => `"${id}"`).join(',')})`;
+        // PostgREST .in. filter inside .or() does not need double quotes for UUIDs.
+        // It should simply be formatted as (val1,val2)
+        const groupList = `(${groupIds.join(',')})`;
         conditions.push(`auditor_group_id.in.${groupList}`);
         conditions.push(`auditee_group_id.in.${groupList}`);
     }
@@ -121,13 +119,13 @@ export async function getAuditById(auditId: string, userId: string) {
         .from('audits')
         .select(`
             *,
-            auditor:profiles!audits_auditor_id_fkey(id, full_name, role, avatar_url),
-            auditee:profiles!audits_auditee_id_fkey(id, full_name, role, satker_name, avatar_url),
-            auditor_group:groups!audits_auditor_group_id_fkey(id, name, group_number, members, lead_student_id),
-            auditee_group:groups!audits_auditee_group_id_fkey(id, name, group_number, members, lead_student_id),
-            individual_auditor:profiles!audits_individual_auditor_id_fkey(id, full_name, role, avatar_url),
-            period:audit_periods(name, year)
-        `)
+            auditor: profiles!audits_auditor_id_fkey(id, full_name, role, avatar_url),
+            auditee: profiles!audits_auditee_id_fkey(id, full_name, role, satker_name, avatar_url),
+            auditor_group: groups!audits_auditor_group_id_fkey(id, name, group_number, members, lead_student_id),
+            auditee_group: groups!audits_auditee_group_id_fkey(id, name, group_number, members, lead_student_id),
+            individual_auditor: profiles!audits_individual_auditor_id_fkey(id, full_name, role, avatar_url),
+            period: audit_periods(name, year)
+                `)
         .eq('id', auditId)
         .single();
 
@@ -207,11 +205,11 @@ export async function getAuditsByPeriod(periodId: string) {
     const { data: audits, error } = await getSupabaseAdmin()
         .from('audits')
         .select(`
-            *,
-            auditor_group:groups!audits_auditor_group_id_fkey(id, name, group_number),
-            auditee_group:groups!audits_auditee_group_id_fkey(id, name, group_number),
-            individual_auditor:profiles!audits_individual_auditor_id_fkey(id, full_name, avatar_url)
-        `)
+        *,
+            auditor_group: groups!audits_auditor_group_id_fkey(id, name, group_number),
+            auditee_group: groups!audits_auditee_group_id_fkey(id, name, group_number),
+            individual_auditor: profiles!audits_individual_auditor_id_fkey(id, full_name, avatar_url)
+            `)
         .eq('period_id', periodId)
         .order('created_at', { ascending: false });
 
@@ -235,9 +233,9 @@ async function verifyGroupLeader(itemIds: string[], userId: string) {
     const { data: audit, error: auditError } = await getSupabaseAdmin()
         .from('audits')
         .select(`
-            auditor_group:groups!audits_auditor_group_id_fkey(lead_student_id),
-            auditee_group:groups!audits_auditee_group_id_fkey(lead_student_id)
-        `)
+            auditor_group: groups!audits_auditor_group_id_fkey(lead_student_id),
+            auditee_group: groups!audits_auditee_group_id_fkey(lead_student_id)
+            `)
         .eq('id', item.audit_id)
         .single();
 
@@ -352,9 +350,9 @@ async function verifyGroupLeaderByAuditId(auditId: string, userId: string) {
     const { data: audit, error: auditError } = await getSupabaseAdmin()
         .from('audits')
         .select(`
-            auditor_group:groups!audits_auditor_group_id_fkey(lead_student_id),
-            auditee_group:groups!audits_auditee_group_id_fkey(lead_student_id)
-        `)
+            auditor_group: groups!audits_auditor_group_id_fkey(lead_student_id),
+            auditee_group: groups!audits_auditee_group_id_fkey(lead_student_id)
+            `)
         .eq('id', auditId)
         .single();
 
