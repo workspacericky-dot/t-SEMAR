@@ -37,8 +37,14 @@ export async function deletePeriod(id: string) {
         .delete()
         .eq('id', id);
 
-    if (error) throw error;
+    if (error) {
+        if (error.code === '23503') {
+            return { error: 'Periode ini tidak dapat dihapus karena masih memiliki Grup atau Audit yang terikat.' };
+        }
+        return { error: error.message };
+    }
     revalidatePath('/admin/periods');
+    return { success: true };
 }
 
 export async function togglePeriodStatus(id: string, isActive: boolean) {

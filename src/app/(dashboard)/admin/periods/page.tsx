@@ -1,7 +1,8 @@
 import Link from 'next/link';
-import { getPeriods, deletePeriod } from '@/lib/actions/period-actions';
-import { Trash2, Eye, Calendar, ArrowLeft } from 'lucide-react';
+import { getPeriods } from '@/lib/actions/period-actions';
+import { Eye, Calendar, ArrowLeft } from 'lucide-react';
 import { CreatePeriodButton } from '@/components/admin/periods/create-period-button';
+import { DeletePeriodButton } from '@/components/admin/periods/delete-period-button';
 
 export const metadata = {
     title: 'Manajemen Periode Audit | eSEMAR',
@@ -89,18 +90,7 @@ export default async function AuditPeriodsPage() {
                                                     Detail & Grup
                                                 </Link>
 
-                                                <form action={async () => {
-                                                    'use server';
-                                                    await deletePeriod(period.id);
-                                                }}>
-                                                    <button
-                                                        type="submit"
-                                                        className="inline-flex items-center justify-center w-8 h-8 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                                        title="Hapus Periode"
-                                                    >
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </button>
-                                                </form>
+                                                <DeletePeriodButton periodId={period.id} />
                                             </div>
                                         </td>
                                     </tr>
