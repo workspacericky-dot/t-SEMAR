@@ -2,10 +2,10 @@
 
 import { useAuthStore } from '@/store/auth-store';
 import { useThemeStore } from '@/store/theme-store';
-import { useSearchStore } from '@/store/search-store';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter, usePathname } from 'next/navigation';
-import { LogOut, User, ChevronDown, Sun, Moon, Search, X } from 'lucide-react';
+import Link from 'next/link';
+import { LogOut, User, ChevronDown, Sun, Moon, UserPlus, Users } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 
@@ -16,15 +16,15 @@ const roleBadge: Record<string, { label: string; color: string }> = {
 };
 
 import { ProfileEditModal } from '@/components/profile-edit-modal';
+import { AddUserModal } from '@/components/admin/add-user-modal';
 
 export function Header() {
     const profile = useAuthStore((s) => s.profile);
     const { isDark, toggle: toggleDark } = useThemeStore();
-    const { query, setQuery, clear } = useSearchStore();
     const [open, setOpen] = useState(false);
     const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
+    const [isAddUserOpen, setIsAddUserOpen] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
-    const inputRef = useRef<HTMLInputElement>(null);
     const router = useRouter();
     const pathname = usePathname();
     const supabase = createClient();
@@ -38,27 +38,6 @@ export function Header() {
         return () => document.removeEventListener('mousedown', handler);
     }, []);
 
-    // Clear search on route change
-    useEffect(() => {
-        clear();
-    }, [pathname]);
-
-    // Ctrl+K / Cmd+K to focus search
-    useEffect(() => {
-        const handler = (e: KeyboardEvent) => {
-            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-                e.preventDefault();
-                inputRef.current?.focus();
-            }
-            if (e.key === 'Escape' && document.activeElement === inputRef.current) {
-                clear();
-                inputRef.current?.blur();
-            }
-        };
-        document.addEventListener('keydown', handler);
-        return () => document.removeEventListener('keydown', handler);
-    }, []);
-
     const handleLogout = async () => {
         setOpen(false);
         await supabase.auth.signOut();
@@ -69,43 +48,13 @@ export function Header() {
         <header className={`sticky top-0 z-30 h-24 backdrop-blur-md flex items-center justify-between px-8 transition-all duration-300 ${isDark ? 'bg-[#0F1117]/80' : 'bg-[#F2F4F7]/80'
             }`}>
             {/* Left: Logo / Brand */}
-            <div className="w-1/3 flex items-center gap-3">
-                <Image src="/logo-semar.png" alt="SEMAR Logo" width={40} height={40} className="object-contain" />
-                <h1 className={`text-xl font-bold tracking-tight ${isDark ? 'text-white' : 'text-slate-800'}`}>
-                    t-SEMAR
-                </h1>
-            </div>
-
-            {/* Center: In-Page Search Bar */}
-            <div className="w-1/3 flex justify-center">
-                <div className="relative w-full max-w-md">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <Search className={`w-5 h-5 transition-colors ${query ? (isDark ? 'text-orange-400' : 'text-blue-500') : isDark ? 'text-slate-500' : 'text-slate-400'}`} />
-                    </div>
-                    <input
-                        ref={inputRef}
-                        type="search"
-                        value={query}
-                        onChange={(e) => setQuery(e.target.value)}
-                        placeholder="Filter halaman ini... (Ctrl+K)"
-                        aria-label="Filter konten halaman"
-                        className={`w-full border-none rounded-full py-3 pl-12 pr-10 text-sm placeholder:text-slate-400 focus:ring-2 transition-all duration-300 ${isDark
-                            ? `bg-[#1A1D27] text-slate-200 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.3)] ${query ? 'focus:ring-orange-400/30 ring-1 ring-orange-500/20' : 'focus:ring-blue-400/30'}`
-                            : `bg-white text-slate-600 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_4px_12px_-2px_rgba(0,0,0,0.08)] ${query ? 'focus:ring-blue-400/30 ring-1 ring-blue-300/30' : 'focus:ring-blue-400/30'}`
-                            }`}
-                    />
-                    {/* Clear button */}
-                    {query && (
-                        <button
-                            onClick={() => { clear(); inputRef.current?.focus(); }}
-                            className={`absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full transition-colors ${isDark ? 'text-slate-400 hover:text-orange-300 hover:bg-orange-500/10' : 'text-slate-400 hover:text-blue-500 hover:bg-blue-50'
-                                }`}
-                            aria-label="Hapus filter"
-                        >
-                            <X className="w-4 h-4" />
-                        </button>
-                    )}
-                </div>
+            <div className="w-1/3 flex flex-row items-center">
+                <Link href="/dashboard" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+                    <Image src="/logo-semar.png" alt="SEMAR Logo" width={40} height={40} className="object-contain" />
+                    <h1 className={`text-xl font-bold tracking-tight ${isDark ? 'text-white' : 'text-slate-800'}`}>
+                        t-SEMAR
+                    </h1>
+                </Link>
             </div>
 
             {/* Right: Dark Mode Toggle + Profile */}
@@ -176,29 +125,28 @@ export function Header() {
                                 Edit Profile
                             </button>
 
-                            {/* Role Switcher for Students (Auditor <-> Auditee) */}
-                            {profile?.role !== 'superadmin' && (
-                                <button
-                                    onClick={async () => {
-                                        if (!profile) return;
-                                        setOpen(false);
-                                        const newRole = profile.role === 'auditor' ? 'auditee' : 'auditor';
-
-                                        // Update in Supabase
-                                        await supabase.from('profiles').update({ role: newRole }).eq('id', profile.id);
-
-                                        // Update local state immediate for UI response
-                                        // Next.js router refresh might be needed for server components, 
-                                        // but client components (sidebar) typically use the store.
-                                        useAuthStore.setState({ profile: { ...profile, role: newRole } });
-                                        router.refresh();
-                                    }}
-                                    className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-xl transition-colors ${isDark ? 'text-slate-300 hover:bg-white/5' : 'text-slate-600 hover:bg-slate-50'}`}
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-left-right"><path d="M8 3 4 7l4 4" /><path d="M4 7h16" /><path d="m16 21 4-4-4-4" /><path d="M20 17H4" /></svg>
-                                    Switch to {profile?.role === 'auditor' ? 'Auditee' : 'Evaluator'}
-                                </button>
+                            {/* Register User (Superadmin Only) */}
+                            {profile?.role === 'superadmin' && (
+                                <>
+                                    <button
+                                        onClick={() => { setOpen(false); setIsAddUserOpen(true); }}
+                                        className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-xl transition-colors ${isDark ? 'text-slate-300 hover:bg-white/5' : 'text-slate-600 hover:bg-slate-50'}`}
+                                    >
+                                        <UserPlus className="w-4 h-4" />
+                                        Register User
+                                    </button>
+                                    <Link
+                                        href="/admin/users"
+                                        onClick={() => setOpen(false)}
+                                        className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-xl transition-colors ${isDark ? 'text-slate-300 hover:bg-white/5' : 'text-slate-600 hover:bg-slate-50'}`}
+                                    >
+                                        <Users className="w-4 h-4" />
+                                        Manage Users
+                                    </Link>
+                                </>
                             )}
+
+                            {/* Role Switcher Removed as per req */}
 
                             <button
                                 onClick={handleLogout}
@@ -214,6 +162,7 @@ export function Header() {
             </div>
 
             <ProfileEditModal isOpen={isEditProfileOpen} onClose={() => setIsEditProfileOpen(false)} />
+            <AddUserModal isOpen={isAddUserOpen} onClose={() => setIsAddUserOpen(false)} />
         </header>
     );
 }

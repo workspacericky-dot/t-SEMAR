@@ -13,6 +13,7 @@ import {
     ArrowRight,
     ToggleLeft,
     ToggleRight,
+    Users,
 } from 'lucide-react';
 import {
     Radar,
@@ -42,7 +43,7 @@ const COMPONENT_COLORS = [
 export default function DashboardPage() {
     const profile = useAuthStore((s) => s.profile);
     const isDark = useThemeStore((s) => s.isDark);
-    const [audits, setAudits] = useState<Audit[]>([]);
+    const [audits, setAudits] = useState<any[]>([]); // TODO: fix type
     const [allAuditItems, setAllAuditItems] = useState<AuditItem[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -55,31 +56,18 @@ export default function DashboardPage() {
         const fetchData = async () => {
             if (!profile) return;
 
-            let query = supabase.from('audits').select(`
-                *,
-                auditor:profiles!audits_auditor_id_fkey(id, full_name, role),
-                auditee:profiles!audits_auditee_id_fkey(id, full_name, role, satker_name)
-            `);
+            try {
+                // Use server action to get BOTH audits and items securely
+                const { getDashboardData } = await import('@/lib/actions/audit-server-actions');
+                const { audits: userAudits, items } = await getDashboardData(profile.id);
 
-            if (profile.role === 'auditor') {
-                query = query.eq('auditor_id', profile.id);
-            } else if (profile.role === 'auditee') {
-                query = query.eq('auditee_id', profile.id);
+                setAudits(userAudits);
+                setAllAuditItems((items || []) as AuditItem[]);
+            } catch (error) {
+                console.error('Error fetching dashboard data:', error);
+            } finally {
+                setLoading(false);
             }
-
-            const { data: auditsData } = await query.order('created_at', { ascending: false });
-            setAudits(auditsData || []);
-
-            const auditIds = (auditsData || []).map((a: Audit) => a.id);
-            let itemsQuery = supabase.from('audit_items').select('*');
-
-            if (profile.role !== 'superadmin' && auditIds.length > 0) {
-                itemsQuery = itemsQuery.in('audit_id', auditIds);
-            }
-
-            const { data: items } = await itemsQuery;
-            setAllAuditItems((items || []) as AuditItem[]);
-            setLoading(false);
         };
 
         fetchData();
@@ -198,7 +186,7 @@ export default function DashboardPage() {
                     Welcome, {profile?.full_name?.split(' ')[0]}
                 </h1>
                 <p className={`text-lg mt-2 font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                    Here's today's audit overview for you.
+                    Here's today's AKIP evaluation overview for you.
                 </p>
             </div>
 
@@ -364,73 +352,146 @@ export default function DashboardPage() {
                 {/* ══════════════ RIGHT COLUMN ══════════════ */}
                 <div className="col-span-12 xl:col-span-4 space-y-8">
 
-                    {/* ── My Tasks (replaces sidebar "Evaluasi Saya") ── */}
+
+                    {/* ── My Tasks & Group Practice ── */}
                     <div>
                         <div className="flex items-center justify-between mb-6">
                             <div>
-                                <h3 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>My Tasks</h3>
+                                <h3 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>Assignments</h3>
                                 <p className={`text-xs mt-0.5 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
-                                    Toggle a task to filter the entire dashboard
+                                    Toggle to filter dashboard
                                 </p>
                             </div>
                         </div>
 
-                        <div className="space-y-3">
-                            {audits.length === 0 ? (
-                                <div className={`text-center py-12 rounded-2xl border border-dashed ${isDark ? 'text-slate-500 bg-slate-800/30 border-slate-700' : 'text-slate-400 bg-white/50 border-slate-200'
-                                    }`}>
-                                    <p className="text-sm font-medium">No tasks assigned yet.</p>
-                                </div>
-                            ) : (
-                                audits.map(audit => {
-                                    const isActive = selectedAuditId === audit.id;
-                                    return (
-                                        <div
-                                            key={audit.id}
-                                            className={`group flex items-center gap-3 p-4 rounded-2xl border transition-all duration-300 ${isActive
-                                                ? isDark
-                                                    ? 'bg-blue-500/10 border-blue-500/30 shadow-lg shadow-blue-500/5'
-                                                    : 'bg-blue-50 border-blue-200 shadow-lg shadow-blue-100/50'
-                                                : isDark
-                                                    ? 'bg-[#1A1D27] border-slate-800 hover:border-slate-700'
-                                                    : 'bg-white border-transparent hover:border-slate-200 hover:shadow-md'
-                                                }`}
-                                        >
-                                            {/* Toggle */}
-                                            <button
-                                                onClick={() => handleToggle(audit.id)}
-                                                className="shrink-0"
-                                                title={isActive ? 'Show all data' : 'Filter dashboard to this task'}
-                                            >
-                                                {isActive ? (
-                                                    <ToggleRight className="w-8 h-8 text-blue-500" />
-                                                ) : (
-                                                    <ToggleLeft className={`w-8 h-8 ${isDark ? 'text-slate-600' : 'text-slate-300'}`} />
-                                                )}
-                                            </button>
+                        <div className="space-y-6">
 
-                                            {/* Task Info */}
-                                            <Link href={`/audits/${audit.id}`} className="flex-1 min-w-0">
-                                                <h4 className={`font-bold text-sm leading-tight line-clamp-1 transition-colors ${isActive
-                                                    ? 'text-blue-600'
-                                                    : isDark ? 'text-white group-hover:text-blue-400' : 'text-slate-800 group-hover:text-blue-600'
-                                                    }`}>
-                                                    {audit.title}
-                                                </h4>
-                                                <p className={`text-xs mt-0.5 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
-                                                    Tahun {audit.year}
-                                                </p>
-                                            </Link>
-
-                                            {/* Arrow */}
-                                            <Link href={`/audits/${audit.id}`} className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-all ${isDark ? 'bg-slate-800 text-slate-500 group-hover:text-white' : 'bg-slate-50 text-slate-400 group-hover:text-slate-900'
-                                                }`}>
-                                                <ArrowRight className="w-4 h-4" />
-                                            </Link>
+                            {/* Individual Assignments */}
+                            <div>
+                                <h4 className={`text-xs font-bold uppercase tracking-wider mb-3 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+                                    Individual Tasks
+                                </h4>
+                                <div className="space-y-3">
+                                    {audits.filter(a => a.type !== 'group_practice').length === 0 ? (
+                                        <div className={`text-center py-8 rounded-xl border border-dashed flex flex-col items-center justify-center gap-2 ${isDark ? 'text-slate-500 bg-slate-800/10 border-slate-700/50' : 'text-slate-400 bg-white/30 border-slate-200'}`}>
+                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-1 animate-pulse ${isDark ? 'bg-slate-800' : 'bg-slate-100'}`}>
+                                                <svg className="w-5 h-5 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+                                            </div>
+                                            <p className="text-sm font-medium">Beban Kerja Individu Kosong</p>
+                                            <p className="text-[10px] opacity-70">Belum ada tugas yang ditugaskan kepada Anda secara personal.</p>
                                         </div>
-                                    );
-                                })
-                            )}
+                                    ) : (
+                                        audits.filter(a => a.type !== 'group_practice').map(audit => {
+                                            const isActive = selectedAuditId === audit.id;
+                                            return (
+                                                <div
+                                                    key={audit.id}
+                                                    className={`group flex items-center gap-3 p-3 rounded-xl border transition-all duration-300 ${isActive
+                                                        ? isDark
+                                                            ? 'bg-pink-500/10 border-pink-500/30 shadow-lg shadow-pink-500/5'
+                                                            : 'bg-pink-50 border-pink-200 shadow-lg shadow-pink-100/50'
+                                                        : isDark
+                                                            ? 'bg-[#1A1D27] border-slate-800 hover:border-slate-700'
+                                                            : 'bg-white border-transparent hover:border-slate-200 hover:shadow-md'
+                                                        }`}
+                                                >
+                                                    <button
+                                                        onClick={() => handleToggle(audit.id)}
+                                                        className="shrink-0"
+                                                    >
+                                                        {isActive ? (
+                                                            <ToggleRight className="w-6 h-6 text-pink-500" />
+                                                        ) : (
+                                                            <ToggleLeft className={`w-6 h-6 ${isDark ? 'text-slate-600' : 'text-slate-300'}`} />
+                                                        )}
+                                                    </button>
+
+                                                    <Link href={`/audits/${audit.id}`} className="flex-1 min-w-0">
+                                                        <h4 className={`font-bold text-sm leading-tight line-clamp-1 transition-colors ${isActive
+                                                            ? 'text-pink-600'
+                                                            : isDark ? 'text-white group-hover:text-pink-400' : 'text-slate-800 group-hover:text-pink-600'
+                                                            }`}>
+                                                            {audit.title}
+                                                        </h4>
+                                                        <p className={`text-[10px] mt-0.5 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+                                                            {audit.type === 'midterm' ? 'Midterm Exam' : 'Individual'}
+                                                        </p>
+                                                    </Link>
+                                                </div>
+                                            );
+                                        })
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Group Practice */}
+                            <div>
+                                <h4 className={`text-xs font-bold uppercase tracking-wider mb-3 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+                                    Group Practice
+                                </h4>
+                                <div className="space-y-3">
+                                    {audits.filter(a => a.type === 'group_practice').length === 0 ? (
+                                        <div className={`text-center py-8 rounded-xl border border-dashed flex flex-col items-center justify-center gap-2 ${isDark ? 'text-slate-500 bg-slate-800/10 border-slate-700/50' : 'text-slate-400 bg-white/30 border-slate-200'}`}>
+                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-1 animate-pulse ${isDark ? 'bg-slate-800' : 'bg-slate-100'}`}>
+                                                <Users className="w-5 h-5 opacity-50" />
+                                            </div>
+                                            <p className="text-sm font-medium">Simulasi Tim Kosong</p>
+                                            <p className="text-[10px] opacity-70">Kelompok Anda belum mendapatkan tugas simulasi.</p>
+                                        </div>
+                                    ) : (
+                                        audits.filter(a => a.type === 'group_practice').map(audit => {
+                                            const isActive = selectedAuditId === audit.id;
+                                            // Determine role for display based on effectiveRole
+                                            const roleLabel = audit.effectiveRole === 'auditor' ? 'Auditor Team' : 'Auditee Team';
+
+                                            return (
+                                                <div
+                                                    key={audit.id}
+                                                    className={`group flex items-center gap-3 p-3 rounded-xl border transition-all duration-300 ${isActive
+                                                        ? isDark
+                                                            ? 'bg-indigo-500/10 border-indigo-500/30 shadow-lg shadow-indigo-500/5'
+                                                            : 'bg-indigo-50 border-indigo-200 shadow-lg shadow-indigo-100/50'
+                                                        : isDark
+                                                            ? 'bg-[#1A1D27] border-slate-800 hover:border-slate-700'
+                                                            : 'bg-white border-transparent hover:border-slate-200 hover:shadow-md'
+                                                        }`}
+                                                >
+                                                    <button
+                                                        onClick={() => handleToggle(audit.id)}
+                                                        className="shrink-0"
+                                                    >
+                                                        {isActive ? (
+                                                            <ToggleRight className="w-6 h-6 text-indigo-500" />
+                                                        ) : (
+                                                            <ToggleLeft className={`w-6 h-6 ${isDark ? 'text-slate-600' : 'text-slate-300'}`} />
+                                                        )}
+                                                    </button>
+
+                                                    <Link href={`/audits/${audit.id}`} className="flex-1 min-w-0">
+                                                        <h4 className={`font-bold text-sm leading-tight line-clamp-1 transition-colors ${isActive
+                                                            ? 'text-indigo-600'
+                                                            : isDark ? 'text-white group-hover:text-indigo-400' : 'text-slate-800 group-hover:text-indigo-600'
+                                                            }`}>
+                                                            {audit.title}
+                                                        </h4>
+                                                        <div className="flex items-center justify-between mt-0.5">
+                                                            <span className={`text-[10px] ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+                                                                Practice
+                                                            </span>
+                                                            <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium ${audit.effectiveRole === 'auditor'
+                                                                ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                                                                : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                                                                }`}>
+                                                                {roleLabel}
+                                                            </span>
+                                                        </div>
+                                                    </Link>
+                                                </div>
+                                            );
+                                        })
+                                    )}
+                                </div>
+                            </div>
 
                             <Link
                                 href="/audits"

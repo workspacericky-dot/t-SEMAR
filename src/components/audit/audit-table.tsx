@@ -53,13 +53,21 @@ const getPredicate = (score: number) => {
     return PREDICATE_RULES.find(r => score > r.min && score <= r.max) || PREDICATE_RULES[PREDICATE_RULES.length - 1];
 };
 
-export function AuditTable({ items, role, auditId, onItemsUpdate }: AuditTableProps) {
+export function AuditTable({ items, role, auditId, onItemsUpdate, effectiveRole, currentUserId, auditType, auditStatus }: AuditTableProps & { effectiveRole?: string, currentUserId?: string, auditType?: string, auditStatus?: string }) {
     const isDark = useThemeStore((s) => s.isDark);
     const searchQuery = useSearchStore((s) => s.query);
     const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
     const [editingFields, setEditingFields] = useState<Record<string, Partial<AuditItem>>>({});
     const [savingRows, setSavingRows] = useState<Set<string>>(new Set());
     const [publishingAll, setPublishingAll] = useState(false);
+
+    // Determine the actual role to use for permissions
+    const actualRole = effectiveRole || role;
+    const isLocked = auditStatus === 'locked';
+
+    // Group Practice Logic
+    const isGroupPractice = auditType === 'group_practice';
+    const [showMyItemsOnly, setShowMyItemsOnly] = useState(isGroupPractice); // Default to My Items for group practice
 
     // Merge items with editing fields for live updates
     const mergedItems = useMemo(() => {
@@ -72,11 +80,20 @@ export function AuditTable({ items, role, auditId, onItemsUpdate }: AuditTablePr
         });
     }, [items, editingFields]);
 
-    // Filter items by search query
+    // Filter items by search query AND "My Items" toggle
     const filteredItems = useMemo(() => {
-        if (!searchQuery.trim()) return mergedItems;
+        let result = mergedItems;
+
+        // 1. Filter by "My Items" if enabled
+        if (showMyItemsOnly && currentUserId && isGroupPractice) {
+            const assignCol = actualRole === 'auditee' ? 'auditee_assigned_to' : 'auditor_assigned_to';
+            result = result.filter(item => item[assignCol] === currentUserId || item.assigned_to === currentUserId);
+        }
+
+        // 2. Filter by search query
+        if (!searchQuery.trim()) return result;
         const q = searchQuery.toLowerCase();
-        return mergedItems.filter(item =>
+        return result.filter(item =>
             item.criteria.toLowerCase().includes(q) ||
             item.category.toLowerCase().includes(q) ||
             item.subcategory.toLowerCase().includes(q) ||
@@ -84,7 +101,7 @@ export function AuditTable({ items, role, auditId, onItemsUpdate }: AuditTablePr
             (item.catatan && item.catatan.toLowerCase().includes(q)) ||
             (item.rekomendasi && item.rekomendasi.toLowerCase().includes(q))
         );
-    }, [mergedItems, searchQuery]);
+    }, [mergedItems, searchQuery, showMyItemsOnly, currentUserId, isGroupPractice]);
 
     // Group items by Category -> Subcategory
     const groupedItems = useMemo(() => {
@@ -192,13 +209,17 @@ export function AuditTable({ items, role, auditId, onItemsUpdate }: AuditTablePr
     );
 
     const handleSaveDraft = async (itemId: string) => {
+        if (isLocked) {
+            toast.error('Audit terkunci. Tidak dapat melakukan perubahan.');
+            return;
+        }
         const fields = editingFields[itemId];
         if (!fields) return;
 
         setSavingRows((prev) => new Set(prev).add(itemId));
         try {
             let updated: AuditItem;
-            if (role === 'auditee') {
+            if (actualRole === 'auditee') {
                 const { saveAuditeeSelfAssessment } = await import('@/lib/actions/audit-actions');
                 updated = await saveAuditeeSelfAssessment(itemId, {
                     jawaban_auditee: fields.jawaban_auditee,
@@ -216,7 +237,7 @@ export function AuditTable({ items, role, auditId, onItemsUpdate }: AuditTablePr
                 delete next[itemId];
                 return next;
             });
-            toast.success(role === 'auditee' ? 'Penilaian berhasil disimpan' : 'Draft berhasil disimpan');
+            toast.success(actualRole === 'auditee' ? 'Penilaian berhasil disimpan' : 'Draft berhasil disimpan');
         } catch {
             toast.error('Gagal menyimpan perubahan');
         } finally {
@@ -229,12 +250,16 @@ export function AuditTable({ items, role, auditId, onItemsUpdate }: AuditTablePr
     };
 
     const handlePublish = async (itemId: string) => {
+        if (isLocked) {
+            toast.error('Audit terkunci.');
+            return;
+        }
         setSavingRows((prev) => new Set(prev).add(itemId));
         try {
             // Auto-save if there are pending changes
             const pendingChanges = editingFields[itemId];
             if (pendingChanges) {
-                if (role === 'auditee') {
+                if (actualRole === 'auditee') {
                     const { saveAuditeeSelfAssessment } = await import('@/lib/actions/audit-actions');
                     await saveAuditeeSelfAssessment(itemId, {
                         jawaban_auditee: pendingChanges.jawaban_auditee,
@@ -255,9 +280,9 @@ export function AuditTable({ items, role, auditId, onItemsUpdate }: AuditTablePr
             }
 
             let updated;
-            if (role === 'auditee') {
+            if (actualRole === 'auditee') {
                 updated = await submitToAuditor(itemId);
-                toast.success('Berhasil dikirim ke Evaluator');
+                toast.success('Berhasil dikirim ke Evaluator/Auditor');
             } else {
                 updated = await publishToAuditee(itemId);
                 toast.success('Berhasil dipublikasikan ke Auditee');
@@ -276,6 +301,7 @@ export function AuditTable({ items, role, auditId, onItemsUpdate }: AuditTablePr
     };
 
     const handlePublishAll = async () => {
+        if (isLocked) return;
         setPublishingAll(true);
         try {
             const updated = await publishAllToAuditee(auditId);
@@ -401,113 +427,150 @@ export function AuditTable({ items, role, auditId, onItemsUpdate }: AuditTablePr
                     <p className="text-sm">Tidak ditemukan kriteria yang cocok dengan &ldquo;{searchQuery}&rdquo;</p>
                 </div>
             ) : (
-
-                <Accordion type="multiple" className="space-y-4">
-                    {Object.entries(groupedItems).map(([category, subcats], catIdx) => {
-                        const { total } = getCategoryScore(category);
-                        return (
-                            <AccordionItem key={category} value={category} className={`rounded-xl overflow-hidden px-0 border ${isDark ? 'bg-[#2A1F10] border-orange-900/30' : 'bg-white border-slate-200'}`}>
-                                <AccordionTrigger className={`px-6 py-4 hover:no-underline ${isDark ? 'hover:bg-orange-900/20' : 'hover:bg-slate-50'}`}>
-                                    <div className="flex items-center justify-between w-full pr-4">
-                                        <span className={`font-semibold text-lg ${isDark ? 'text-orange-100' : 'text-slate-800'}`}>{category}</span>
-                                        <span className={`text-sm font-medium px-3 py-1 rounded-full ${isDark ? 'bg-orange-500/15 text-orange-300' : 'bg-blue-50 text-blue-700'}`}>
-                                            Skor: {total.toFixed(2)}
-                                        </span>
-                                    </div>
-                                </AccordionTrigger>
-                                <AccordionContent className="pt-0 pb-4 px-6">
-                                    <Accordion type="multiple" className="mt-2 space-y-3">
-                                        {Object.entries(subcats).map(([subcategory, subItems]) => {
-                                            const subScore = getSubCategoryScore(category, subcategory);
-                                            return (
-                                                <AccordionItem key={subcategory} value={subcategory} className={`rounded-lg border ${isDark ? 'border-orange-900/20' : 'border-slate-100'}`}>
-                                                    <AccordionTrigger className={`px-4 py-3 text-sm font-medium hover:no-underline ${isDark ? 'text-orange-200 bg-orange-900/10' : 'text-slate-700 bg-slate-50/50'}`}>
-                                                        <div className="flex items-center justify-between w-full pr-4">
-                                                            <span>{subcategory}</span>
-                                                            <span className={`text-xs ${isDark ? 'text-orange-300/60' : 'text-slate-500'}`}>Sub-skor: {subScore.toFixed(2)}</span>
-                                                        </div>
-                                                    </AccordionTrigger>
-                                                    <AccordionContent className="p-0">
-                                                        <div className="overflow-x-auto">
-                                                            <table className="w-full text-sm">
-                                                                <thead className={`border-b ${isDark ? 'bg-white/5 backdrop-blur-md border-white/10' : 'bg-white/80 backdrop-blur-md border-slate-200'}`}>
-                                                                    <tr>
-                                                                        <th className={`px-3 py-3 text-center w-12 text-xs font-medium uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>No</th>
-                                                                        <th className={`px-3 py-3 text-left min-w-[250px] text-xs font-medium uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Kriteria</th>
-                                                                        {role === 'superadmin' && <th className={`px-3 py-3 text-center w-16 text-xs font-medium uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Bobot</th>}
-
-                                                                        {/* Auditee Section */}
-                                                                        <th className={`px-3 py-3 text-center w-28 text-xs font-medium uppercase tracking-wider ${isDark ? 'text-teal-400' : 'text-teal-600'}`}>Jwb Auditee</th>
-                                                                        <th className={`px-3 py-3 text-left min-w-[200px] text-xs font-medium uppercase tracking-wider ${isDark ? 'text-teal-400' : 'text-teal-600'}`}>Deskripsi</th>
-
-                                                                        {/* Evaluator Section */}
-                                                                        <th className={`px-3 py-3 text-center w-28 text-xs font-medium uppercase tracking-wider ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>Jwb Evaluator</th>
-                                                                        <th className={`px-3 py-3 text-center w-24 text-xs font-medium uppercase tracking-wider ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>Nilai</th>
-                                                                        <th className={`px-3 py-3 text-left min-w-[150px] text-xs font-medium uppercase tracking-wider ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>Catatan</th>
-                                                                        <th className={`px-3 py-3 text-left min-w-[150px] text-xs font-medium uppercase tracking-wider ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>Rekomendasi</th>
-
-                                                                        <th className={`px-3 py-3 text-center w-28 text-xs font-medium uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Status</th>
-                                                                        {(role === 'auditor' || role === 'auditee') && <th className={`px-3 py-3 text-center w-24 text-xs font-medium uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Aksi</th>}
-                                                                    </tr>
-                                                                </thead>
-                                                                <tbody className={`divide-y ${isDark ? 'divide-orange-900/15' : 'divide-slate-100'}`}>
-                                                                    {subItems.map(item => (
-                                                                        <CriteriaRow
-                                                                            key={item.id}
-                                                                            item={item}
-                                                                            role={role}
-                                                                            editingFields={editingFields}
-                                                                            updateField={updateField}
-                                                                            onSaveDraft={handleSaveDraft}
-                                                                            onPublish={handlePublish}
-                                                                            onAgree={handleAgree}
-                                                                            onDisagree={handleDisagree}
-                                                                            onAcceptDispute={handleAcceptDispute}
-                                                                            onRejectDispute={handleRejectDispute}
-                                                                            onSubmitActionPlan={handleSubmitActionPlan}
-                                                                            savingRows={savingRows}
-                                                                            onToggleExpand={toggleRow}
-                                                                            isExpanded={expandedRows.has(item.id)}
-                                                                        />
-                                                                    ))}
-                                                                </tbody>
-                                                            </table>
-                                                        </div>
-                                                    </AccordionContent>
-                                                </AccordionItem>
-                                            );
-                                        })}
-                                    </Accordion>
-                                </AccordionContent>
-                            </AccordionItem>
-                        );
-                    })}
-                </Accordion>
-            )}
-
-            {/* Score Summary */}
-            <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white rounded-2xl p-6 shadow-xl">
-                <div className="grid md:grid-cols-2 gap-8 items-center">
-                    <div>
-                        <h3 className="text-slate-400 text-sm font-medium uppercase tracking-wider mb-2">Total Nilai Akhir</h3>
-                        <div className="flex items-baseline gap-2">
-                            <span className="text-5xl font-bold tracking-tight">{grandTotal.toFixed(2)}</span>
-                            <span className="text-slate-400">/ 100</span>
+                <div className="space-y-4">
+                    {/* My Items Toggle for Group Practice */}
+                    {isGroupPractice && (
+                        <div className="flex justify-end">
+                            <button
+                                onClick={() => setShowMyItemsOnly(!showMyItemsOnly)}
+                                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${showMyItemsOnly
+                                    ? isDark ? 'bg-blue-500/20 text-blue-300' : 'bg-blue-100 text-blue-700'
+                                    : isDark ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-800'
+                                    }`}
+                            >
+                                <div className={`w-9 h-5 rounded-full relative flex-shrink-0 transition-colors ${showMyItemsOnly ? 'bg-blue-500' : isDark ? 'bg-slate-700' : 'bg-slate-300'
+                                    }`}>
+                                    <div className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform ${showMyItemsOnly ? 'translate-x-4' : 'translate-x-0'
+                                        }`} />
+                                </div>
+                                <span className="leading-none mt-0.5">Tampilkan Item Saya Saja</span>
+                            </button>
                         </div>
-                    </div>
-                    <div className="bg-white/10 rounded-xl p-6 backdrop-blur-sm border border-white/10">
-                        <div className="flex items-center gap-3 mb-2">
-                            <div className="bg-blue-500/20 px-3 py-1 rounded-lg text-blue-300 font-bold text-xl border border-blue-500/30">
-                                {predicate.label}
+                    )}
+
+                    <Accordion type="multiple" className="space-y-4">
+                        {Object.entries(groupedItems).map(([category, subcats], catIdx) => {
+                            const { total } = getCategoryScore(category);
+                            return (
+                                <AccordionItem key={category} value={category} className={`rounded-xl overflow-hidden px-0 border ${isDark ? 'bg-[#2A1F10] border-orange-900/30' : 'bg-white border-slate-200'}`}>
+                                    <AccordionTrigger className={`px-6 py-4 hover:no-underline ${isDark ? 'hover:bg-orange-900/20' : 'hover:bg-slate-50'}`}>
+                                        <div className="flex items-center justify-between w-full pr-4">
+                                            <span className={`font-semibold text-lg ${isDark ? 'text-orange-100' : 'text-slate-800'}`}>{category}</span>
+                                            <span className={`text-sm font-medium px-3 py-1 rounded-full ${isDark ? 'bg-orange-500/15 text-orange-300' : 'bg-blue-50 text-blue-700'}`}>
+                                                Skor: {total.toFixed(2)}
+                                            </span>
+                                        </div>
+                                    </AccordionTrigger>
+                                    <AccordionContent className="pt-0 pb-4 px-6">
+                                        <Accordion type="multiple" className="mt-2 space-y-3">
+                                            {Object.entries(subcats).map(([subcategory, subItems]) => {
+                                                const subScore = getSubCategoryScore(category, subcategory);
+                                                return (
+                                                    <AccordionItem key={subcategory} value={subcategory} className={`rounded-lg border ${isDark ? 'border-orange-900/20' : 'border-slate-100'}`}>
+                                                        <AccordionTrigger className={`px-4 py-3 text-sm font-medium hover:no-underline ${isDark ? 'text-orange-200 bg-orange-900/10' : 'text-slate-700 bg-slate-50/50'}`}>
+                                                            <div className="flex items-center justify-between w-full pr-4">
+                                                                <span>{subcategory}</span>
+                                                                <span className={`text-xs ${isDark ? 'text-orange-300/60' : 'text-slate-500'}`}>Sub-skor: {subScore.toFixed(2)}</span>
+                                                            </div>
+                                                        </AccordionTrigger>
+                                                        <AccordionContent className="p-0">
+                                                            <div className="overflow-x-auto">
+                                                                <table className="w-full text-sm">
+                                                                    <thead className={`border-b ${isDark ? 'bg-white/5 backdrop-blur-md border-white/10' : 'bg-white/80 backdrop-blur-md border-slate-200'}`}>
+                                                                        <tr>
+                                                                            <th className={`px-3 py-3 text-center w-12 text-xs font-medium uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>No</th>
+                                                                            <th className={`px-3 py-3 text-left min-w-[250px] text-xs font-medium uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Kriteria</th>
+                                                                            {role === 'superadmin' && <th className={`px-3 py-3 text-center w-16 text-xs font-medium uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Bobot</th>}
+
+                                                                            {/* Auditee Section */}
+                                                                            <th className={`px-3 py-3 text-center w-28 text-xs font-medium uppercase tracking-wider ${isDark ? 'text-teal-400' : 'text-teal-600'}`}>Jwb Auditee</th>
+                                                                            <th className={`px-3 py-3 text-left min-w-[200px] text-xs font-medium uppercase tracking-wider ${isDark ? 'text-teal-400' : 'text-teal-600'}`}>Deskripsi</th>
+
+                                                                            {/* Evaluator Section */}
+                                                                            <th className={`px-3 py-3 text-center w-28 text-xs font-medium uppercase tracking-wider ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>Jwb Evaluator</th>
+                                                                            <th className={`px-3 py-3 text-center w-24 text-xs font-medium uppercase tracking-wider ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>Nilai</th>
+                                                                            <th className={`px-3 py-3 text-left min-w-[150px] text-xs font-medium uppercase tracking-wider ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>Catatan</th>
+                                                                            <th className={`px-3 py-3 text-left min-w-[150px] text-xs font-medium uppercase tracking-wider ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>Rekomendasi</th>
+
+                                                                            <th className={`px-3 py-3 text-center w-28 text-xs font-medium uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Status</th>
+                                                                            {(actualRole === 'auditor' || actualRole === 'auditee') && <th className={`px-3 py-3 text-center w-24 text-xs font-medium uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Aksi</th>}
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody className={`divide-y ${isDark ? 'divide-orange-900/15' : 'divide-slate-100'}`}>
+                                                                        {subItems.map(item => {
+                                                                            // Determine if user can edit this item
+                                                                            let canEdit = true;
+
+                                                                            if (isGroupPractice) {
+                                                                                const assignCol = actualRole === 'auditee' ? 'auditee_assigned_to' : 'auditor_assigned_to';
+                                                                                const assignedUserId = item[assignCol] || item.assigned_to;
+                                                                                if (assignedUserId && assignedUserId !== currentUserId) {
+                                                                                    canEdit = false;
+                                                                                }
+                                                                                // Also check if effectiveRole matches the action needed (handled by CriteriaRow usually, checking user.role? but user.role might be 'auditee' while effective is 'auditor')
+                                                                                // We need to pass effectiveRole to CriteriaRow instead of profile.role
+                                                                            }
+
+                                                                            return (
+                                                                                <CriteriaRow
+                                                                                    key={item.id}
+                                                                                    item={item}
+                                                                                    role={role === 'superadmin' ? 'superadmin' : actualRole as any}
+                                                                                    editingFields={editingFields}
+                                                                                    updateField={updateField}
+                                                                                    onSaveDraft={handleSaveDraft}
+                                                                                    onPublish={handlePublish}
+                                                                                    onAgree={handleAgree}
+                                                                                    onDisagree={handleDisagree}
+                                                                                    onAcceptDispute={handleAcceptDispute}
+                                                                                    onRejectDispute={handleRejectDispute}
+                                                                                    onSubmitActionPlan={handleSubmitActionPlan}
+                                                                                    savingRows={savingRows}
+                                                                                    onToggleExpand={toggleRow}
+                                                                                    isExpanded={expandedRows.has(item.id)}
+                                                                                    isEditable={canEdit}
+                                                                                />
+                                                                            )
+                                                                        })}
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </AccordionContent>
+                                                    </AccordionItem>
+                                                );
+                                            })}
+                                        </Accordion>
+                                    </AccordionContent>
+                                </AccordionItem>
+                            );
+                        })}
+                    </Accordion>
+
+                    {/* Score Summary */}
+                    <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white rounded-2xl p-6 shadow-xl">
+                        <div className="grid md:grid-cols-2 gap-8 items-center">
+                            <div>
+                                <h3 className="text-slate-400 text-sm font-medium uppercase tracking-wider mb-2">Total Nilai Akhir</h3>
+                                <div className="flex items-baseline gap-2">
+                                    <span className="text-5xl font-bold tracking-tight">{grandTotal.toFixed(2)}</span>
+                                    <span className="text-slate-400">/ 100</span>
+                                </div>
                             </div>
-                            <h4 className="text-lg font-semibold text-white">Predikat: {predicate.description.split(':')[0]}</h4>
+                            <div className="bg-white/10 rounded-xl p-6 backdrop-blur-sm border border-white/10">
+                                <div className="flex items-center gap-3 mb-2">
+                                    <div className="bg-blue-500/20 px-3 py-1 rounded-lg text-blue-300 font-bold text-xl border border-blue-500/30">
+                                        {predicate.label}
+                                    </div>
+                                    <h4 className="text-lg font-semibold text-white">Predikat: {predicate.description.split(':')[0]}</h4>
+                                </div>
+                                <p className="text-slate-300 text-sm leading-relaxed">
+                                    {predicate.description.split(':').slice(1).join(':').trim()}
+                                </p>
+                            </div>
                         </div>
-                        <p className="text-slate-300 text-sm leading-relaxed">
-                            {predicate.description.split(':').slice(1).join(':').trim()}
-                        </p>
                     </div>
                 </div>
-            </div>
+            )}
         </div>
     );
 }

@@ -58,7 +58,7 @@ export function AvatarUpload({ uid, url, onUpload, size = 150 }: AvatarUploadPro
             <div
                 className="relative group cursor-pointer transition-all duration-300 hover:scale-105"
                 style={{ width: size, height: size }}
-                onClick={() => fileInputRef.current?.click()}
+                onClick={() => !uploading && fileInputRef.current?.click()}
             >
                 <div className={`w-full h-full rounded-full overflow-hidden border-4 border-white shadow-xl ring-1 ring-slate-200 relative bg-slate-100 flex items-center justify-center`}>
                     {url ? (

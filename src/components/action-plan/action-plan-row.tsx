@@ -8,7 +8,7 @@ import { updateActionPlanDetails } from '@/lib/actions/audit-actions';
 
 interface ActionPlanRowProps {
     item: AuditItem;
-    role: UserRole;
+    role: string;
     index: number;
 }
 

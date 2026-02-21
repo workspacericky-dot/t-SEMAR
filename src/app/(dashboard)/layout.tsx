@@ -82,12 +82,19 @@ export default function DashboardLayout({
 
     return (
         <div className={`min-h-screen font-sans transition-colors duration-500 ${isDark
-                ? 'bg-[#0F1117] text-slate-200 selection:bg-blue-900 selection:text-blue-100'
-                : 'bg-[#F2F4F7] text-slate-900 selection:bg-blue-100 selection:text-blue-900'
+            ? 'bg-[#0F1117] text-slate-200 selection:bg-blue-900 selection:text-blue-100'
+            : 'bg-[#F2F4F7] text-slate-900 selection:bg-blue-100 selection:text-blue-900'
             }`}>
             <Header />
-            <main className="px-8 pb-8 max-w-[1400px] mx-auto min-h-[calc(100vh-96px)]">
-                {children}
+            <main className="px-8 pb-8 max-w-[1400px] mx-auto min-h-[calc(100vh-96px)] flex flex-col justify-between">
+                <div>{children}</div>
+
+                {/* Copyright Footer */}
+                <footer className={`mt-12 pt-6 border-t text-center ${isDark ? 'border-slate-800' : 'border-slate-200'}`}>
+                    <p className={`text-xs font-medium tracking-wide ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+                        &copy; {new Date().getFullYear()} Ricky Pramoedya Hermawan. All rights reserved.
+                    </p>
+                </footer>
             </main>
             <Toaster position="top-right" richColors closeButton theme={isDark ? 'dark' : 'light'} />
         </div>

@@ -18,12 +18,9 @@ export default function ActionPlanPage({ params }: { params: Promise<{ id: strin
 
     useEffect(() => {
         const fetchData = async () => {
-            // Fetch audit details
-            const { data: auditData } = await supabase
-                .from('audits')
-                .select('*')
-                .eq('id', id)
-                .single();
+            // Fetch audit details with effective role
+            const { getAuditById } = await import('@/lib/actions/audit-server-actions');
+            const auditData = await getAuditById(id, profile!.id);
 
             if (auditData) setAudit(auditData);
 
@@ -42,6 +39,7 @@ export default function ActionPlanPage({ params }: { params: Promise<{ id: strin
     }, [id]);
 
     if (loading) return <div className="p-10 text-center">Loading...</div>;
+    if (!profile) return <div className="p-10 text-center">Silakan login terlebih dahulu</div>;
     if (!audit) return <div className="p-10 text-center">Audit tidak ditemukan</div>;
 
     return (
@@ -76,7 +74,7 @@ export default function ActionPlanPage({ params }: { params: Promise<{ id: strin
                 </div>
             </div>
 
-            <ActionPlanTable items={items} role={profile?.role || 'auditee'} />
+            <ActionPlanTable items={items} role={(audit as any).effectiveRole || profile?.role || 'auditee'} />
         </div>
     );
 }

@@ -4,8 +4,10 @@ import { useEffect, useState, use } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useAuthStore } from '@/store/auth-store';
 import { useThemeStore } from '@/store/theme-store';
-import { Audit, AuditItem } from '@/types/database';
+import { Audit, AuditItem, ExtendedAudit, Profile } from '@/types/database';
 import { AuditTable } from '@/components/audit/audit-table';
+import { TaskDistribution } from '@/components/audit/task-distribution';
+import { AuditExportButtons } from '@/components/audit/audit-export-buttons';
 import { ArrowLeft, Calendar, Users, Loader2, FileText } from 'lucide-react';
 import Link from 'next/link';
 
@@ -13,39 +15,61 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
     const { id } = use(params);
     const profile = useAuthStore((s) => s.profile);
     const isDark = useThemeStore((s) => s.isDark);
-    const [audit, setAudit] = useState<Audit | null>(null);
+    const [audit, setAudit] = useState<ExtendedAudit | null>(null);
     const [items, setItems] = useState<AuditItem[]>([]);
     const [loading, setLoading] = useState(true);
+    const [isLeader, setIsLeader] = useState(false);
+    const [members, setMembers] = useState<Profile[]>([]);
     const supabase = createClient();
 
     useEffect(() => {
         const fetchAudit = async () => {
-            // Fetch audit with related profiles
-            const { data: auditData } = await supabase
-                .from('audits')
-                .select(`
-          *,
-          auditor:profiles!audits_auditor_id_fkey(id, full_name, role),
-          auditee:profiles!audits_auditee_id_fkey(id, full_name, role, satker_name)
-        `)
-                .eq('id', id)
-                .single();
+            if (!profile) return;
 
-            if (auditData) setAudit(auditData);
+            try {
+                // Use server action to get audit with effective role
+                const { getAuditById } = await import('@/lib/actions/audit-server-actions');
+                const { getProfilesByIds } = await import('@/lib/actions/period-actions');
+                const auditData = await getAuditById(id, profile.id);
 
-            // Fetch audit items
-            const { data: itemsData } = await supabase
-                .from('audit_items')
-                .select('*')
-                .eq('audit_id', id)
-                .order('sort_order', { ascending: true });
+                if (auditData) {
+                    setAudit(auditData);
 
-            setItems(itemsData || []);
-            setLoading(false);
+                    // Determine if Leader
+                    let currentGroup = null;
+                    if (auditData.effectiveRole === 'auditor') {
+                        currentGroup = auditData.auditor_group;
+                    } else if (auditData.effectiveRole === 'auditee') {
+                        currentGroup = auditData.auditee_group;
+                    }
+
+                    if (currentGroup && currentGroup.lead_student_id === profile.id) {
+                        setIsLeader(true);
+                        // Fetch members
+                        if (currentGroup.members && currentGroup.members.length > 0) {
+                            const memberProfiles = await getProfilesByIds(currentGroup.members);
+                            setMembers(memberProfiles);
+                        }
+                    }
+                }
+
+                // Fetch audit items
+                const { data: itemsData } = await supabase
+                    .from('audit_items')
+                    .select('*')
+                    .eq('audit_id', id)
+                    .order('sort_order', { ascending: true });
+
+                setItems(itemsData || []);
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setLoading(false);
+            }
         };
 
         fetchAudit();
-    }, [id]);
+    }, [id, profile]);
 
     if (loading) {
         return (
@@ -75,7 +99,7 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
     return (
         <div className="space-y-6">
             {/* Header */}
-            <div className="flex items-start justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                 <div>
                     <Link
                         href="/dashboard"
@@ -89,7 +113,7 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
                     {audit.description && (
                         <p className={`mt-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{audit.description}</p>
                     )}
-                    <div className={`flex items-center gap-4 mt-3 text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                    <div className={`flex flex-wrap items-center gap-4 mt-3 text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                         <span className="flex items-center gap-1.5">
                             <Calendar className="w-3.5 h-3.5" /> Tahun {audit.year}
                         </span>
@@ -103,9 +127,28 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
                                 {auditee.satker_name || auditee.full_name}
                             </span>
                         )}
+                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${isDark ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30' : 'bg-indigo-50 text-indigo-700 border border-indigo-200'}`}>
+                            Peran Anda: {audit.effectiveRole === 'auditor' ? 'Evaluator' : audit.effectiveRole === 'auditee' ? 'Auditee' : 'Observer'}
+                        </span>
                     </div>
                 </div>
-                <div className="flex gap-2 mt-3 sm:mt-0">
+                <div className="flex flex-wrap gap-2">
+                    {/* Task Distribution for Group Leaders */}
+                    {isLeader && members.length > 0 && (
+                        <TaskDistribution
+                            items={items}
+                            members={members}
+                            auditId={id}
+                            effectiveRole={audit.effectiveRole}
+                            onUpdate={async () => {
+                                const { data } = await supabase.from('audit_items').select('*').eq('audit_id', id).order('sort_order');
+                                if (data) setItems(data);
+                            }}
+                        />
+                    )}
+
+                    <AuditExportButtons audit={audit} items={items} isDark={isDark} />
+
                     <Link
                         href={`/audits/${id}/action-plan`}
                         className={`inline-flex items-center gap-2 px-4 py-2 text-white text-sm font-medium rounded-lg transition-colors shadow-sm ${isDark ? 'bg-orange-600 hover:bg-orange-700' : 'bg-blue-600 hover:bg-blue-700'}`}
@@ -169,7 +212,11 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
                 ) : (
                     <AuditTable
                         items={items}
-                        role={profile?.role || 'auditee'}
+                        role={profile?.role || 'auditee'} // Fallback, but effectiveRole should take precedence in AuditTable
+                        effectiveRole={audit.effectiveRole}
+                        currentUserId={profile?.id}
+                        auditType={audit.type}
+                        auditStatus={audit.status}
                         auditId={id}
                         onItemsUpdate={setItems}
                     />

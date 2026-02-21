@@ -3,12 +3,42 @@ import { AuditItem, AuditItemStatus } from '@/types/database';
 
 const supabase = createClient();
 
+
+
+// Helper to check if audit is locked
+async function checkAuditLocked(itemId: string) {
+    // 1. Get audit_id from item
+    const { data: item, error: itemError } = await supabase
+        .from('audit_items')
+        .select('audit_id')
+        .eq('id', itemId)
+        .single();
+
+    if (itemError || !item) throw new Error('Item not found');
+
+    // 2. Check audit status
+    const { data: audit, error: auditError } = await supabase
+        .from('audits')
+        .select('status')
+        .eq('id', item.audit_id)
+        .single();
+
+    if (auditError || !audit) throw new Error('Audit not found');
+
+    if (audit.status === 'locked') {
+        throw new Error('Audit is LOCKED. No changes allowed.');
+    }
+}
+
 // Helper to update status with validation
 async function updateItemStatus(
     itemId: string,
     newStatus?: AuditItemStatus,
     additionalFields: Partial<AuditItem> = {}
 ) {
+    // Check lock first
+    await checkAuditLocked(itemId);
+
     const updates: any = { ...additionalFields };
     if (newStatus) updates.status = newStatus;
 
@@ -37,6 +67,8 @@ export async function saveEvaluatorDraft(
         rekomendasi?: string;
     }
 ) {
+    await checkAuditLocked(itemId); // Enforce lock check
+
     const { data, error } = await supabase
         .from('audit_items')
         .update(fields)
@@ -100,6 +132,8 @@ export async function saveAuditeeSelfAssessment(
         evidence_link?: string;
     }
 ) {
+    await checkAuditLocked(itemId); // Enforce lock check
+
     // Log for debugging
     console.log('Saving auditee assessment:', itemId, fields);
 
@@ -148,15 +182,7 @@ export async function submitActionPlan(itemId: string, plan: string) {
     return data as AuditItem;
 }
 
-/** Delete an audit and its items */
-export async function deleteAudit(auditId: string) {
-    const { error } = await supabase
-        .from('audits')
-        .delete()
-        .eq('id', auditId);
 
-    if (error) throw error;
-}
 
 /** Update detailed Action Plan (Matrix) fields */
 export async function updateActionPlanDetails(
@@ -170,5 +196,22 @@ export async function updateActionPlanDetails(
         tl_file_link?: string;
     }
 ) {
-    return updateItemStatus(itemId, undefined, details);
+    // Only allow updating action plan fields, not status (status update handled separately if needed)
+    // Actually, updateItemStatus is a helper that also updates status.
+    // Here we just want to update fields.
+    const { data, error } = await supabase
+        .from('audit_items')
+        .update(details)
+        .eq('id', itemId)
+        .select()
+        .single();
+
+    if (error) throw error;
+    return data as AuditItem;
 }
+
+// ============================================
+// GROUP LEADER ACTIONS
+// ============================================
+
+// Actions moved to audit-server-actions.ts to handle permissions securely

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { Loader2, CheckCircle2 } from 'lucide-react';
+import { Loader2, ArrowRight, ArrowLeft, CheckCircle2, User, Camera, Users } from 'lucide-react';
 import { toast } from 'sonner';
 import { AvatarUpload } from '@/components/avatar-upload';
 
@@ -15,11 +15,15 @@ export default function OnboardingPage() {
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [userId, setUserId] = useState<string | null>(null);
+    const [profileExists, setProfileExists] = useState(false);
+
+    // Form Stats
+    const [step, setStep] = useState(1);
+    const totalSteps = 3;
 
     const [fullName, setFullName] = useState('');
     const [avatarUrl, setAvatarUrl] = useState('');
     const [trainingGroup, setTrainingGroup] = useState<number | null>(null);
-    const [profileExists, setProfileExists] = useState(false);
 
     useEffect(() => {
         const checkUser = async () => {
@@ -42,17 +46,14 @@ export default function OnboardingPage() {
 
                 if (profile) {
                     setProfileExists(true);
-                    // Pre-fill fields
                     setFullName(profile.full_name || user.user_metadata.full_name || '');
                     setAvatarUrl(profile.avatar_url || user.user_metadata.avatar_url || '');
 
-                    // If already has training group (and not superadmin), redirect to dashboard
                     if (profile.training_group && profile.role !== 'superadmin') {
                         router.replace('/dashboard');
                         return;
                     }
                 } else {
-                    // Profile doesn't exist (trigger failed?), pre-fill from metadata
                     setFullName(user.user_metadata.full_name || '');
                     setAvatarUrl(user.user_metadata.avatar_url || '');
                 }
@@ -67,14 +68,24 @@ export default function OnboardingPage() {
         checkUser();
     }, []);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-        if (!userId) return;
-        if (!fullName.trim()) {
-            toast.error('Full name is required');
+    const handleNext = () => {
+        if (step === 1 && !fullName.trim()) {
+            toast.error('Please enter your name');
             return;
         }
+        if (step < totalSteps) {
+            setStep(step + 1);
+        }
+    };
+
+    const handleBack = () => {
+        if (step > 1) {
+            setStep(step - 1);
+        }
+    };
+
+    const handleSubmit = async () => {
+        if (!userId) return;
         if (!trainingGroup) {
             toast.error('Please select your training group');
             return;
@@ -82,7 +93,6 @@ export default function OnboardingPage() {
 
         try {
             setSubmitting(true);
-
             let error;
 
             if (profileExists) {
@@ -97,7 +107,6 @@ export default function OnboardingPage() {
                     .eq('id', userId);
                 error = updateError;
             } else {
-                // Insert new profile if it doesn't exist
                 const { error: insertError } = await supabase
                     .from('profiles')
                     .insert({
@@ -105,7 +114,7 @@ export default function OnboardingPage() {
                         full_name: fullName,
                         avatar_url: avatarUrl,
                         training_group: trainingGroup,
-                        role: 'auditor', // Default role for new users
+                        role: 'auditor',
                         updated_at: new Date().toISOString(),
                     });
                 error = insertError;
@@ -113,9 +122,7 @@ export default function OnboardingPage() {
 
             if (error) throw error;
 
-            toast.success('Profile updated! Welcome to eSEMAR.');
-
-            // Force refresh to update server components/middleware awareness
+            toast.success('All set! Welcome to eSEMAR.');
             router.refresh();
             router.push('/dashboard');
 
@@ -135,115 +142,189 @@ export default function OnboardingPage() {
         );
     }
 
+    // Progress percentage
+    const progress = ((step - 1) / (totalSteps - 1)) * 100;
+
     return (
-        <div className="min-h-screen w-full flex bg-white font-sans text-slate-900">
-            {/* Left Side - Visual (Same as login but with different text) */}
-            <div className="hidden lg:flex lg:w-1/2 relative p-4 bg-gradient-to-br from-slate-100 to-white overflow-hidden">
-                <div className="relative w-full h-full rounded-[2.5rem] overflow-hidden bg-black shadow-2xl ring-1 ring-black/5">
-                    <div className="absolute inset-0 z-0 bg-slate-950">
-                        {/* Reusing the login video if available, or just a dark background */}
-                        <div className="absolute inset-0 bg-gradient-to-b from-blue-900/20 via-slate-900 to-black opacity-90" />
-                    </div>
+        <div className="min-h-screen w-full flex flex-col items-center justify-center bg-[#FDFBF7] font-sans text-slate-900 overflow-hidden relative selection:bg-blue-100">
+            {/* Background Decorations */}
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-slate-200 to-transparent opacity-50" />
 
-                    <div className="absolute top-10 left-10 z-10 flex items-center gap-4">
-                        <span className="text-white/90 text-sm font-medium tracking-[0.2em]">ONBOARDING</span>
-                        <div className="h-[1px] w-12 bg-white/50" />
-                    </div>
+            {/* Main Card Container */}
+            <div className="w-full max-w-4xl px-6 relative z-10">
 
-                    <div className="absolute bottom-12 left-12 z-10 max-w-lg">
-                        <h2 className="font-serif text-5xl text-white leading-[1.1] mb-6">
-                            Welcome to<br />
-                            the Team
-                        </h2>
-                        <p className="text-white/70 text-sm font-light leading-relaxed max-w-xs">
-                            Please complete your profile to get started with your training assignments.
-                        </p>
+                {/* Header / Brand */}
+                <div className="flex justify-between items-center mb-12">
+                    <button
+                        onClick={handleBack}
+                        disabled={step === 1}
+                        className={`flex items-center gap-2 text-sm font-medium transition-all ${step === 1 ? 'opacity-0 pointer-events-none' : 'text-slate-400 hover:text-slate-600'
+                            }`}
+                    >
+                        <ArrowLeft className="w-4 h-4" />
+                        PREVIOUS
+                    </button>
+
+                    <div className="flex items-center gap-3">
+                        <Image
+                            src="/logo-semar-legacy.png"
+                            alt="t-SEMAR Logo"
+                            width={42}
+                            height={42}
+                            className="object-contain"
+                        />
+                        <span className="font-semibold text-xl tracking-tight text-slate-900">t-SEMAR</span>
                     </div>
                 </div>
-            </div>
 
-            {/* Right Side - Form */}
-            <div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-6 lg:p-12 relative">
-                <div className="w-full max-w-[420px] space-y-10">
-                    <div className="text-center space-y-2">
-                        <h1 className="font-serif text-3xl text-slate-950">
-                            Setup Your Profile
-                        </h1>
-                        <p className="text-slate-500 text-sm">
-                            Just a few details to personalize your experience
-                        </p>
+                {/* Progress Bar Container */}
+                <div className="w-full max-w-2xl mx-auto mb-16 relative">
+                    <div className="flex justify-between text-xs font-bold text-slate-300 uppercase tracking-widest mb-4">
+                        <span className={step >= 1 ? 'text-blue-600 transition-colors duration-500' : ''}>Identity</span>
+                        <span className={step >= 2 ? 'text-blue-600 transition-colors duration-500' : ''}>Avatar</span>
+                        <span className={step >= 3 ? 'text-blue-600 transition-colors duration-500' : ''}>Group</span>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-8">
+                    <div className="h-[2px] w-full bg-slate-200 rounded-full overflow-hidden">
+                        <div
+                            className="h-full bg-blue-600 transition-all duration-700 ease-in-out"
+                            style={{ width: `${((step) / totalSteps) * 100}%` }}
+                        />
+                    </div>
+                </div>
 
-                        {/* Avatar Upload */}
-                        <div className="flex justify-center">
-                            <AvatarUpload
-                                uid={userId!}
-                                url={avatarUrl}
-                                onUpload={(url) => setAvatarUrl(url)}
-                            />
-                        </div>
+                {/* Step Content */}
+                <div className="min-h-[400px] flex flex-col items-center justify-center max-w-2xl mx-auto text-center animate-in fade-in slide-in-from-bottom-4 duration-700">
 
-                        <div className="space-y-4">
-                            <div className="space-y-1.5">
-                                <label className="block text-xs font-semibold text-slate-700 ml-1">
-                                    Full Name
-                                </label>
+                    {/* STEP 1: NAME */}
+                    {step === 1 && (
+                        <div className="w-full space-y-8">
+                            <div className="space-y-4">
+                                <span className="text-xs font-bold text-yellow-500 tracking-wider uppercase">Question 1 / 3</span>
+                                <h1 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight">
+                                    What is your full name?
+                                </h1>
+                                <p className="text-slate-500 text-lg font-light">
+                                    We'll use this for your certificates and profile.
+                                </p>
+                            </div>
+
+                            <div className="max-w-md mx-auto relative group">
+                                <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+                                    <User className="w-5 h-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                                </div>
                                 <input
                                     type="text"
                                     value={fullName}
                                     onChange={(e) => setFullName(e.target.value)}
-                                    placeholder="Enter your full name"
-                                    className="w-full px-5 py-3.5 bg-slate-50 border-0 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-black/5 focus:bg-white transition-all duration-200"
-                                    required
+                                    onKeyDown={(e) => e.key === 'Enter' && handleNext()}
+                                    placeholder="Type your name here..."
+                                    className="w-full pl-12 pr-4 py-4 bg-white border-2 border-slate-100 rounded-2xl text-lg outline-none focus:border-blue-500 focus:shadow-xl focus:shadow-blue-500/10 transition-all placeholder:text-slate-300 text-slate-800 font-medium text-center"
+                                    autoFocus
                                 />
                             </div>
+                        </div>
+                    )}
 
-                            <div className="space-y-1.5">
-                                <label className="block text-xs font-semibold text-slate-700 ml-1">
-                                    Training Group
-                                </label>
-                                <div className="relative">
-                                    <select
-                                        value={trainingGroup || ''}
-                                        onChange={(e) => setTrainingGroup(Number(e.target.value))}
-                                        className="w-full px-5 py-3.5 bg-slate-50 border-0 rounded-xl text-sm text-slate-900 focus:ring-2 focus:ring-black/5 focus:bg-white transition-all duration-200 appearance-none cursor-pointer"
-                                        required
-                                    >
-                                        <option value="" disabled>Select your group...</option>
-                                        {[1, 2, 3, 4, 5, 6, 7, 8].map((group) => (
-                                            <option key={group} value={group}>
-                                                Group {group}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
-                                    </div>
-                                </div>
-                                <p className="text-[10px] text-slate-400 ml-1">
-                                    * Ask your supervisor if you are unsure about your group number.
+                    {/* STEP 2: AVATAR */}
+                    {step === 2 && (
+                        <div className="w-full space-y-8">
+                            <div className="space-y-4">
+                                <span className="text-xs font-bold text-yellow-500 tracking-wider uppercase">Question 2 / 3</span>
+                                <h1 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight">
+                                    Pick a profile picture
+                                </h1>
+                                <p className="text-slate-500 text-lg font-light">
+                                    Optional, but helps your team recognize you.
                                 </p>
                             </div>
-                        </div>
 
-                        <button
-                            type="submit"
-                            disabled={submitting}
-                            className="w-full py-3.5 rounded-xl bg-black text-white font-semibold text-sm shadow-xl shadow-black/10 hover:shadow-black/20 hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                        >
-                            {submitting ? (
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                            ) : (
-                                <>
-                                    <span>Complete Setup</span>
-                                    <CheckCircle2 className="w-4 h-4" />
-                                </>
-                            )}
-                        </button>
-                    </form>
+                            <div className="flex justify-center py-6">
+                                <div className="p-2 bg-white rounded-full shadow-2xl shadow-blue-900/5 border-4 border-white">
+                                    <AvatarUpload
+                                        uid={userId!}
+                                        url={avatarUrl}
+                                        onUpload={(url) => setAvatarUrl(url)}
+                                        size={180}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* STEP 3: GROUP */}
+                    {step === 3 && (
+                        <div className="w-full space-y-8">
+                            <div className="space-y-4">
+                                <span className="text-xs font-bold text-yellow-500 tracking-wider uppercase">Question 3 / 3</span>
+                                <h1 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight">
+                                    Select your training group
+                                </h1>
+                                <p className="text-slate-500 text-lg font-light">
+                                    This determines your assignment schedule.
+                                </p>
+                            </div>
+
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-lg mx-auto w-full">
+                                {[1, 2, 3, 4, 5, 6, 7, 8].map((group) => (
+                                    <button
+                                        key={group}
+                                        onClick={() => setTrainingGroup(group)}
+                                        className={`relative group/item flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all duration-200 ${trainingGroup === group
+                                            ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-500/30 scale-105'
+                                            : 'bg-white border-slate-100 text-slate-600 hover:border-blue-200 hover:bg-blue-50/50'
+                                            }`}
+                                    >
+                                        <div className={`mb-2 p-2 rounded-full ${trainingGroup === group ? 'bg-white/20' : 'bg-slate-100 group-hover/item:bg-white'
+                                            }`}>
+                                            <Users className="w-5 h-5" />
+                                        </div>
+                                        <span className="font-bold">Group {group}</span>
+                                        {trainingGroup === group && (
+                                            <div className="absolute top-2 right-2">
+                                                <CheckCircle2 className="w-4 h-4 text-white" />
+                                            </div>
+                                        )}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Navigation Buttons */}
+                    <div className="mt-12">
+                        {step < totalSteps ? (
+                            <button
+                                onClick={handleNext}
+                                className="px-8 py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-full font-semibold shadow-lg shadow-blue-500/30 hover:shadow-blue-500/40 hover:-translate-y-0.5 transition-all duration-300 flex items-center gap-2 group"
+                            >
+                                Next Question
+                                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                            </button>
+                        ) : (
+                            <button
+                                onClick={handleSubmit}
+                                disabled={submitting || !trainingGroup}
+                                className="px-8 py-3.5 bg-slate-900 hover:bg-black text-white rounded-full font-semibold shadow-xl shadow-slate-900/20 hover:-translate-y-0.5 transition-all duration-300 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed group"
+                            >
+                                {submitting ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                    <>
+                                        Complete Setup
+                                        <CheckCircle2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                                    </>
+                                )}
+                            </button>
+                        )}
+                    </div>
+
                 </div>
+            </div>
+
+            {/* Footer decoration */}
+            <div className="absolute bottom-6 text-center w-full text-slate-300 text-xs font-medium tracking-widest uppercase">
+                eSEMAR Training Platform &copy; 2026
             </div>
         </div>
     );

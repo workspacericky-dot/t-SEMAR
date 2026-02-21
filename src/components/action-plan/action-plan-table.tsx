@@ -6,7 +6,7 @@ import { useAuthStore } from '@/store/auth-store';
 
 interface ActionPlanTableProps {
     items: AuditItem[];
-    role: UserRole;
+    role: string;
 }
 
 export function ActionPlanTable({ items, role }: ActionPlanTableProps) {
@@ -41,13 +41,13 @@ export function ActionPlanTable({ items, role }: ActionPlanTableProps) {
                             {/* Matrix Columns */}
                             {role !== 'auditor' && (
                                 <>
-                                    <th className="px-3 py-3 text-left text-xs font-semibold text-teal-600 bg-teal-50/50 w-32">Target</th>
-                                    <th className="px-3 py-3 text-left text-xs font-semibold text-teal-600 bg-teal-50/50 w-32">Waktu</th>
+                                    <th className="px-3 py-3 text-left text-xs font-semibold text-teal-600 dark:text-teal-400 bg-teal-50/50 dark:bg-teal-900/20 w-32">Target</th>
+                                    <th className="px-3 py-3 text-left text-xs font-semibold text-teal-600 dark:text-teal-400 bg-teal-50/50 dark:bg-teal-900/20 w-32">Waktu</th>
                                 </>
                             )}
-                            <th className="px-3 py-3 text-left text-xs font-semibold text-teal-600 bg-teal-50/50 w-32">PIC</th>
-                            <th className="px-3 py-3 text-left text-xs font-semibold text-teal-600 bg-teal-50/50 w-40">Status (%)</th>
-                            <th className="px-3 py-3 text-left text-xs font-semibold text-teal-600 bg-teal-50/50 w-40">Bukti Dukung</th>
+                            <th className="px-3 py-3 text-left text-xs font-semibold text-teal-600 dark:text-teal-400 bg-teal-50/50 dark:bg-teal-900/20 w-32">PIC</th>
+                            <th className="px-3 py-3 text-left text-xs font-semibold text-teal-600 dark:text-teal-400 bg-teal-50/50 dark:bg-teal-900/20 w-40">Status (%)</th>
+                            <th className="px-3 py-3 text-left text-xs font-semibold text-teal-600 dark:text-teal-400 bg-teal-50/50 dark:bg-teal-900/20 w-40">Bukti Dukung</th>
                             <th className="px-3 py-3 w-16"></th>
                         </tr>
                     </thead>

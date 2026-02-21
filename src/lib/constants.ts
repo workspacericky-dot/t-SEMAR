@@ -64,6 +64,7 @@ export const VALID_TRANSITIONS: Record<AuditItemStatus, AuditItemStatus[]> = {
 export const NAV_ITEMS = {
     superadmin: [
         { label: 'Dashboard', href: '/dashboard', icon: 'LayoutDashboard' },
+        { label: 'Periode Audit', href: '/admin/periods', icon: 'Calendar' },
         { label: 'Audit', href: '/audits', icon: 'ClipboardCheck' },
         { label: 'Pengguna', href: '/admin/users', icon: 'Users' },
     ],
@@ -72,6 +73,10 @@ export const NAV_ITEMS = {
         { label: 'Evaluasi Saya', href: '/audits', icon: 'ClipboardCheck' },
     ],
     auditee: [
+        { label: 'Dashboard', href: '/dashboard', icon: 'LayoutDashboard' },
+        { label: 'Audit Saya', href: '/audits', icon: 'ClipboardCheck' },
+    ],
+    participant: [
         { label: 'Dashboard', href: '/dashboard', icon: 'LayoutDashboard' },
         { label: 'Audit Saya', href: '/audits', icon: 'ClipboardCheck' },
     ],

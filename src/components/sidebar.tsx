@@ -11,12 +11,14 @@ import {
     Users,
     ChevronLeft,
     ChevronRight,
+    Calendar,
 } from 'lucide-react';
 
 const iconMap: Record<string, React.ElementType> = {
     LayoutDashboard,
     ClipboardCheck,
     Users,
+    Calendar,
 };
 
 interface SidebarProps {
@@ -38,25 +40,27 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         >
             {/* Header */}
             <div className="flex items-center gap-3 px-6 h-24 shrink-0">
-                <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shrink-0 p-1.5 border border-slate-200 shadow-sm">
-                    <Image
-                        src="/logo.png"
-                        alt="Logo"
-                        width={40}
-                        height={40}
-                        className="w-full h-full object-contain"
-                    />
-                </div>
-                {!collapsed && (
-                    <div className="overflow-hidden">
-                        <h1 className="text-xl font-bold text-slate-800 tracking-tight leading-none mb-1">
-                            t-SEMAR
-                        </h1>
-                        <p className="text-[10px] text-slate-500 font-medium leading-none">
-                            SEMAR for training
-                        </p>
+                <Link href="/dashboard" className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shrink-0 p-1.5 border border-slate-200 shadow-sm hover:scale-105 transition-transform">
+                        <Image
+                            src="/logo.png"
+                            alt="Logo"
+                            width={40}
+                            height={40}
+                            className="w-full h-full object-contain"
+                        />
                     </div>
-                )}
+                    {!collapsed && (
+                        <div className="overflow-hidden">
+                            <h1 className="text-xl font-bold text-slate-800 tracking-tight leading-none mb-1">
+                                t-SEMAR
+                            </h1>
+                            <p className="text-[10px] text-slate-500 font-medium leading-none">
+                                SEMAR for training
+                            </p>
+                        </div>
+                    )}
+                </Link>
             </div>
 
             {/* Navigation */}

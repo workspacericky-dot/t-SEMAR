@@ -21,6 +21,7 @@ interface CriteriaRowProps {
     savingRows: Set<string>;
     onToggleExpand: (itemId: string) => void;
     isExpanded: boolean;
+    isEditable?: boolean;
 }
 
 const SCORE_MAP: Record<string, number> = {
@@ -33,7 +34,7 @@ export function CriteriaRow({
     item, role, editingFields, updateField,
     onSaveDraft, onPublish, onAgree, onDisagree,
     onAcceptDispute, onRejectDispute, onSubmitActionPlan,
-    savingRows, onToggleExpand, isExpanded,
+    savingRows, onToggleExpand, isExpanded, isEditable = true,
 }: CriteriaRowProps) {
     const isDark = useThemeStore((s) => s.isDark);
     // Local state for response panels
@@ -42,8 +43,10 @@ export function CriteriaRow({
     const [actionPlanText, setActionPlanText] = useState(item.auditee_action_plan || '');
 
     const isSaving = savingRows.has(item.id);
-    const canEditAuditee = role === 'auditee' && item.status === 'DRAFTING';
-    const canEdit = role === 'auditor' && (
+    const isAuditee = role === 'auditee';
+    const isWaitingForPublish = isAuditee && (item.status === 'SUBMITTED' || item.status === 'DRAFTING');
+    const canEditAuditee = isEditable && isAuditee && item.status === 'DRAFTING';
+    const canEdit = isEditable && role === 'auditor' && (
         item.status === 'SUBMITTED' ||
         item.status === 'DISPUTED' ||
         item.status === 'PUBLISHED_TO_AUDITEE' ||
@@ -51,7 +54,7 @@ export function CriteriaRow({
     );
 
     // Auditor can edit recommendation in Final phases (Phase 5)
-    const canEditRecom = canEdit || (role === 'auditor' && isFinalStatus(item.status));
+    const canEditRecom = (isEditable && role === 'auditor' && isFinalStatus(item.status)) || canEdit;
 
     const showRekomendasi =
         role === 'auditor' ||
@@ -179,19 +182,31 @@ export function CriteriaRow({
                             ))}
                         </select>
                     ) : (
-                        <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                            {item.jawaban_evaluator || '-'}
+                        <span className="whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300">
+                            {isWaitingForPublish
+                                ? <span className="text-xs text-slate-400 italic">Menunggu Publikasi Evaluator</span>
+                                : (item.jawaban_evaluator || '-')}
                         </span>
                     )}
                 </td>
 
                 {/* Nilai */}
                 <td className={`px-3 py-3 w-24 text-center ${isDark ? 'bg-slate-800/40' : 'bg-blue-50/30'}`}>
-                    <span className="font-semibold text-blue-600 dark:text-blue-400">
-                        {canEdit
-                            ? (getFieldValue('nilai_evaluator') || 0)
-                            : (Number(item.nilai_evaluator) || 0)}
-                    </span>
+                    {canEdit ? (
+                        <span className="font-semibold text-blue-600 dark:text-blue-400">
+                            {getFieldValue('nilai_evaluator') || 0}
+                        </span>
+                    ) : (
+                        <div className="text-center font-medium">
+                            {isWaitingForPublish ? (
+                                <span className="text-xs text-slate-400 italic">Menunggu</span>
+                            ) : (
+                                <span className="font-semibold text-blue-600 dark:text-blue-400">
+                                    {Number(item.nilai_evaluator) || 0}
+                                </span>
+                            )}
+                        </div>
+                    )}
                 </td>
 
                 {/* Catatan */}

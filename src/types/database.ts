@@ -11,7 +11,8 @@ export type AuditItemStatus =
   | 'FINAL_ALTERED'
   | 'FINAL_ORIGINAL';
 
-export type UserRole = 'superadmin' | 'auditor' | 'auditee';
+export type UserRole = 'superadmin' | 'auditor' | 'auditee' | 'participant';
+export type AuditType = 'group_practice' | 'midterm' | 'final';
 
 export interface Profile {
   id: string;
@@ -24,20 +25,62 @@ export interface Profile {
   updated_at: string;
 }
 
+export interface AuditPeriod {
+  id: string;
+  name: string;
+  year: number;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface Group {
+  id: string;
+  period_id: string;
+  name: string;
+  group_number: number;
+  lead_student_id: string | null;
+  members: string[] | null; // Array of UUIDs
+  created_at: string;
+
+  // Joined
+  lead_student?: Profile;
+}
+
 export interface Audit {
   id: string;
   title: string;
   description: string;
   year: number;
+
+  // New Fields
+  type: AuditType;
+  period_id: string | null;
+  auditor_group_id: string | null;
+  auditee_group_id: string | null;
+  individual_auditor_id: string | null;
+
+  // Legacy (Deprecated/Migrated)
   auditor_id: string | null;
   auditee_id: string | null;
+
   created_by: string | null;
   status: string;
   created_at: string;
   updated_at: string;
+
   // Joined
   auditor?: Profile;
   auditee?: Profile;
+  period?: AuditPeriod;
+  auditor_group?: Group;
+  auditee_group?: Group;
+  individual_auditor?: Profile;
+}
+
+export type UserAuditRole = 'auditor' | 'auditee' | 'observer';
+
+export interface ExtendedAudit extends Audit {
+  effectiveRole: UserAuditRole;
 }
 
 export interface AuditItem {
@@ -74,6 +117,12 @@ export interface AuditItem {
   tl_file_link?: string;
   evidence_link?: string;
   sort_order: number;
+
+  // New Fields
+  assigned_to: string | null; // Legacy Profile ID
+  auditor_assigned_to?: string | null;
+  auditee_assigned_to?: string | null;
+
   created_at: string;
   updated_at: string;
 }

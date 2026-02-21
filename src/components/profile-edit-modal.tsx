@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { createClient } from '@/lib/supabase/client';
 import { X, Loader2, Save } from 'lucide-react';
 import { toast } from 'sonner';
@@ -54,7 +55,7 @@ export function ProfileEditModal({ isOpen, onClose }: ProfileEditModalProps) {
         }
     };
 
-    return (
+    return createPortal(
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
             <div className="bg-white dark:bg-[#1A1D27] rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200 border border-slate-200 dark:border-slate-800">
 
@@ -140,6 +141,7 @@ export function ProfileEditModal({ isOpen, onClose }: ProfileEditModalProps) {
                     </button>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }

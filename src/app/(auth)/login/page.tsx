@@ -270,6 +270,13 @@ export default function LoginPage() {
                         </div>
 
                     </form>
+
+                    {/* Copyright Footer */}
+                    <div className="text-center pt-8 pb-4">
+                        <p className="text-[11px] text-slate-400 font-medium tracking-wide">
+                            &copy; {new Date().getFullYear()} Ricky Pramoedya Hermawan. All rights reserved.
+                        </p>
+                    </div>
                 </div>
             </div >
         </div >
