@@ -7,6 +7,8 @@ export const metadata = {
     title: 'Manajemen Periode Audit | eSEMAR',
 };
 
+export const dynamic = 'force-dynamic';
+
 export default async function AuditPeriodsPage() {
     const periods = await getPeriods();
 

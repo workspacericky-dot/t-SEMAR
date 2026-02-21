@@ -8,6 +8,9 @@ import { CreateAuditButtons } from '@/components/admin/periods/create-audit-butt
 import { GroupCard } from '@/components/admin/periods/group-card';
 import { AuditList } from '@/components/admin/periods/audit-list';
 import { PeriodActions } from '@/components/admin/periods/period-actions';
+
+export const dynamic = 'force-dynamic';
+
 interface PeriodDetailPageProps {
     params: Promise<{ id: string }>;
 }
