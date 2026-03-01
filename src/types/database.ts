@@ -58,6 +58,8 @@ export interface Audit {
   auditor_group_id: string | null;
   auditee_group_id: string | null;
   individual_auditor_id: string | null;
+  time_limit_minutes?: number;
+  exam_start_time?: string | null;
 
   // Legacy (Deprecated/Migrated)
   auditor_id: string | null;

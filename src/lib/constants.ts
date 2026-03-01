@@ -66,6 +66,7 @@ export const NAV_ITEMS = {
         { label: 'Dashboard', href: '/dashboard', icon: 'LayoutDashboard' },
         { label: 'Periode Audit', href: '/admin/periods', icon: 'Calendar' },
         { label: 'Audit', href: '/audits', icon: 'ClipboardCheck' },
+        { label: 'Distribusi Ujian', href: '/admin/exams', icon: 'ClipboardCheck' },
         { label: 'Pengguna', href: '/admin/users', icon: 'Users' },
     ],
     auditor: [

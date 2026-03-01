@@ -8,9 +8,10 @@ import { Audit, AuditItem, ExtendedAudit, Profile } from '@/types/database';
 import { AuditTable } from '@/components/audit/audit-table';
 import { TaskDistribution } from '@/components/audit/task-distribution';
 import { AuditExportButtons } from '@/components/audit/audit-export-buttons';
-import { ArrowLeft, Calendar, Users, Loader2, FileText } from 'lucide-react';
+import { ArrowLeft, Calendar, Users, Loader2, FileText, Clock, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import { getAuditById } from '@/lib/actions/audit-server-actions';
+import { startExam } from '@/lib/actions/exam-actions';
 import { getProfilesByIds } from '@/lib/actions/period-actions';
 
 export default function AuditDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -22,6 +23,12 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
     const [loading, setLoading] = useState(true);
     const [isLeader, setIsLeader] = useState(false);
     const [members, setMembers] = useState<Profile[]>([]);
+
+    // Exam Timer States
+    const [examTimeLeft, setExamTimeLeft] = useState<number | null>(null);
+    const [isExamLocked, setIsExamLocked] = useState(false);
+    const [isStartingExam, setIsStartingExam] = useState(false);
+
     const supabase = createClient();
 
     useEffect(() => {
@@ -51,6 +58,26 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
                             setMembers(memberProfiles);
                         }
                     }
+
+                    // Extract Timer Logic
+                    if (auditData.type === 'midterm' || auditData.type === 'final') {
+                        if (auditData.exam_start_time) {
+                            const start = new Date(auditData.exam_start_time).getTime();
+                            const limit = (auditData.time_limit_minutes || 90) * 60 * 1000;
+                            const end = start + limit;
+                            const now = Date.now();
+                            if (now >= end) {
+                                setExamTimeLeft(0);
+                                setIsExamLocked(true);
+                            } else {
+                                setExamTimeLeft(Math.floor((end - now) / 1000));
+                                setIsExamLocked(false);
+                            }
+                        } else {
+                            setExamTimeLeft(auditData.time_limit_minutes ? auditData.time_limit_minutes * 60 : 90 * 60);
+                        }
+                    }
+
                 }
 
                 // Fetch audit items
@@ -70,6 +97,44 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
 
         fetchAudit();
     }, [id, profile]);
+
+    // Timer Interval Effects
+    useEffect(() => {
+        if (examTimeLeft === null || examTimeLeft <= 0 || isExamLocked || !audit?.exam_start_time) return;
+
+        const interval = setInterval(() => {
+            setExamTimeLeft((prev) => {
+                if (prev === null) return null;
+                if (prev <= 1) {
+                    setIsExamLocked(true);
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [examTimeLeft, isExamLocked, audit]);
+
+    const handleStartExam = async () => {
+        setIsStartingExam(true);
+        const res = await startExam(id);
+        if (res.error) {
+            console.error(res.error);
+            setIsStartingExam(false);
+        } else {
+            // refresh page to restart calculations cleanly
+            window.location.reload();
+        }
+    };
+
+    const formatTime = (seconds: number) => {
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        const s = seconds % 60;
+        if (h > 0) return `${h}j ${m}m ${s}s`;
+        return `${m}m ${s}s`;
+    };
 
     if (loading) {
         return (
@@ -96,8 +161,36 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
         satker_name: string;
     } | undefined;
 
+    const isExam = audit.type === 'midterm' || audit.type === 'final';
+    const needsToStart = isExam && !audit.exam_start_time && audit.effectiveRole === 'auditor';
+
     return (
         <div className="space-y-6">
+            {/* Blocking Overlay for Exam Start */}
+            {needsToStart && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-md p-4">
+                    <div className={`max-w-md w-full rounded-[2rem] p-8 shadow-2xl text-center border relative overflow-hidden ${isDark ? 'bg-slate-900 border-slate-800 shadow-blue-900/20' : 'bg-white border-slate-100 shadow-blue-500/10'}`}>
+                        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent z-0" />
+
+                        <div className="relative z-10">
+                            <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 text-blue-600 border-4 border-white shadow-xl ${isDark ? 'bg-blue-900/30' : 'bg-blue-50'}`}>
+                                <Clock className="w-10 h-10" />
+                            </div>
+                            <h2 className={`text-2xl font-black tracking-tight mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>Ujian Siap Dimulai</h2>
+                            <p className={`text-sm mb-8 leading-relaxed font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                                Anda memiliki waktu <strong className="text-blue-500">{audit.time_limit_minutes || 90} menit</strong> untuk menyelesaikan ujian ini. Waktu akan terus berjalan secara otomatis meskipun jaringan terputus atau browser ditutup.
+                            </p>
+                            <button
+                                disabled={isStartingExam}
+                                onClick={handleStartExam}
+                                className="w-full h-14 rounded-xl bg-blue-600 text-white font-bold text-lg hover:bg-blue-700 hover:scale-[1.02] shadow-xl shadow-blue-600/20 transition-all flex justify-center items-center gap-2 disabled:opacity-50 disabled:hover:scale-100"
+                            >
+                                {isStartingExam ? <Loader2 className="w-6 h-6 animate-spin" /> : 'Mulai Sekarang'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                 <div>
@@ -200,6 +293,24 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
                 ))}
             </div>
 
+            {/* Sticky Timer Banner For Active Exams */}
+            {isExam && audit?.exam_start_time && (
+                <div className={`p-5 rounded-2xl flex items-center justify-between border shadow-sm transition-colors ${isExamLocked ? 'bg-red-50 border-red-200 text-red-800' : 'bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-900/20 dark:border-blue-800/50 dark:text-blue-300'}`}>
+                    <div className="flex items-center gap-4">
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center ${isExamLocked ? 'bg-red-100 text-red-600' : 'bg-blue-100/50 text-blue-600'}`}>
+                            {isExamLocked ? <AlertCircle className="w-6 h-6" /> : <Clock className="w-6 h-6 animate-pulse" />}
+                        </div>
+                        <div>
+                            <h4 className="font-bold text-lg">{isExamLocked ? 'Waktu Ujian Habis' : 'Sisa Waktu Ujian'}</h4>
+                            <p className="text-xs font-medium opacity-80 mt-0.5">{isExamLocked ? 'Anda tidak dapat lagi mengubah penilaian.' : 'Sistem otomatis mengunci apabila waktu telah habis.'}</p>
+                        </div>
+                    </div>
+                    <div className="text-4xl font-black tabular-nums tracking-tighter drop-shadow-sm">
+                        {examTimeLeft !== null ? formatTime(examTimeLeft) : '--:--'}
+                    </div>
+                </div>
+            )}
+
             {/* Audit Table */}
             {
                 items.length === 0 ? (
@@ -212,16 +323,16 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
                 ) : (
                     <AuditTable
                         items={items}
-                        role={profile?.role || 'auditee'} // Fallback, but effectiveRole should take precedence in AuditTable
-                        effectiveRole={audit.effectiveRole}
+                        role={profile?.role || 'auditee'}
+                        effectiveRole={isExamLocked ? 'observer' : audit?.effectiveRole}
                         currentUserId={profile?.id}
-                        auditType={audit.type}
-                        auditStatus={audit.status}
+                        auditType={audit?.type}
+                        auditStatus={isExamLocked ? 'locked' : audit?.status}
                         auditId={id}
                         onItemsUpdate={setItems}
                     />
                 )
             }
-        </div >
+        </div>
     );
 }
