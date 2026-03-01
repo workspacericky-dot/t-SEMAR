@@ -20,15 +20,63 @@ const getSupabaseAdmin = () => createClient(
 // ============================================
 
 export async function createPeriod(name: string, year: number) {
-    const { data, error } = await getSupabaseAdmin()
+    const supabase = getSupabaseAdmin();
+
+    // 1. Create the period
+    const { data: period, error: periodError } = await supabase
         .from('audit_periods')
         .insert({ name, year, is_active: true })
         .select()
         .single();
 
-    if (error) throw error;
+    if (periodError) throw periodError;
+
+    // 2. Fetch all profiles that have a training_group assigned and are not superadmin
+    const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, training_group')
+        .neq('role', 'superadmin')
+        .not('training_group', 'is', null);
+
+    if (!profilesError && profiles && profiles.length > 0) {
+        // Group profiles by their training_group
+        const groupedProfiles: Record<number, string[]> = {};
+
+        profiles.forEach(profile => {
+            const groupNum = profile.training_group;
+            if (groupNum) {
+                if (!groupedProfiles[groupNum]) {
+                    groupedProfiles[groupNum] = [];
+                }
+                groupedProfiles[groupNum].push(profile.id);
+            }
+        });
+
+        // 3. Create groups based on the grouped profiles
+        const groupsToInsert = Object.entries(groupedProfiles).map(([groupNumStr, memberIds]) => {
+            const groupNum = parseInt(groupNumStr, 10);
+            return {
+                period_id: period.id,
+                name: `Kelompok ${groupNum}`,
+                group_number: groupNum,
+                members: memberIds,
+                lead_student_id: null,
+            };
+        });
+
+        if (groupsToInsert.length > 0) {
+            const { error: insertGroupsError } = await supabase
+                .from('groups')
+                .insert(groupsToInsert);
+
+            if (insertGroupsError) {
+                console.error("Failed to auto-create groups for period:", insertGroupsError);
+            }
+        }
+    }
+
     revalidatePath('/admin/periods');
-    return data as AuditPeriod;
+    return period as AuditPeriod;
 }
 
 export async function deletePeriod(id: string) {
