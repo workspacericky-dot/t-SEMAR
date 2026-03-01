@@ -7,6 +7,7 @@ import { Audit, AuditItem } from '@/types/database';
 import { ActionPlanTable } from '@/components/action-plan/action-plan-table';
 import { ArrowLeft, FileText, LayoutDashboard } from 'lucide-react';
 import Link from 'next/link';
+import { getAuditById } from '@/lib/actions/audit-server-actions';
 
 export default function ActionPlanPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
@@ -19,7 +20,6 @@ export default function ActionPlanPage({ params }: { params: Promise<{ id: strin
     useEffect(() => {
         const fetchData = async () => {
             // Fetch audit details with effective role
-            const { getAuditById } = await import('@/lib/actions/audit-server-actions');
             const auditData = await getAuditById(id, profile!.id);
 
             if (auditData) setAudit(auditData);

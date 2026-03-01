@@ -220,7 +220,6 @@ export function AuditTable({ items, role, auditId, onItemsUpdate, effectiveRole,
         try {
             let updated: AuditItem;
             if (actualRole === 'auditee') {
-                const { saveAuditeeSelfAssessment } = await import('@/lib/actions/audit-actions');
                 updated = await saveAuditeeSelfAssessment(itemId, {
                     jawaban_auditee: fields.jawaban_auditee,
                     nilai_auditee: fields.nilai_auditee,
@@ -260,7 +259,6 @@ export function AuditTable({ items, role, auditId, onItemsUpdate, effectiveRole,
             const pendingChanges = editingFields[itemId];
             if (pendingChanges) {
                 if (actualRole === 'auditee') {
-                    const { saveAuditeeSelfAssessment } = await import('@/lib/actions/audit-actions');
                     await saveAuditeeSelfAssessment(itemId, {
                         jawaban_auditee: pendingChanges.jawaban_auditee,
                         nilai_auditee: pendingChanges.nilai_auditee,

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { AuditItem, Profile } from '@/types/database';
-import { assignMultipleItemsToMember } from '@/lib/actions/audit-server-actions';
+import { assignMultipleItemsToMember, resetOrphanedTasks } from '@/lib/actions/audit-server-actions';
 import { toast } from 'sonner';
 import {
     Dialog,
@@ -118,7 +118,6 @@ export function TaskDistribution({ items, members, auditId, effectiveRole, onUpd
                                 <button
                                     onClick={async () => {
                                         if (!confirm('Tugas yang "orphaned" akan di-reset menjadi "Belum Dibagi". Lanjutkan?')) return;
-                                        const { resetOrphanedTasks } = await import('@/lib/actions/audit-server-actions');
                                         await resetOrphanedTasks(auditId, members.map(m => m.id), effectiveRole);
                                         if (onUpdate) onUpdate();
                                         toast.success('Berhasil mereset tugas orphaned');

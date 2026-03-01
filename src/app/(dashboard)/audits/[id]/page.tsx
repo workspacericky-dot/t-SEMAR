@@ -10,6 +10,8 @@ import { TaskDistribution } from '@/components/audit/task-distribution';
 import { AuditExportButtons } from '@/components/audit/audit-export-buttons';
 import { ArrowLeft, Calendar, Users, Loader2, FileText } from 'lucide-react';
 import Link from 'next/link';
+import { getAuditById } from '@/lib/actions/audit-server-actions';
+import { getProfilesByIds } from '@/lib/actions/period-actions';
 
 export default function AuditDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
@@ -28,8 +30,6 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
 
             try {
                 // Use server action to get audit with effective role
-                const { getAuditById } = await import('@/lib/actions/audit-server-actions');
-                const { getProfilesByIds } = await import('@/lib/actions/period-actions');
                 const auditData = await getAuditById(id, profile.id);
 
                 if (auditData) {

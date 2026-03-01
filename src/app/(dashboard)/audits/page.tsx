@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useEffect, useState } from 'react';
 import { Audit } from '@/types/database';
 import Link from 'next/link';
-import { deleteAudit } from '@/lib/actions/audit-server-actions';
+import { deleteAudit, getUserAudits } from '@/lib/actions/audit-server-actions';
 import {
     ClipboardCheck,
     Plus,
@@ -37,7 +37,6 @@ export default function AuditsPage() {
 
         try {
             // Use server action to get all audits (including group ones)
-            const { getUserAudits } = await import('@/lib/actions/audit-server-actions');
             const data = await getUserAudits(profile.id);
             setAudits(data || []);
         } catch (error) {
