@@ -151,3 +151,26 @@ export async function deleteUser(userId: string) {
         return { error: error.message };
     }
 }
+
+export async function resetUserPassword(userId: string, newPassword: string) {
+    try {
+        if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+            return { error: 'Server configuration error' };
+        }
+
+        if (newPassword.length < 6) {
+            return { error: 'Password minimal 6 karakter' };
+        }
+
+        const { error } = await getSupabaseAdmin().auth.admin.updateUserById(userId, {
+            password: newPassword,
+        });
+
+        if (error) throw error;
+
+        return { success: true };
+    } catch (error: any) {
+        console.error('Reset User Password Error:', error);
+        return { error: error.message };
+    }
+}

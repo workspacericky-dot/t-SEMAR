@@ -3,9 +3,9 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/auth-store';
-import { getUsers, deleteUser } from '@/lib/actions/user-actions';
+import { getUsers, deleteUser, resetUserPassword } from '@/lib/actions/user-actions';
 import { toast } from 'sonner';
-import { Loader2, Trash2, Shield, User, Users, AlertCircle, ArrowLeft } from 'lucide-react';
+import { Loader2, Trash2, Shield, User, Users, AlertCircle, ArrowLeft, Key, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -25,6 +25,12 @@ export default function ManageUsersPage() {
     const [users, setUsers] = useState<UserData[]>([]);
     const [loading, setLoading] = useState(true);
     const [deletingId, setDeletingId] = useState<string | null>(null);
+
+    // Password Reset State
+    const [resetModalOpen, setResetModalOpen] = useState(false);
+    const [resetTargetUser, setResetTargetUser] = useState<{ id: string, name: string } | null>(null);
+    const [newPassword, setNewPassword] = useState('');
+    const [isResetting, setIsResetting] = useState(false);
 
     useEffect(() => {
         // Protect Route
@@ -65,6 +71,28 @@ export default function ManageUsersPage() {
             setUsers(prev => prev.filter(u => u.id !== userId));
         }
         setDeletingId(null);
+    };
+
+    const handleOpenResetModal = (userId: string, userName: string) => {
+        setResetTargetUser({ id: userId, name: userName });
+        setNewPassword('');
+        setResetModalOpen(true);
+    };
+
+    const handleResetSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!resetTargetUser) return;
+
+        setIsResetting(true);
+        const res = await resetUserPassword(resetTargetUser.id, newPassword);
+
+        if (res.error) {
+            toast.error(res.error);
+        } else {
+            toast.success(`Password for ${resetTargetUser.name} has been forcefully updated!`);
+            setResetModalOpen(false);
+        }
+        setIsResetting(false);
     };
 
     if (loading) {
@@ -154,20 +182,29 @@ export default function ManageUsersPage() {
                                         {user.id === profile?.id ? (
                                             <span className="text-xs text-slate-400 italic">Current User</span>
                                         ) : user.role === 'superadmin' ? (
-                                            <span className="text-xs text-slate-400 italic" title="Cannot delete other superadmins">Protected</span>
+                                            <span className="text-xs text-slate-400 italic" title="Cannot modify superadmins">Protected</span>
                                         ) : (
-                                            <button
-                                                onClick={() => handleDelete(user.id, user.full_name)}
-                                                disabled={deletingId === user.id}
-                                                className="p-2 rounded-lg text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors disabled:opacity-50"
-                                                title="Delete User"
-                                            >
-                                                {deletingId === user.id ? (
-                                                    <Loader2 className="w-4 h-4 animate-spin" />
-                                                ) : (
-                                                    <Trash2 className="w-4 h-4" />
-                                                )}
-                                            </button>
+                                            <div className="flex items-center justify-end gap-2">
+                                                <button
+                                                    onClick={() => handleOpenResetModal(user.id, user.full_name)}
+                                                    className="p-2 rounded-lg text-amber-600 hover:bg-amber-50 hover:text-amber-700 transition-colors"
+                                                    title="Force Reset Password"
+                                                >
+                                                    <Key className="w-4 h-4" />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDelete(user.id, user.full_name)}
+                                                    disabled={deletingId === user.id}
+                                                    className="p-2 rounded-lg text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors disabled:opacity-50"
+                                                    title="Delete User"
+                                                >
+                                                    {deletingId === user.id ? (
+                                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                                    ) : (
+                                                        <Trash2 className="w-4 h-4" />
+                                                    )}
+                                                </button>
+                                            </div>
                                         )}
                                     </td>
                                 </tr>
@@ -185,6 +222,56 @@ export default function ManageUsersPage() {
                     </div>
                 )}
             </div>
+
+            {/* Password Reset Modal */}
+            {resetModalOpen && resetTargetUser && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+                    <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl relative">
+                        <button
+                            onClick={() => setResetModalOpen(false)}
+                            className="absolute top-4 right-4 text-slate-400 hover:text-slate-600"
+                        >
+                            <X className="w-5 h-5" />
+                        </button>
+
+                        <div className="flex items-center gap-3 text-amber-600 mb-6">
+                            <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center">
+                                <Key className="w-5 h-5" />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-bold text-slate-900 leading-tight">Force Reset Password</h3>
+                                <p className="text-sm font-medium text-slate-500">for {resetTargetUser.name}</p>
+                            </div>
+                        </div>
+
+                        <form onSubmit={handleResetSubmit} className="space-y-4">
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-700 mb-1">New Password</label>
+                                <input
+                                    type="text"
+                                    value={newPassword}
+                                    onChange={(e) => setNewPassword(e.target.value)}
+                                    placeholder="Enter new password (min. 6 chars)"
+                                    className="w-full px-4 py-3 bg-slate-50 border-0 rounded-xl text-sm text-slate-900 focus:ring-2 focus:ring-amber-500/20 focus:bg-white"
+                                    required
+                                    minLength={6}
+                                />
+                                <p className="text-xs text-amber-600/80 mt-2">
+                                    <strong>Warning:</strong> The user will immediately be able to log in with this new credential. Make sure to communicate this password to them securely.
+                                </p>
+                            </div>
+
+                            <button
+                                type="submit"
+                                disabled={isResetting || newPassword.length < 6}
+                                className="w-full py-3 bg-amber-600 text-white rounded-xl font-semibold hover:bg-amber-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 mt-2"
+                            >
+                                {isResetting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save New Password'}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

@@ -5,7 +5,6 @@ import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
-import Link from 'next/link';
 
 export default function LoginPage() {
     const [isLogin, setIsLogin] = useState(true);
@@ -208,12 +207,9 @@ export default function LoginPage() {
                                     <input type="checkbox" className="w-4 h-4 rounded border-slate-300 text-black focus:ring-black/10" />
                                     Remember me
                                 </label>
-                                <Link
-                                    href="/forgot-password"
-                                    className="font-medium text-slate-900 hover:text-blue-600 hover:underline relative z-30 px-2 py-1 -mr-2 cursor-pointer"
-                                >
-                                    Forgot Password
-                                </Link>
+                                <span className="font-medium text-slate-500 hover:text-slate-800 relative z-30 px-2 py-1 -mr-2 transition-colors">
+                                    Lupa Password? Hubungi Admin
+                                </span>
                             </div>
                         )}
 
