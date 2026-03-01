@@ -97,6 +97,8 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
 
         fetchAudit();
     }, [id, profile]);
+    const isExam = audit?.type === 'midterm' || audit?.type === 'final';
+    const needsToStart = isExam && !audit?.exam_start_time && audit?.effectiveRole === 'auditor';
 
     // Timer Interval Effects
     useEffect(() => {
@@ -115,6 +117,19 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
 
         return () => clearInterval(interval);
     }, [examTimeLeft, isExamLocked, audit]);
+
+    // Prevent background scrolling when modal is open
+    useEffect(() => {
+        if (needsToStart) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [needsToStart]);
 
     const handleStartExam = async () => {
         setIsStartingExam(true);
@@ -160,9 +175,6 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
         full_name: string;
         satker_name: string;
     } | undefined;
-
-    const isExam = audit.type === 'midterm' || audit.type === 'final';
-    const needsToStart = isExam && !audit.exam_start_time && audit.effectiveRole === 'auditor';
 
     return (
         <div className="space-y-6">

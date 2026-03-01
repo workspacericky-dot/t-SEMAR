@@ -11,10 +11,12 @@ import {
     ClipboardCheck,
     Clock,
     CheckCircle2,
+    Calendar,
     ArrowRight,
-    ToggleLeft,
-    ToggleRight,
     Users,
+    Lock,
+    ToggleLeft,
+    ToggleRight
 } from 'lucide-react';
 import {
     Radar,
@@ -383,6 +385,18 @@ export default function DashboardPage() {
                                     ) : (
                                         audits.filter(a => a.type !== 'group_practice').map(audit => {
                                             const isActive = selectedAuditId === audit.id;
+                                            const isExam = audit.type === 'midterm' || audit.type === 'final';
+                                            let isLocked = audit.status === 'locked';
+                                            if (!isLocked && isExam && audit.time_limit_minutes && audit.exam_start_time) {
+                                                const limitSeconds = audit.time_limit_minutes * 60;
+                                                const startedAt = new Date(audit.exam_start_time).getTime();
+                                                const now = new Date().getTime();
+                                                const elapsed = Math.floor((now - startedAt) / 1000);
+                                                if (limitSeconds - elapsed <= 0) {
+                                                    isLocked = true;
+                                                }
+                                            }
+
                                             return (
                                                 <div
                                                     key={audit.id}
@@ -393,11 +407,12 @@ export default function DashboardPage() {
                                                         : isDark
                                                             ? 'bg-[#1A1D27] border-slate-800 hover:border-slate-700'
                                                             : 'bg-white border-transparent hover:border-slate-200 hover:shadow-md'
-                                                        }`}
+                                                        } ${isLocked ? 'opacity-60 cursor-not-allowed filter grayscale' : ''}`}
                                                 >
                                                     <button
-                                                        onClick={() => handleToggle(audit.id)}
-                                                        className="shrink-0"
+                                                        onClick={() => { if (!isLocked) handleToggle(audit.id); }}
+                                                        disabled={isLocked}
+                                                        className="shrink-0 disabled:cursor-not-allowed disabled:opacity-50"
                                                     >
                                                         {isActive ? (
                                                             <ToggleRight className="w-6 h-6 text-pink-500" />
@@ -406,17 +421,31 @@ export default function DashboardPage() {
                                                         )}
                                                     </button>
 
-                                                    <Link href={`/audits/${audit.id}`} className="flex-1 min-w-0">
-                                                        <h4 className={`font-bold text-sm leading-tight line-clamp-1 transition-colors ${isActive
-                                                            ? 'text-pink-600'
-                                                            : isDark ? 'text-white group-hover:text-pink-400' : 'text-slate-800 group-hover:text-pink-600'
-                                                            }`}>
-                                                            {audit.title}
-                                                        </h4>
-                                                        <p className={`text-[10px] mt-0.5 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
-                                                            {audit.type === 'midterm' ? 'Midterm Exam' : 'Individual'}
-                                                        </p>
-                                                    </Link>
+                                                    {isLocked ? (
+                                                        <div className="flex-1 min-w-0 flex items-center justify-between">
+                                                            <div>
+                                                                <h4 className={`font-bold text-sm leading-tight line-clamp-1 transition-colors ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                                                                    {audit.title}
+                                                                </h4>
+                                                                <p className={`text-[10px] mt-0.5 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+                                                                    {audit.type === 'midterm' ? 'Midterm Exam' : 'Individual'} (Terkunci)
+                                                                </p>
+                                                            </div>
+                                                            <Lock className="w-4 h-4 text-slate-400 shrink-0" />
+                                                        </div>
+                                                    ) : (
+                                                        <Link href={`/audits/${audit.id}`} className="flex-1 min-w-0">
+                                                            <h4 className={`font-bold text-sm leading-tight line-clamp-1 transition-colors ${isActive
+                                                                ? 'text-pink-600'
+                                                                : isDark ? 'text-white group-hover:text-pink-400' : 'text-slate-800 group-hover:text-pink-600'
+                                                                }`}>
+                                                                {audit.title}
+                                                            </h4>
+                                                            <p className={`text-[10px] mt-0.5 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+                                                                {audit.type === 'midterm' ? 'Midterm Exam' : 'Individual'}
+                                                            </p>
+                                                        </Link>
+                                                    )}
                                                 </div>
                                             );
                                         })

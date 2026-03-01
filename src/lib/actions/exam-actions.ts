@@ -22,7 +22,7 @@ const getSupabaseAdmin = () => createClient(
 export async function distributeExam(
     masterAuditId: string,
     examType: 'midterm' | 'final',
-    timeLimitMinutes: number
+    timeLimitMinutes: number = 60
 ) {
     try {
         const supabase = getSupabaseAdmin();

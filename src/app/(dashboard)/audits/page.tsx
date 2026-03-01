@@ -17,6 +17,7 @@ import {
     Loader2,
     Settings,
     Trash2,
+    Lock,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -185,12 +186,25 @@ function AuditCard({ audit, profile, isDeleting, onDelete }: any) {
     const isGroupPractice = audit.type === 'group_practice';
     const effectiveRole = audit.effectiveRole;
 
+    const isExam = audit.type === 'midterm' || audit.type === 'final';
+    let isLocked = audit.status === 'locked';
+    if (!isLocked && isExam && audit.time_limit_minutes && audit.exam_start_time) {
+        const limitSeconds = audit.time_limit_minutes * 60;
+        const startedAt = new Date(audit.exam_start_time).getTime();
+        const now = new Date().getTime();
+        const elapsed = Math.floor((now - startedAt) / 1000);
+        if (limitSeconds - elapsed <= 0) {
+            isLocked = true;
+        }
+    }
+
     return (
-        <div className={`group relative bg-white dark:bg-slate-900 border rounded-2xl p-6 hover:shadow-lg transition-all duration-300 ${isGroupPractice && effectiveRole
-            ? effectiveRole === 'auditor'
-                ? 'border-indigo-200 dark:border-indigo-900/50 hover:border-indigo-400'
-                : 'border-amber-200 dark:border-amber-900/50 hover:border-amber-400'
-            : 'border-slate-200 dark:border-slate-800 hover:border-blue-200 dark:hover:border-blue-800'
+        <div className={`group relative bg-white dark:bg-slate-900 border rounded-2xl p-6 transition-all duration-300 ${isLocked ? 'opacity-60 border-slate-200 dark:border-slate-800 filter grayscale' :
+            isGroupPractice && effectiveRole
+                ? effectiveRole === 'auditor'
+                    ? 'border-indigo-200 dark:border-indigo-900/50 hover:border-indigo-400 hover:shadow-lg'
+                    : 'border-amber-200 dark:border-amber-900/50 hover:border-amber-400 hover:shadow-lg'
+                : 'border-slate-200 dark:border-slate-800 hover:border-blue-200 dark:hover:border-blue-800 hover:shadow-lg'
             }`}>
             {/* Role Badge for Groups */}
             {isGroupPractice && effectiveRole && (
@@ -202,11 +216,15 @@ function AuditCard({ audit, profile, isDeleting, onDelete }: any) {
                 </div>
             )}
 
-            <Link
-                href={`/audits/${audit.id}`}
-                className="absolute inset-0 z-0 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/50"
-                aria-label={`Lihat audit ${audit.title}`}
-            />
+            {isLocked ? (
+                <div className="absolute inset-0 z-0 rounded-2xl cursor-not-allowed" />
+            ) : (
+                <Link
+                    href={`/audits/${audit.id}`}
+                    className="absolute inset-0 z-0 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                    aria-label={`Lihat audit ${audit.title}`}
+                />
+            )}
 
             <div className="relative z-10 flex items-start justify-between pointer-events-none pt-2">
                 <div className="flex-1 min-w-0 pointer-events-auto">
@@ -255,6 +273,11 @@ function AuditCard({ audit, profile, isDeleting, onDelete }: any) {
                             >
                                 {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
                             </button>
+                        </div>
+                    ) : isLocked ? (
+                        <div className="flex items-center text-slate-400 gap-1 text-xs font-semibold uppercase tracking-wider" title="Tugas Kedaluwarsa">
+                            <Lock className="w-4 h-4" />
+                            <span>Terkunci</span>
                         </div>
                     ) : (
                         <ArrowRight className="w-5 h-5 text-slate-300 group-hover:text-blue-500 transition-colors" />

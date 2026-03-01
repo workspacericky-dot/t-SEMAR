@@ -19,7 +19,7 @@ export default function ManageExamsPage() {
     // Form state
     const [selectedTemplate, setSelectedTemplate] = useState('');
     const [examType, setExamType] = useState<'midterm' | 'final'>('midterm');
-    const [duration, setDuration] = useState<number>(90);
+    const [duration, setDuration] = useState<number>(60);
 
     useEffect(() => {
         // Protect Route
@@ -181,7 +181,7 @@ export default function ManageExamsPage() {
                                 min="10"
                                 max="300"
                                 value={duration}
-                                onChange={(e) => setDuration(parseInt(e.target.value) || 90)}
+                                onChange={(e) => setDuration(parseInt(e.target.value) || 60)}
                                 className="w-full h-12 rounded-xl border-slate-200 outline-none focus:ring-2 focus:ring-blue-500/50 bg-slate-50 px-4"
                             />
                         </div>
