@@ -14,9 +14,19 @@ export default function UpdatePasswordPage() {
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [hashError, setHashError] = useState<string | null>(null);
 
-    // Verify session exists
+    // Verify session exists or check for hash errors
     useEffect(() => {
+        // Parse Hash parameters since Supabase Password Recovery uses implicit flows
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const errorDescription = hashParams.get('error_description');
+        if (errorDescription) {
+            setHashError(decodeURIComponent(errorDescription.replace(/\+/g, ' ')));
+            toast.error(decodeURIComponent(errorDescription.replace(/\+/g, ' ')));
+            return;
+        }
+
         const checkSession = async () => {
             const supabase = createClient();
             const { data } = await supabase.auth.getSession();
@@ -89,6 +99,18 @@ export default function UpdatePasswordPage() {
                         </p>
                     </div>
 
+                    {hashError && (
+                        <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-100 text-red-600 text-sm font-medium flex flex-col items-center text-center gap-2">
+                            <span>{hashError}</span>
+                            <button
+                                onClick={() => router.replace('/forgot-password')}
+                                className="mt-2 px-4 py-2 bg-red-100 text-red-700 hover:bg-red-200 rounded-lg transition-colors"
+                            >
+                                Request New Link
+                            </button>
+                        </div>
+                    )}
+
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="space-y-1.5">
                             <label className="block text-xs font-semibold text-slate-700 ml-1">
@@ -143,7 +165,7 @@ export default function UpdatePasswordPage() {
                         <div className="pt-2 space-y-4">
                             <button
                                 type="submit"
-                                disabled={loading || !password || !confirmPassword}
+                                disabled={loading || !password || !confirmPassword || !!hashError}
                                 className="w-full py-3.5 rounded-xl bg-black text-white font-semibold text-sm shadow-xl shadow-black/10 hover:shadow-black/20 hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {loading ? (
