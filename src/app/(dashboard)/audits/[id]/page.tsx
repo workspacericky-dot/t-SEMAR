@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, use } from 'react';
+import { createPortal } from 'react-dom';
 import { createClient } from '@/lib/supabase/client';
 import { useAuthStore } from '@/store/auth-store';
 import { useThemeStore } from '@/store/theme-store';
@@ -25,6 +26,11 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
     const [isLeader, setIsLeader] = useState(false);
     const [members, setMembers] = useState<Profile[]>([]);
     const [countdownPhase, setCountdownPhase] = useState<number | null>(null);
+    const [portalMounted, setPortalMounted] = useState(false);
+
+    useEffect(() => {
+        setPortalMounted(true);
+    }, []);
 
     // Exam Timer States
     const [examTimeLeft, setExamTimeLeft] = useState<number | null>(null);
@@ -196,7 +202,7 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
     return (
         <div className="space-y-6">
             {/* Blocking Overlay for Exam Start */}
-            {needsToStart && (
+            {needsToStart && portalMounted && createPortal(
                 <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/90 backdrop-blur-md p-4">
                     {countdownPhase !== null ? (
                         <AnimatePresence mode="wait">
@@ -238,7 +244,7 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
                             </div>
                         </motion.div>
                     )}
-                </div>
+                </div>, document.body
             )}
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
