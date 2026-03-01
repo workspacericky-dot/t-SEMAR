@@ -20,68 +20,73 @@ const getSupabaseAdmin = () => createClient(
  * or individual assignment.
  */
 export async function getUserAudits(userId: string) {
-    // 1. Get user's profile to find which groups they are in
-    const { data: groups, error: groupsError } = await getSupabaseAdmin()
-        .from('groups')
-        .select('id')
-        .contains('members', [userId]);
+    try {
+        // 1. Get user's profile to find which groups they are in
+        const { data: groups, error: groupsError } = await getSupabaseAdmin()
+            .from('groups')
+            .select('id')
+            .contains('members', [userId]);
 
-    if (groupsError) throw groupsError;
+        if (groupsError) throw groupsError;
 
-    const groupIds = groups.map(g => g.id);
+        const groupIds = groups.map(g => g.id);
 
-    // 2. Fetch audits where:
-    //    a) User is the INDIVIDUAL auditor
-    //    b) User's group is the AUDITOR group
-    //    c) User's group is the AUDITEE group
+        // 2. Fetch audits where:
+        //    a) User is the INDIVIDUAL auditor
+        //    b) User's group is the AUDITOR group
+        //    c) User's group is the AUDITEE group
 
-    let query = getSupabaseAdmin()
-        .from('audits')
-        .select(`
+        let query = getSupabaseAdmin()
+            .from('audits')
+            .select(`
             *,
             auditor_group:groups!audits_auditor_group_id_fkey(id, name),
             auditee_group:groups!audits_auditee_group_id_fkey(id, name),
             individual_auditor:profiles!audits_individual_auditor_id_fkey(id, full_name),
             period:audit_periods(name, year)
         `)
-        .order('created_at', { ascending: false });
+            .order('created_at', { ascending: false });
 
-    // Build OR condition
-    const conditions = [`individual_auditor_id.eq.${userId}`];
+        // Build OR condition
+        const conditions = [`individual_auditor_id.eq.${userId}`];
 
-    if (groupIds.length > 0) {
-        // PostgREST .in. filter inside .or() does not need double quotes for UUIDs.
-        // It should simply be formatted as (val1,val2)
-        const groupList = `(${groupIds.join(',')})`;
-        conditions.push(`auditor_group_id.in.${groupList}`);
-        conditions.push(`auditee_group_id.in.${groupList}`);
-    }
-
-    // Apply OR filter
-    query = query.or(conditions.join(','));
-
-    const { data: audits, error: auditsError } = await query;
-    if (auditsError) throw auditsError;
-
-    // 3. Process audits to add 'effectiveRole'
-    const processedAudits: ExtendedAudit[] = (audits || []).map((audit: any) => {
-        let role: UserAuditRole = 'observer';
-
-        if (audit.individual_auditor_id === userId) {
-            role = 'auditor';
-        } else if (groupIds.includes(audit.auditor_group_id)) {
-            role = 'auditor';
-        } else if (groupIds.includes(audit.auditee_group_id)) {
-            role = 'auditee';
+        if (groupIds.length > 0) {
+            // PostgREST .in. filter inside .or() does not need double quotes for UUIDs.
+            // It should simply be formatted as (val1,val2)
+            const groupList = `(${groupIds.join(',')})`;
+            conditions.push(`auditor_group_id.in.${groupList}`);
+            conditions.push(`auditee_group_id.in.${groupList}`);
         }
 
-        return {
-            ...audit,
-            effectiveRole: role,
-        };
-    });
+        // Apply OR filter
+        query = query.or(conditions.join(','));
 
-    return processedAudits;
+        const { data: audits, error: auditsError } = await query;
+        if (auditsError) throw auditsError;
+
+        // 3. Process audits to add 'effectiveRole'
+        const processedAudits: ExtendedAudit[] = (audits || []).map((audit: any) => {
+            let role: UserAuditRole = 'observer';
+
+            if (audit.individual_auditor_id === userId) {
+                role = 'auditor';
+            } else if (groupIds.includes(audit.auditor_group_id)) {
+                role = 'auditor';
+            } else if (groupIds.includes(audit.auditee_group_id)) {
+                role = 'auditee';
+            }
+
+            return {
+                ...audit,
+                effectiveRole: role,
+            };
+        });
+
+        return processedAudits;
+    } catch (error) {
+        console.error('[getUserAudits] ERROR for userId:', userId, error);
+        throw error;
+    }
 }
 
 /** 
@@ -89,24 +94,29 @@ export async function getUserAudits(userId: string) {
  * Bypasses RLS for items to avoid permission errors on the dashboard.
  */
 export async function getDashboardData(userId: string) {
-    // 1. Get Audits
-    const audits = await getUserAudits(userId);
-    const auditIds = audits.map(a => a.id);
+    try {
+        // 1. Get Audits
+        const audits = await getUserAudits(userId);
+        const auditIds = audits.map(a => a.id);
 
-    let items: any[] = [];
+        let items: any[] = [];
 
-    // 2. Get Items (if any audits exist)
-    if (auditIds.length > 0) {
-        const { data: auditItems, error: itemsError } = await getSupabaseAdmin()
-            .from('audit_items')
-            .select('*')
-            .in('audit_id', auditIds);
+        // 2. Get Items (if any audits exist)
+        if (auditIds.length > 0) {
+            const { data: auditItems, error: itemsError } = await getSupabaseAdmin()
+                .from('audit_items')
+                .select('*')
+                .in('audit_id', auditIds);
 
-        if (itemsError) throw itemsError;
-        items = auditItems || [];
+            if (itemsError) throw itemsError;
+            items = auditItems || [];
+        }
+
+        return { audits, items };
+    } catch (error) {
+        console.error('[getDashboardData] ERROR for userId:', userId, error);
+        throw error;
     }
-
-    return { audits, items };
 }
 
 /**
