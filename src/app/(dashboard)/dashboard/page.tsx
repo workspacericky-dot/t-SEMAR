@@ -5,6 +5,7 @@ import { useThemeStore } from '@/store/theme-store';
 import { createClient } from '@/lib/supabase/client';
 import { useEffect, useState, useMemo } from 'react';
 import { Audit, AuditItem } from '@/types/database';
+import { getDashboardData } from '@/lib/actions/audit-server-actions';
 import Link from 'next/link';
 import {
     ClipboardCheck,
@@ -57,8 +58,7 @@ export default function DashboardPage() {
             if (!profile) return;
 
             try {
-                // Use server action to get BOTH audits and items securely
-                const { getDashboardData } = await import('@/lib/actions/audit-server-actions');
+                // Use imported server action
                 const { audits: userAudits, items } = await getDashboardData(profile.id);
 
                 setAudits(userAudits);
