@@ -203,12 +203,15 @@ export default function LoginPage() {
 
                         {/* Remember & Forgot */}
                         {isLogin && (
-                            <div className="flex items-center justify-between text-xs">
+                            <div className="flex items-center justify-between text-xs relative z-20">
                                 <label className="flex items-center gap-2 cursor-pointer text-slate-600 select-none">
                                     <input type="checkbox" className="w-4 h-4 rounded border-slate-300 text-black focus:ring-black/10" />
                                     Remember me
                                 </label>
-                                <Link href="/forgot-password" className="font-medium text-slate-900 hover:underline">
+                                <Link
+                                    href="/forgot-password"
+                                    className="font-medium text-slate-900 hover:text-blue-600 hover:underline relative z-30 px-2 py-1 -mr-2 cursor-pointer"
+                                >
                                     Forgot Password
                                 </Link>
                             </div>

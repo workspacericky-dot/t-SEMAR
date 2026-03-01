@@ -13,6 +13,7 @@ import Link from 'next/link';
 import { getAuditById } from '@/lib/actions/audit-server-actions';
 import { startExam } from '@/lib/actions/exam-actions';
 import { getProfilesByIds } from '@/lib/actions/period-actions';
+import { AnimatePresence, motion } from 'framer-motion';
 
 export default function AuditDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
@@ -23,6 +24,7 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
     const [loading, setLoading] = useState(true);
     const [isLeader, setIsLeader] = useState(false);
     const [members, setMembers] = useState<Profile[]>([]);
+    const [countdownPhase, setCountdownPhase] = useState<number | null>(null);
 
     // Exam Timer States
     const [examTimeLeft, setExamTimeLeft] = useState<number | null>(null);
@@ -131,6 +133,21 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
         };
     }, [needsToStart]);
 
+    // Countdown Animation Effect
+    useEffect(() => {
+        if (countdownPhase === null) return;
+        if (countdownPhase === 0) {
+            window.location.reload();
+            return;
+        }
+
+        const timer = setTimeout(() => {
+            setCountdownPhase(prev => (prev !== null ? prev - 1 : null));
+        }, 1000);
+
+        return () => clearTimeout(timer);
+    }, [countdownPhase]);
+
     const handleStartExam = async () => {
         setIsStartingExam(true);
         const res = await startExam(id);
@@ -138,8 +155,8 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
             console.error(res.error);
             setIsStartingExam(false);
         } else {
-            // refresh page to restart calculations cleanly
-            window.location.reload();
+            // Trigger countdown instead of reload
+            setCountdownPhase(3);
         }
     };
 
@@ -180,27 +197,47 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
         <div className="space-y-6">
             {/* Blocking Overlay for Exam Start */}
             {needsToStart && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-md p-4">
-                    <div className={`max-w-md w-full rounded-[2rem] p-8 shadow-2xl text-center border relative overflow-hidden ${isDark ? 'bg-slate-900 border-slate-800 shadow-blue-900/20' : 'bg-white border-slate-100 shadow-blue-500/10'}`}>
-                        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent z-0" />
-
-                        <div className="relative z-10">
-                            <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 text-blue-600 border-4 border-white shadow-xl ${isDark ? 'bg-blue-900/30' : 'bg-blue-50'}`}>
-                                <Clock className="w-10 h-10" />
-                            </div>
-                            <h2 className={`text-2xl font-black tracking-tight mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>Ujian Siap Dimulai</h2>
-                            <p className={`text-sm mb-8 leading-relaxed font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                                Anda memiliki waktu <strong className="text-blue-500">{audit.time_limit_minutes || 90} menit</strong> untuk menyelesaikan ujian ini. Waktu akan terus berjalan secara otomatis meskipun jaringan terputus atau browser ditutup.
-                            </p>
-                            <button
-                                disabled={isStartingExam}
-                                onClick={handleStartExam}
-                                className="w-full h-14 rounded-xl bg-blue-600 text-white font-bold text-lg hover:bg-blue-700 hover:scale-[1.02] shadow-xl shadow-blue-600/20 transition-all flex justify-center items-center gap-2 disabled:opacity-50 disabled:hover:scale-100"
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/90 backdrop-blur-md p-4">
+                    {countdownPhase !== null ? (
+                        <AnimatePresence mode="wait">
+                            <motion.div
+                                key={countdownPhase}
+                                initial={{ opacity: 0, scale: 0.5, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 1.5, filter: 'blur(5px)' }}
+                                transition={{ duration: 0.3, ease: 'easeOut' }}
+                                className="text-white text-9xl md:text-[15rem] font-black drop-shadow-[0_0_30px_rgba(59,130,246,0.6)]"
                             >
-                                {isStartingExam ? <Loader2 className="w-6 h-6 animate-spin" /> : 'Mulai Sekarang'}
-                            </button>
-                        </div>
-                    </div>
+                                {countdownPhase}
+                            </motion.div>
+                        </AnimatePresence>
+                    ) : (
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.3 }}
+                            className={`max-w-md w-full rounded-[2rem] p-8 shadow-2xl text-center border relative overflow-hidden ${isDark ? 'bg-slate-900 border-slate-800 shadow-blue-900/20' : 'bg-white border-slate-100 shadow-blue-500/10'}`}
+                        >
+                            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent z-0" />
+
+                            <div className="relative z-10">
+                                <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 text-blue-600 border-4 border-white shadow-xl ${isDark ? 'bg-blue-900/30' : 'bg-blue-50'}`}>
+                                    <Clock className="w-10 h-10" />
+                                </div>
+                                <h2 className={`text-2xl font-black tracking-tight mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>Ujian Siap Dimulai</h2>
+                                <p className={`text-sm mb-8 leading-relaxed font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                                    Anda memiliki waktu <strong className="text-blue-500">{audit.time_limit_minutes || 60} menit</strong> untuk menyelesaikan ujian ini. Waktu akan terus berjalan secara otomatis meskipun jaringan terputus atau browser ditutup.
+                                </p>
+                                <button
+                                    disabled={isStartingExam}
+                                    onClick={handleStartExam}
+                                    className="w-full h-14 rounded-xl bg-blue-600 text-white font-bold text-lg hover:bg-blue-700 hover:scale-[1.02] shadow-xl shadow-blue-600/20 transition-all flex justify-center items-center gap-2 disabled:opacity-50 disabled:hover:scale-100"
+                                >
+                                    {isStartingExam ? <Loader2 className="w-6 h-6 animate-spin" /> : 'Mulai Sekarang'}
+                                </button>
+                            </div>
+                        </motion.div>
+                    )}
                 </div>
             )}
             {/* Header */}
