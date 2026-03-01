@@ -63,7 +63,7 @@ export default function LoginPage() {
                     },
                 });
                 if (error) throw error;
-                setSuccess('Registrasi berhasil! Silakan cek email untuk verifikasi.');
+                setSuccess('Registrasi berhasil! Silakan menuju halaman Sign In.');
             }
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : 'Terjadi kesalahan');
