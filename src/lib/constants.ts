@@ -69,6 +69,13 @@ export const NAV_ITEMS = {
         { label: 'Distribusi Ujian', href: '/admin/exams', icon: 'ClipboardCheck' },
         { label: 'Pengguna', href: '/admin/users', icon: 'Users' },
     ],
+    admin: [
+        { label: 'Dashboard', href: '/dashboard', icon: 'LayoutDashboard' },
+        { label: 'Buat Audit Baru', href: '/admin/periods', icon: 'Calendar' },
+        { label: 'Daftar Tugas & Audit', href: '/audits', icon: 'ClipboardCheck' },
+        { label: 'Distribusi Ujian', href: '/admin/exams', icon: 'ClipboardCheck' },
+        { label: 'Pengguna', href: '/admin/users', icon: 'Users' },
+    ],
     auditor: [
         { label: 'Dashboard', href: '/dashboard', icon: 'LayoutDashboard' },
         { label: 'Evaluasi Saya', href: '/audits', icon: 'ClipboardCheck' },
