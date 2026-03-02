@@ -237,3 +237,58 @@ export async function saveTeacherScore(itemId: string, score: number) {
         return { error: error.message || 'Internal server error.' };
     }
 }
+
+/**
+ * Bulk saves teacher scores for multiple items at once.
+ */
+export async function bulkSaveTeacherScores(scores: { itemId: string; score: number }[]) {
+    try {
+        const supabase = getSupabaseAdmin();
+
+        const results: any[] = [];
+        for (const { itemId, score } of scores) {
+            const { data, error } = await supabase
+                .from('audit_items')
+                .update({ teacher_score: score })
+                .eq('id', itemId)
+                .select('*')
+                .single();
+
+            if (error) {
+                console.error(`[bulkSaveTeacherScores] Failed for item ${itemId}:`, error);
+                continue;
+            }
+            results.push(data);
+        }
+
+        return { success: true, updatedItems: results };
+    } catch (error: any) {
+        console.error('[bulkSaveTeacherScores] ERROR:', error);
+        return { error: error.message || 'Internal server error.' };
+    }
+}
+
+/**
+ * Toggles score_released on an audit to reveal/hide teacher scores for students.
+ */
+export async function toggleScoreRelease(auditId: string, released: boolean) {
+    try {
+        const supabase = getSupabaseAdmin();
+
+        const { error } = await supabase
+            .from('audits')
+            .update({ score_released: released })
+            .eq('id', auditId);
+
+        if (error) {
+            return { error: 'Gagal mengubah status rilis nilai.' };
+        }
+
+        revalidatePath(`/audits/${auditId}`);
+        revalidatePath('/admin/exams');
+        return { success: true };
+    } catch (error: any) {
+        console.error('[toggleScoreRelease] ERROR:', error);
+        return { error: error.message || 'Internal server error.' };
+    }
+}

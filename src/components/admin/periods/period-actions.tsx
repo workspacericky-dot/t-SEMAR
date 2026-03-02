@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Lock, Unlock, Loader2, ArrowLeft, Users, User } from 'lucide-react';
 import { lockAllAudits } from '@/lib/actions/assignment-actions';
+import { useThemeStore } from '@/store/theme-store';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -13,6 +14,7 @@ interface PeriodActionsProps {
 
 export function PeriodActions({ periodId }: PeriodActionsProps) {
     const [loading, setLoading] = useState<string | null>(null);
+    const isDark = useThemeStore((s) => s.isDark);
     const router = useRouter();
 
     const handleLock = async (type: 'group_practice' | 'midterm', locked: boolean) => {
@@ -37,10 +39,10 @@ export function PeriodActions({ periodId }: PeriodActionsProps) {
     };
 
     return (
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border shadow-sm ${isDark ? 'bg-[#1A1D2E] border-slate-700/50' : 'bg-white border-slate-200'}`}>
             <Link
                 href="/admin/periods"
-                className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-slate-800 transition-colors"
+                className={`inline-flex items-center gap-2 text-sm transition-colors ${isDark ? 'text-slate-400 hover:text-slate-200' : 'text-slate-500 hover:text-slate-800'}`}
             >
                 <ArrowLeft className="w-4 h-4" />
                 Kembali
@@ -73,7 +75,7 @@ export function PeriodActions({ periodId }: PeriodActionsProps) {
                     </div>
                 </div>
 
-                <div className="w-px h-6 bg-slate-200 hidden sm:block"></div>
+                <div className={`w-px h-6 hidden sm:block ${isDark ? 'bg-slate-700' : 'bg-slate-200'}`}></div>
 
                 {/* Individual Assignment Controls */}
                 <div className="flex items-center gap-3">

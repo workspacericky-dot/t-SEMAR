@@ -22,6 +22,7 @@ interface CriteriaRowProps {
     onToggleExpand: (itemId: string) => void;
     isExpanded: boolean;
     isEditable?: boolean;
+    scoreReleased?: boolean;
 }
 
 const SCORE_MAP: Record<string, number> = {
@@ -34,7 +35,7 @@ export function CriteriaRow({
     item, role, editingFields, updateField,
     onSaveDraft, onPublish, onAgree, onDisagree,
     onAcceptDispute, onRejectDispute, onSubmitActionPlan,
-    savingRows, onToggleExpand, isExpanded, isEditable = true,
+    savingRows, onToggleExpand, isExpanded, isEditable = true, scoreReleased,
 }: CriteriaRowProps) {
     const isDark = useThemeStore((s) => s.isDark);
     // Local state for response panels
@@ -63,7 +64,9 @@ export function CriteriaRow({
         isFinalStatus(item.status);
 
     const showBobot = role === 'superadmin';
-    const showTeacherScore = role === 'superadmin' || (role as string) === 'admin';
+    const isAdminOrSuperadmin = role === 'superadmin' || (role as string) === 'admin';
+    const showTeacherScore = isAdminOrSuperadmin || !!scoreReleased;
+    const canEditTeacherScore = isAdminOrSuperadmin; // Only admin can edit, students are read-only
     const hasModified = editingFields[item.id] && Object.keys(editingFields[item.id]).length > 0;
 
     const getFieldValue = (field: keyof AuditItem): string => {
@@ -255,25 +258,31 @@ export function CriteriaRow({
                     )}
                 </td>
 
-                {/* Score (Teacher) - Admin/Superadmin only */}
+                {/* Score (Teacher) - Admin/Superadmin editable, Students read-only when released */}
                 {showTeacherScore && (
                     <td className={`px-3 py-3 w-24 text-center ${isDark ? 'bg-purple-900/10' : 'bg-purple-50'}`}>
-                        <div className="flex items-center justify-center relative group/input">
-                            <input
-                                type="number"
-                                min={0}
-                                max={100}
-                                value={getFieldValue('teacher_score') || 0}
-                                onChange={(e) => updateField(item.id, 'teacher_score', Number(e.target.value))}
-                                className="w-16 px-2 py-1.5 bg-white dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 font-bold border border-purple-200 dark:border-purple-500/30 rounded-lg text-sm text-center focus:outline-none focus:ring-2 focus:ring-purple-500/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none transition-all shadow-sm"
-                            />
-                            {hasModified && getFieldValue('teacher_score') !== String(item.teacher_score ?? 0) && (
-                                <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 shadow-sm border border-white dark:border-slate-800"></span>
-                                </span>
-                            )}
-                        </div>
+                        {canEditTeacherScore ? (
+                            <div className="flex items-center justify-center relative group/input">
+                                <input
+                                    type="number"
+                                    min={0}
+                                    max={100}
+                                    value={getFieldValue('teacher_score') || 0}
+                                    onChange={(e) => updateField(item.id, 'teacher_score', Number(e.target.value))}
+                                    className="w-16 px-2 py-1.5 bg-white dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 font-bold border border-purple-200 dark:border-purple-500/30 rounded-lg text-sm text-center focus:outline-none focus:ring-2 focus:ring-purple-500/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none transition-all shadow-sm"
+                                />
+                                {hasModified && getFieldValue('teacher_score') !== String(item.teacher_score ?? 0) && (
+                                    <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 shadow-sm border border-white dark:border-slate-800"></span>
+                                    </span>
+                                )}
+                            </div>
+                        ) : (
+                            <span className="font-bold text-purple-700 dark:text-purple-300 text-sm">
+                                {item.teacher_score ?? '-'}
+                            </span>
+                        )}
                     </td>
                 )}
 
@@ -283,16 +292,16 @@ export function CriteriaRow({
                 </td>
 
                 {/* Aksi */}
-                {(role === 'auditor' || isAuditee || showTeacherScore) && (
+                {(role === 'auditor' || isAuditee || canEditTeacherScore) && (
                     <td className="px-3 py-3 w-28 text-center">
                         <div className="flex items-center justify-center gap-1.5">
                             {/* Admin/Teacher Saves Score */}
-                            {showTeacherScore && hasModified && getFieldValue('teacher_score') !== String(item.teacher_score ?? 0) && (
+                            {canEditTeacherScore && hasModified && getFieldValue('teacher_score') !== String(item.teacher_score ?? 0) && (
                                 <button
                                     onClick={() => onSaveDraft(item.id)}
                                     disabled={isSaving}
                                     className="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 hover:bg-emerald-100 transition-colors shadow-sm border border-emerald-100 dark:border-emerald-900/50"
-                                    title="Simpan Nilai Guru"
+                                    title="Simpan Nilai Ujian"
                                 >
                                     {isSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
                                 </button>

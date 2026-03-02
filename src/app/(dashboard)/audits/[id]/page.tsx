@@ -469,6 +469,7 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
                         auditStatus={isExamLocked ? 'locked' : audit?.status}
                         auditId={id}
                         onItemsUpdate={setItems}
+                        scoreReleased={!!audit?.score_released}
                     />
                 )
             }

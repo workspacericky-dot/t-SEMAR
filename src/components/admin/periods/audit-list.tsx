@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { ClipboardList, Trash2, User, Lock, Unlock, Loader2 } from 'lucide-react';
 import { Audit } from '@/types/database';
 import { useAuthStore } from '@/store/auth-store';
+import { useThemeStore } from '@/store/theme-store';
 import { toggleAuditLock } from '@/lib/actions/assignment-actions';
 import { deleteAudit } from '@/lib/actions/audit-server-actions';
 import { toast } from 'sonner';
@@ -14,6 +15,7 @@ interface AuditListProps {
 
 export function AuditList({ audits }: AuditListProps) {
     const { profile } = useAuthStore();
+    const isDark = useThemeStore((s) => s.isDark);
     const isSuperAdmin = profile?.role === 'superadmin';
     const [togglingId, setTogglingId] = useState<string | null>(null);
     const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -52,9 +54,9 @@ export function AuditList({ audits }: AuditListProps) {
     };
 
     return (
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className={`rounded-xl border shadow-sm overflow-hidden ${isDark ? 'bg-[#1A1D2E] border-slate-700/50' : 'bg-white border-slate-200'}`}>
             <table className="w-full text-sm text-left">
-                <thead className="bg-slate-50 text-slate-500 font-medium border-b border-slate-100">
+                <thead className={`font-medium border-b ${isDark ? 'bg-slate-800/50 text-slate-400 border-slate-700' : 'bg-slate-50 text-slate-500 border-slate-100'}`}>
                     <tr>
                         <th className="px-6 py-4">Judul Audit</th>
                         <th className="px-6 py-4">Tipe</th>
@@ -63,12 +65,12 @@ export function AuditList({ audits }: AuditListProps) {
                         <th className="px-6 py-4 text-right">Aksi</th>
                     </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className={`divide-y ${isDark ? 'divide-slate-700/50' : 'divide-slate-100'}`}>
                     {audits.length === 0 ? (
                         <tr>
-                            <td colSpan={5} className="px-6 py-12 text-center text-slate-500">
+                            <td colSpan={5} className={`px-6 py-12 text-center ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                                 <div className="flex flex-col items-center gap-2">
-                                    <ClipboardList className="w-8 h-8 text-slate-300" />
+                                    <ClipboardList className={`w-8 h-8 ${isDark ? 'text-slate-600' : 'text-slate-300'}`} />
                                     <p>Belum ada penugasan audit yang dibuat.</p>
                                 </div>
                             </td>
@@ -78,10 +80,10 @@ export function AuditList({ audits }: AuditListProps) {
                             const isLocked = audit.status === 'locked';
 
                             return (
-                                <tr key={audit.id} className="hover:bg-slate-50/50 transition-colors">
+                                <tr key={audit.id} className={`transition-colors ${isDark ? 'hover:bg-slate-800/30' : 'hover:bg-slate-50/50'}`}>
                                     <td className="px-6 py-4">
-                                        <span className="font-medium text-slate-900 block">{audit.title}</span>
-                                        <span className="text-xs text-slate-500">{audit.description}</span>
+                                        <span className={`font-medium block ${isDark ? 'text-slate-200' : 'text-slate-900'}`}>{audit.title}</span>
+                                        <span className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{audit.description}</span>
                                     </td>
                                     <td className="px-6 py-4">
                                         {audit.type === 'group_practice' ? (
@@ -94,7 +96,7 @@ export function AuditList({ audits }: AuditListProps) {
                                             </span>
                                         )}
                                     </td>
-                                    <td className="px-6 py-4 text-slate-600">
+                                    <td className={`px-6 py-4 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
                                         {audit.type === 'group_practice' ? (
                                             <div className="flex items-center gap-2 text-xs">
                                                 <span className="font-medium text-indigo-600">Kelompok {audit.auditor_group?.group_number}</span>

@@ -17,8 +17,8 @@ import {
     rejectDispute,
     submitActionPlan,
 } from '@/lib/actions/audit-actions';
-import { saveTeacherScore } from '@/lib/actions/exam-actions';
-import { SendHorizontal, Loader2 } from 'lucide-react';
+import { saveTeacherScore, bulkSaveTeacherScores } from '@/lib/actions/exam-actions';
+import { SendHorizontal, Loader2, Save } from 'lucide-react';
 import { toast } from 'sonner';
 import {
     Accordion,
@@ -54,20 +54,22 @@ const getPredicate = (score: number) => {
     return PREDICATE_RULES.find(r => score > r.min && score <= r.max) || PREDICATE_RULES[PREDICATE_RULES.length - 1];
 };
 
-export function AuditTable({ items, role, auditId, onItemsUpdate, effectiveRole, currentUserId, auditType, auditStatus }: AuditTableProps & { effectiveRole?: string, currentUserId?: string, auditType?: string, auditStatus?: string }) {
+export function AuditTable({ items, role, auditId, onItemsUpdate, effectiveRole, currentUserId, auditType, auditStatus, scoreReleased }: AuditTableProps & { effectiveRole?: string, currentUserId?: string, auditType?: string, auditStatus?: string, scoreReleased?: boolean }) {
     const isDark = useThemeStore((s) => s.isDark);
     const searchQuery = useSearchStore((s) => s.query);
     const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
     const [editingFields, setEditingFields] = useState<Record<string, Partial<AuditItem>>>({});
     const [savingRows, setSavingRows] = useState<Set<string>>(new Set());
     const [publishingAll, setPublishingAll] = useState(false);
+    const [savingCategory, setSavingCategory] = useState<string | null>(null);
 
     // Determine the actual role to use for permissions
     const actualRole = effectiveRole || role;
     const isLocked = auditStatus === 'locked';
 
-    // Whether to show the manual "Nilai Guru" elements (Admin & Superadmin only)
-    const showTeacherScoreColumn = role === 'superadmin' || role === 'admin';
+    // Whether to show the manual "Nilai Guru" elements (Admin & Superadmin only, OR student when score is released)
+    const isAdminOrSuperadmin = role === 'superadmin' || role === 'admin';
+    const showTeacherScoreColumn = isAdminOrSuperadmin || !!scoreReleased;
 
     // Group Practice Logic
     const isGroupPractice = auditType === 'group_practice';
@@ -136,27 +138,40 @@ export function AuditTable({ items, role, auditId, onItemsUpdate, effectiveRole,
         return item.nilai_auditee || 0;
     };
 
+    // For exams (midterm/final), each criteria has equal weight = 100 / totalItems
+    const isExamType = auditType === 'midterm' || auditType === 'final';
+    const totalItemsCount = mergedItems.length;
+    const equalWeight = totalItemsCount > 0 ? 100 / totalItemsCount : 0;
+
     const getCategoryScore = (category: string) => {
         const catItems = mergedItems.filter(i => i.category === category);
 
-        // Group by subcategory first to calculate sub-scores
-        const subcats = new Set(catItems.map(i => i.subcategory));
+        if (isExamType) {
+            // EXAM MODE: equal weight per criteria
+            let totalScore = 0;
+            let totalTeacherScore = 0;
+            catItems.forEach(item => {
+                const nilai = getScoreValue(item);
+                const teacherNilai = item.teacher_score || 0;
+                totalScore += (nilai * equalWeight) / 100;
+                totalTeacherScore += (teacherNilai * equalWeight) / 100;
+            });
+            return { total: totalScore, teacherTotal: totalTeacherScore, maxPoints: catItems.length * equalWeight };
+        }
 
-        // Total Score = Sum(SubScore * SubWeight / 100)
-        // SubScore = Sum(Nilai * Bobot / 100)
+        // REGULAR AUDIT MODE: use bobot hierarchy
+        const subcats = new Set(catItems.map(i => i.subcategory));
 
         let totalScore = 0;
         let totalTeacherScore = 0;
-        let totalMaxWeight = 0; // Should sum to category_bobot (e.g. 30)
+        let totalMaxWeight = 0;
 
         subcats.forEach(sub => {
             const subItems = catItems.filter(i => i.subcategory === sub);
             if (subItems.length === 0) return;
 
-            // The actual sum of bobot values in this subcategory (may not sum to 100)
             const bobotSum = subItems.reduce((sum, item) => sum + (item.bobot || 0), 0);
 
-            // Calculate Sub-Score (0-100): weighted average of scores
             const subScoreRaw = subItems.reduce((sum, item) => {
                 const nilai = getScoreValue(item);
                 const bobot = item.bobot || 0;
@@ -169,19 +184,16 @@ export function AuditTable({ items, role, auditId, onItemsUpdate, effectiveRole,
                 return sum + (nilai * bobot);
             }, 0);
 
-            // Divide by actual bobot sum to get true weighted average (0-100)
             const subScore = bobotSum > 0 ? subScoreRaw / bobotSum : 0;
             const subTeacherScore = bobotSum > 0 ? subTeacherScoreRaw / bobotSum : 0;
 
-            // Weight of this subcategory within the category
             const subWeight = subItems[0].subcategory_bobot || 0;
 
-            totalScore += (subScore * subWeight) / 100; // Contribution to total score
-            totalTeacherScore += (subTeacherScore * subWeight) / 100; // Contribution to total teacher score
+            totalScore += (subScore * subWeight) / 100;
+            totalTeacherScore += (subTeacherScore * subWeight) / 100;
             totalMaxWeight += subWeight;
         });
 
-        // Max points is simply the category weight
         const maxPoints = catItems.length > 0 ? (catItems[0].category_bobot || 0) : 0;
 
         return { total: totalScore, teacherTotal: totalTeacherScore, maxPoints };
@@ -190,7 +202,17 @@ export function AuditTable({ items, role, auditId, onItemsUpdate, effectiveRole,
     const getSubCategoryScore = (category: string, subcategory: string) => {
         const subItems = mergedItems.filter(i => i.category === category && i.subcategory === subcategory);
 
-        // Actual sum of bobot in this subcategory (may not be 100)
+        if (isExamType) {
+            // EXAM MODE: simple average
+            const count = subItems.length;
+            if (count === 0) return { subScore: 0, subTeacherScore: 0 };
+
+            const subScore = subItems.reduce((sum, item) => sum + getScoreValue(item), 0) / count;
+            const subTeacherScore = subItems.reduce((sum, item) => sum + (item.teacher_score || 0), 0) / count;
+            return { subScore, subTeacherScore };
+        }
+
+        // REGULAR AUDIT MODE: bobot-weighted average
         const bobotSum = subItems.reduce((sum, item) => sum + (item.bobot || 0), 0);
 
         const subScoreRaw = subItems.reduce((sum, item) => {
@@ -205,7 +227,6 @@ export function AuditTable({ items, role, auditId, onItemsUpdate, effectiveRole,
             return sum + (nilai * bobot);
         }, 0);
 
-        // Weighted average (0-100); divide by actual bobot sum
         const subScore = bobotSum > 0 ? subScoreRaw / bobotSum : 0;
         const subTeacherScore = bobotSum > 0 ? subTeacherScoreRaw / bobotSum : 0;
 
@@ -500,12 +521,84 @@ export function AuditTable({ items, role, auditId, onItemsUpdate, effectiveRole,
                                                 </span>
                                                 {showTeacherScoreColumn && (
                                                     <span className={`text-sm font-bold px-3 py-1 rounded-full ${isDark ? 'bg-purple-500/15 text-purple-300' : 'bg-purple-50 text-purple-700'}`}>
-                                                        Nilai Guru: {getCategoryScore(category).teacherTotal.toFixed(2)}
+                                                        Nilai Ujian: {getCategoryScore(category).teacherTotal.toFixed(2)}
                                                     </span>
                                                 )}
                                             </div>
                                         </div>
                                     </AccordionTrigger>
+                                    {/* Bulk Save Button for Teacher Scores (below header, inside accordion) */}
+                                    {isAdminOrSuperadmin && (
+                                        <div className={`px-6 py-2 flex justify-end border-b ${isDark ? 'border-orange-900/20' : 'border-slate-100'}`}>
+                                            <button
+                                                disabled={savingCategory === category}
+                                                onClick={async (e) => {
+                                                    e.stopPropagation();
+                                                    setSavingCategory(category);
+                                                    try {
+                                                        // Collect all items in this category that have teacher_score set in editingFields
+                                                        const catItems = mergedItems.filter(i => i.category === category);
+                                                        const scoresToSave = catItems
+                                                            .filter(item => {
+                                                                const edited = editingFields[item.id];
+                                                                return edited && edited.teacher_score !== undefined;
+                                                            })
+                                                            .map(item => ({
+                                                                itemId: item.id,
+                                                                score: Number(editingFields[item.id].teacher_score),
+                                                            }));
+
+                                                        if (scoresToSave.length === 0) {
+                                                            toast.info('Tidak ada perubahan nilai ujian di kategori ini.');
+                                                            return;
+                                                        }
+
+                                                        const result = await bulkSaveTeacherScores(scoresToSave);
+                                                        if ('error' in result) {
+                                                            toast.error(result.error as string);
+                                                        } else {
+                                                            // Update local items state with saved values
+                                                            const updatedItems = result.updatedItems || [];
+                                                            let newItems = [...items];
+                                                            for (const upd of updatedItems) {
+                                                                newItems = newItems.map(i => i.id === upd.id ? upd : i);
+                                                            }
+                                                            onItemsUpdate(newItems);
+                                                            // Clear editing fields for saved items
+                                                            setEditingFields(prev => {
+                                                                const next = { ...prev };
+                                                                for (const s of scoresToSave) {
+                                                                    if (next[s.itemId]) {
+                                                                        const { teacher_score, ...remaining } = next[s.itemId] as any;
+                                                                        if (Object.keys(remaining).length === 0) {
+                                                                            delete next[s.itemId];
+                                                                        } else {
+                                                                            next[s.itemId] = remaining;
+                                                                        }
+                                                                    }
+                                                                }
+                                                                return next;
+                                                            });
+                                                            toast.success(`Berhasil menyimpan ${scoresToSave.length} nilai ujian di ${category.split('.')[0].trim()}.`);
+                                                        }
+                                                    } catch (err) {
+                                                        toast.error('Gagal menyimpan nilai ujian.');
+                                                    } finally {
+                                                        setSavingCategory(null);
+                                                    }
+                                                }}
+                                                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${savingCategory === category ? 'bg-slate-200 text-slate-500 cursor-wait'
+                                                    : isDark ? 'bg-purple-600 text-white hover:bg-purple-700 shadow-sm shadow-purple-900/30'
+                                                        : 'bg-purple-600 text-white hover:bg-purple-700 shadow-sm shadow-purple-200'}`}
+                                            >
+                                                {savingCategory === category ? (
+                                                    <><Loader2 className="w-4 h-4 animate-spin" /> Menyimpan...</>
+                                                ) : (
+                                                    <><Save className="w-4 h-4" /> Simpan Nilai Ujian</>
+                                                )}
+                                            </button>
+                                        </div>
+                                    )}
                                     <AccordionContent className="pt-0 pb-4 px-6">
                                         <Accordion type="multiple" className="mt-2 space-y-3">
                                             {Object.entries(subcats).map(([subcategory, subItems]) => {
@@ -518,7 +611,7 @@ export function AuditTable({ items, role, auditId, onItemsUpdate, effectiveRole,
                                                                 <div className="flex gap-3 text-xs">
                                                                     <span className={`${isDark ? 'text-orange-300/60' : 'text-slate-500'}`}>Sub-skor: {getSubCategoryScore(category, subcategory).subScore.toFixed(2)}</span>
                                                                     {showTeacherScoreColumn && (
-                                                                        <span className={`font-bold ${isDark ? 'text-purple-300/80' : 'text-purple-600'}`}>Nilai Guru: {getSubCategoryScore(category, subcategory).subTeacherScore.toFixed(2)}</span>
+                                                                        <span className={`font-bold ${isDark ? 'text-purple-300/80' : 'text-purple-600'}`}>Nilai Ujian: {getSubCategoryScore(category, subcategory).subTeacherScore.toFixed(2)}</span>
                                                                     )}
                                                                 </div>
                                                             </div>
@@ -543,11 +636,11 @@ export function AuditTable({ items, role, auditId, onItemsUpdate, effectiveRole,
                                                                             <th className={`px-3 py-3 text-left min-w-[150px] text-xs font-medium uppercase tracking-wider ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>Rekomendasi</th>
 
                                                                             {showTeacherScoreColumn && (
-                                                                                <th className={`px-3 py-3 text-center w-24 text-xs font-bold uppercase tracking-wider ${isDark ? 'text-purple-400 bg-purple-900/10' : 'text-purple-700 bg-purple-50'}`}>Nilai (Guru)</th>
+                                                                                <th className={`px-3 py-3 text-center w-24 text-xs font-bold uppercase tracking-wider ${isDark ? 'text-purple-400 bg-purple-900/10' : 'text-purple-700 bg-purple-50'}`}>Nilai (Ujian)</th>
                                                                             )}
 
                                                                             <th className={`px-3 py-3 text-center w-28 text-xs font-medium uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Status</th>
-                                                                            {(actualRole === 'auditor' || actualRole === 'auditee' || showTeacherScoreColumn) && <th className={`px-3 py-3 text-center w-24 text-xs font-medium uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Aksi</th>}
+                                                                            {(actualRole === 'auditor' || actualRole === 'auditee' || isAdminOrSuperadmin) && <th className={`px-3 py-3 text-center w-24 text-xs font-medium uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Aksi</th>}
                                                                         </tr>
                                                                     </thead>
                                                                     <tbody className={`divide-y ${isDark ? 'divide-orange-900/15' : 'divide-slate-100'}`}>
@@ -569,7 +662,7 @@ export function AuditTable({ items, role, auditId, onItemsUpdate, effectiveRole,
                                                                                 <CriteriaRow
                                                                                     key={item.id}
                                                                                     item={item}
-                                                                                    role={showTeacherScoreColumn ? (role as any) : (actualRole as any)}
+                                                                                    role={isAdminOrSuperadmin ? (role as any) : (actualRole as any)}
                                                                                     editingFields={editingFields}
                                                                                     updateField={updateField}
                                                                                     onSaveDraft={handleSaveDraft}
@@ -583,6 +676,7 @@ export function AuditTable({ items, role, auditId, onItemsUpdate, effectiveRole,
                                                                                     onToggleExpand={toggleRow}
                                                                                     isExpanded={expandedRows.has(item.id)}
                                                                                     isEditable={canEdit}
+                                                                                    scoreReleased={scoreReleased}
                                                                                 />
                                                                             )
                                                                         })}
@@ -604,7 +698,7 @@ export function AuditTable({ items, role, auditId, onItemsUpdate, effectiveRole,
                     <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white rounded-2xl p-6 shadow-xl">
                         <div className="grid md:grid-cols-2 gap-8 items-center">
                             <div>
-                                <h3 className="text-slate-400 text-sm font-medium uppercase tracking-wider mb-2">Total Nilai Akhir</h3>
+                                <h3 className="text-slate-400 text-sm font-medium uppercase tracking-wider mb-2">Total Nilai Akhir Evaluasi</h3>
                                 <div className="flex items-baseline gap-2 mb-4">
                                     <span className="text-5xl font-bold tracking-tight">{grandTotal.toFixed(2)}</span>
                                     <span className="text-slate-400">/ 100</span>
@@ -612,7 +706,7 @@ export function AuditTable({ items, role, auditId, onItemsUpdate, effectiveRole,
 
                                 {showTeacherScoreColumn && (
                                     <div className="bg-purple-900/30 border border-purple-500/20 rounded-xl p-4 md:mt-0 mt-4 inline-block">
-                                        <h3 className="text-purple-300 text-xs font-bold uppercase tracking-wider mb-1">Total Nilai Guru</h3>
+                                        <h3 className="text-purple-300 text-xs font-bold uppercase tracking-wider mb-1">Total Nilai Ujian</h3>
                                         <div className="flex items-baseline gap-2">
                                             <span className="text-3xl font-black text-purple-100 tracking-tight">{grandTeacherTotal.toFixed(2)}</span>
                                             <span className="text-purple-300 font-medium text-sm">/ 100</span>

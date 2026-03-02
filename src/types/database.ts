@@ -62,6 +62,7 @@ export interface Audit {
   exam_start_time?: string | null;
   scheduled_start_time?: string | null;
   is_manually_locked?: boolean;
+  score_released?: boolean;
 
   // Legacy (Deprecated/Migrated)
   auditor_id: string | null;
