@@ -43,8 +43,8 @@ export function CriteriaRow({
     const [actionPlanText, setActionPlanText] = useState(item.auditee_action_plan || '');
 
     const isSaving = savingRows.has(item.id);
-    const isAuditee = role === 'auditee';
-    const isWaitingForPublish = isAuditee && (item.status === 'SUBMITTED' || item.status === 'DRAFTING');
+    const isAuditee = role === 'auditee' || role === 'superadmin';
+    const isWaitingForPublish = role === 'auditee' && (item.status === 'SUBMITTED' || item.status === 'DRAFTING');
     const canEditAuditee = isEditable && isAuditee && item.status === 'DRAFTING';
     const canEdit = isEditable && role === 'auditor' && (
         item.status === 'SUBMITTED' ||
@@ -59,9 +59,11 @@ export function CriteriaRow({
     const showRekomendasi =
         role === 'auditor' ||
         role === 'superadmin' ||
+        (role as string) === 'admin' ||
         isFinalStatus(item.status);
 
     const showBobot = role === 'superadmin';
+    const showTeacherScore = role === 'superadmin' || (role as string) === 'admin';
     const hasModified = editingFields[item.id] && Object.keys(editingFields[item.id]).length > 0;
 
     const getFieldValue = (field: keyof AuditItem): string => {
@@ -253,17 +255,51 @@ export function CriteriaRow({
                     )}
                 </td>
 
+                {/* Score (Teacher) - Admin/Superadmin only */}
+                {showTeacherScore && (
+                    <td className={`px-3 py-3 w-24 text-center ${isDark ? 'bg-purple-900/10' : 'bg-purple-50'}`}>
+                        <div className="flex items-center justify-center relative group/input">
+                            <input
+                                type="number"
+                                min={0}
+                                max={100}
+                                value={getFieldValue('teacher_score') || 0}
+                                onChange={(e) => updateField(item.id, 'teacher_score', Number(e.target.value))}
+                                className="w-16 px-2 py-1.5 bg-white dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 font-bold border border-purple-200 dark:border-purple-500/30 rounded-lg text-sm text-center focus:outline-none focus:ring-2 focus:ring-purple-500/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none transition-all shadow-sm"
+                            />
+                            {hasModified && getFieldValue('teacher_score') !== String(item.teacher_score ?? 0) && (
+                                <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 shadow-sm border border-white dark:border-slate-800"></span>
+                                </span>
+                            )}
+                        </div>
+                    </td>
+                )}
+
                 {/* Status */}
                 <td className="px-3 py-3 w-28 text-center">
                     <StatusBadge status={item.status} />
                 </td>
 
                 {/* Aksi */}
-                {(role === 'auditor' || role === 'auditee') && (
+                {(role === 'auditor' || isAuditee || showTeacherScore) && (
                     <td className="px-3 py-3 w-28 text-center">
                         <div className="flex items-center justify-center gap-1.5">
+                            {/* Admin/Teacher Saves Score */}
+                            {showTeacherScore && hasModified && getFieldValue('teacher_score') !== String(item.teacher_score ?? 0) && (
+                                <button
+                                    onClick={() => onSaveDraft(item.id)}
+                                    disabled={isSaving}
+                                    className="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 hover:bg-emerald-100 transition-colors shadow-sm border border-emerald-100 dark:border-emerald-900/50"
+                                    title="Simpan Nilai Guru"
+                                >
+                                    {isSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+                                </button>
+                            )}
+
                             {/* Phase 1: Auditee drafting */}
-                            {role === 'auditee' && canEditAuditee && (
+                            {isAuditee && canEditAuditee && (
                                 <>
                                     {hasModified && (
                                         <button

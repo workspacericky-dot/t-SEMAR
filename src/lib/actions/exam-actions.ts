@@ -22,7 +22,9 @@ const getSupabaseAdmin = () => createClient(
 export async function distributeExam(
     masterAuditId: string,
     examType: 'midterm' | 'final',
-    timeLimitMinutes: number = 60
+    timeLimitMinutes: number = 60,
+    scheduledStartTime?: string,
+    targetStudentIds?: string[]
 ) {
     try {
         const supabase = getSupabaseAdmin();
@@ -48,11 +50,18 @@ export async function distributeExam(
             return { error: 'Master Audit has no items to distribute.' };
         }
 
-        // 3. Fetch all students (role: auditor)
-        const { data: students, error: studentsError } = await supabase
+        // 3. Fetch all students (role: auditor) or specific students
+        let query = supabase
             .from('profiles')
             .select('id, full_name')
-            .in('role', ['auditor', 'participant']); // usually 'auditor' but safe to include 'participant'
+            .in('role', ['auditor', 'participant']);
+
+        // If target students are specified, filter by them
+        if (targetStudentIds && targetStudentIds.length > 0) {
+            query = query.in('id', targetStudentIds);
+        }
+
+        const { data: students, error: studentsError } = await query;
 
         if (studentsError || !students || students.length === 0) {
             return { error: 'No students found to distribute to.' };
@@ -77,6 +86,7 @@ export async function distributeExam(
                     type: examType,
                     individual_auditor_id: student.id,
                     time_limit_minutes: timeLimitMinutes,
+                    scheduled_start_time: scheduledStartTime,
                     status: 'SUBMITTED', // Ready for auditor to evaluate
                     period_id: masterAudit.period_id,
                     // Keep the original auditee ID if needed so the "satker" name shows properly
@@ -151,5 +161,79 @@ export async function startExam(auditId: string) {
     } catch (error: any) {
         console.error('[startExam] ERROR:', error);
         return { error: error.message || 'Internal server error while starting exam.' };
+    }
+}
+
+/**
+ * Toggles the manual lock status of an exam.
+ */
+export async function toggleExamManualLock(auditId: string, isLocked: boolean) {
+    try {
+        const supabase = getSupabaseAdmin();
+
+        const { error } = await supabase
+            .from('audits')
+            .update({ is_manually_locked: isLocked })
+            .eq('id', auditId);
+
+        if (error) {
+            return { error: 'Gagal mengubah status akses ujian.' };
+        }
+
+        revalidatePath(`/audits/${auditId}`);
+        revalidatePath(`/audits`);
+        return { success: true };
+    } catch (error: any) {
+        console.error('[toggleExamManualLock] ERROR:', error);
+        return { error: error.message || 'Internal server error while changing exam access.' };
+    }
+}
+
+/**
+ * Submits the exam early for the student, locking it immediately.
+ */
+export async function submitExamEarly(auditId: string) {
+    try {
+        const supabase = getSupabaseAdmin();
+
+        const { error } = await supabase
+            .from('audits')
+            .update({ is_manually_locked: true })
+            .eq('id', auditId);
+
+        if (error) {
+            return { error: 'Gagal mengumpulkan ujian.' };
+        }
+
+        revalidatePath(`/audits/${auditId}`);
+        return { success: true };
+    } catch (error: any) {
+        console.error('[submitExamEarly] ERROR:', error);
+        return { error: error.message || 'Internal server error while submitting exam.' };
+    }
+}
+
+/**
+ * Saves the teacher's calculated score for a specific item.
+ */
+export async function saveTeacherScore(itemId: string, score: number) {
+    try {
+        const supabase = getSupabaseAdmin();
+
+        const { data, error } = await supabase
+            .from('audit_items')
+            .update({ teacher_score: score })
+            .eq('id', itemId)
+            .select('*')
+            .single();
+
+        if (error || !data) {
+            return { error: 'Gagal menyimpan nilai.' };
+        }
+
+        return data; // Return updated AuditItem
+    } catch (error: any) {
+        console.error('[saveTeacherScore] ERROR:', error);
+        return { error: error.message || 'Internal server error.' };
     }
 }

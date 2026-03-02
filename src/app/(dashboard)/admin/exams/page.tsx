@@ -6,7 +6,7 @@ import { useAuthStore } from '@/store/auth-store';
 import { createClient } from '@/lib/supabase/client';
 import { distributeExam } from '@/lib/actions/exam-actions';
 import { toast } from 'sonner';
-import { Loader2, ArrowLeft, ClipboardList, Send, AlertCircle } from 'lucide-react';
+import { Loader2, ArrowLeft, ClipboardList, Send, AlertCircle, Users } from 'lucide-react';
 import Link from 'next/link';
 
 export default function ManageExamsPage() {
@@ -20,6 +20,11 @@ export default function ManageExamsPage() {
     const [selectedTemplate, setSelectedTemplate] = useState('');
     const [examType, setExamType] = useState<'midterm' | 'final'>('midterm');
     const [duration, setDuration] = useState<number>(60);
+    const [scheduledStartTime, setScheduledStartTime] = useState<string>('');
+
+    // Student selection state
+    const [students, setStudents] = useState<any[]>([]);
+    const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
 
     useEffect(() => {
         // Protect Route
@@ -31,11 +36,11 @@ export default function ManageExamsPage() {
     const fetchTemplates = async () => {
         setLoading(true);
         const supabase = createClient();
-        // Fetch audits that could be templates (individual_auditor_id is null)
+        // Fetch strictly dedicated master templates for distribution
         const { data, error } = await supabase
             .from('audits')
             .select('id, title, year, status')
-            .is('individual_auditor_id', null)
+            .eq('type', 'master_template') // Explicitly rely on the designated type
             .order('created_at', { ascending: false });
 
         if (error) {
@@ -43,6 +48,20 @@ export default function ManageExamsPage() {
         } else {
             setTemplates(data || []);
         }
+
+        // Fetch students
+        const { data: studentsData, error: studentsError } = await supabase
+            .from('profiles')
+            .select('id, full_name, role')
+            .in('role', ['auditor', 'participant'])
+            .order('full_name', { ascending: true });
+
+        if (studentsError) {
+            toast.error('Gagal mengambil daftar mahasiswa.');
+        } else {
+            setStudents(studentsData || []);
+        }
+
         setLoading(false);
     };
 
@@ -60,23 +79,30 @@ export default function ManageExamsPage() {
             return;
         }
 
+        if (selectedStudentIds.length === 0) {
+            toast.error('Pilih minimal satu mahasiswa untuk mengikuti ujian');
+            return;
+        }
+
         if (duration < 10) {
             toast.error('Durasi terlalu singkat');
             return;
         }
 
-        if (!confirm(`Apakah Anda yakin ingin mendistribusikan ujian ini ke semua peserta (auditor)? Proses ini tidak dapat dibatalkan.`)) {
+        if (!confirm(`Apakah Anda yakin ingin mendistribusikan ujian ini ke ${selectedStudentIds.length} mahasiswa terpilih? Proses ini tidak dapat dibatalkan.`)) {
             return;
         }
 
         startTransition(async () => {
-            const res = await distributeExam(selectedTemplate, examType, duration);
+            const isoTime = scheduledStartTime ? new Date(scheduledStartTime).toISOString() : undefined;
+            const res = await distributeExam(selectedTemplate, examType, duration, isoTime, selectedStudentIds);
 
             if (res?.error) {
                 toast.error(res.error);
             } else {
                 toast.success(`Berhasil mendistribusikan ujian ke ${res.count} pengguna!`);
                 setSelectedTemplate('');
+                setSelectedStudentIds([]); // reset selections
             }
         });
     };
@@ -171,9 +197,62 @@ export default function ManageExamsPage() {
                             </div>
                         </div>
 
+                        {/* Student Selection */}
+                        <div className="space-y-3">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <label className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                                        <Users className="w-4 h-4 text-blue-500" />
+                                        3. Pemilihan Mahasiswa (Peserta Ujian)
+                                    </label>
+                                    <p className="text-xs text-slate-500 mt-1">Pilih siapa saja yang berhak mengikuti ujian ini.</p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        if (selectedStudentIds.length === students.length) {
+                                            setSelectedStudentIds([]);
+                                        } else {
+                                            setSelectedStudentIds(students.map(s => s.id));
+                                        }
+                                    }}
+                                    className="text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors border border-blue-200"
+                                >
+                                    {selectedStudentIds.length === students.length ? 'Batalkan Semua' : 'Pilih Semua'}
+                                </button>
+                            </div>
+
+                            <div className="bg-slate-50 border border-slate-200 rounded-xl max-h-60 overflow-y-auto p-4 space-y-2">
+                                {students.length === 0 ? (
+                                    <p className="text-sm text-slate-500 text-center py-4">Tidak ada mahasiswa yang ditemukan.</p>
+                                ) : (
+                                    students.map(student => (
+                                        <label key={student.id} className="flex items-center gap-3 p-2 hover:bg-white rounded-lg cursor-pointer transition-colors border border-transparent hover:border-slate-200">
+                                            <input
+                                                type="checkbox"
+                                                className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
+                                                checked={selectedStudentIds.includes(student.id)}
+                                                onChange={(e) => {
+                                                    if (e.target.checked) {
+                                                        setSelectedStudentIds(prev => [...prev, student.id]);
+                                                    } else {
+                                                        setSelectedStudentIds(prev => prev.filter(id => id !== student.id));
+                                                    }
+                                                }}
+                                            />
+                                            <span className="text-sm font-medium text-slate-700">{student.full_name}</span>
+                                        </label>
+                                    ))
+                                )}
+                            </div>
+                            <p className="text-xs font-medium text-slate-500 text-right">
+                                {selectedStudentIds.length} dari {students.length} terpilih
+                            </p>
+                        </div>
+
                         {/* Timer Settings */}
                         <div className="space-y-2">
-                            <label className="text-sm font-bold text-slate-800">3. Batas Waktu Ujian (Menit)</label>
+                            <label className="text-sm font-bold text-slate-800">4. Batas Waktu Ujian (Menit)</label>
                             <p className="text-xs text-slate-500 mb-2">Waktu mundur dimulai otomatis ketika mahasiswa membuka ujian. Akses akan terkunci setelah waktu habis.</p>
                             <input
                                 type="number"
@@ -182,6 +261,18 @@ export default function ManageExamsPage() {
                                 max="300"
                                 value={duration}
                                 onChange={(e) => setDuration(parseInt(e.target.value) || 60)}
+                                className="w-full h-12 rounded-xl border-slate-200 outline-none focus:ring-2 focus:ring-blue-500/50 bg-slate-50 px-4"
+                            />
+                        </div>
+
+                        {/* Schedule Settings */}
+                        <div className="space-y-2">
+                            <label className="text-sm font-bold text-slate-800">5. Waktu Mulai Ujian (Opsional)</label>
+                            <p className="text-xs text-slate-500 mb-2">Jika diisi, mahasiswa tidak bisa memulai ujian sebelum tanggal dan jam yang ditentukan.</p>
+                            <input
+                                type="datetime-local"
+                                value={scheduledStartTime}
+                                onChange={(e) => setScheduledStartTime(e.target.value)}
                                 className="w-full h-12 rounded-xl border-slate-200 outline-none focus:ring-2 focus:ring-blue-500/50 bg-slate-50 px-4"
                             />
                         </div>

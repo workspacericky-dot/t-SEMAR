@@ -17,6 +17,7 @@ import {
     rejectDispute,
     submitActionPlan,
 } from '@/lib/actions/audit-actions';
+import { saveTeacherScore } from '@/lib/actions/exam-actions';
 import { SendHorizontal, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -65,6 +66,9 @@ export function AuditTable({ items, role, auditId, onItemsUpdate, effectiveRole,
     const actualRole = effectiveRole || role;
     const isLocked = auditStatus === 'locked';
 
+    // Whether to show the manual "Nilai Guru" elements (Admin & Superadmin only)
+    const showTeacherScoreColumn = role === 'superadmin' || role === 'admin';
+
     // Group Practice Logic
     const isGroupPractice = auditType === 'group_practice';
     const [showMyItemsOnly, setShowMyItemsOnly] = useState(isGroupPractice); // Default to My Items for group practice
@@ -85,7 +89,7 @@ export function AuditTable({ items, role, auditId, onItemsUpdate, effectiveRole,
         let result = mergedItems;
 
         // 1. Filter by "My Items" if enabled
-        if (showMyItemsOnly && currentUserId && isGroupPractice) {
+        if (showMyItemsOnly && currentUserId && isGroupPractice && role !== 'superadmin') {
             const assignCol = actualRole === 'auditee' ? 'auditee_assigned_to' : 'auditor_assigned_to';
             result = result.filter(item => item[assignCol] === currentUserId || item.assigned_to === currentUserId);
         }
@@ -142,37 +146,52 @@ export function AuditTable({ items, role, auditId, onItemsUpdate, effectiveRole,
         // SubScore = Sum(Nilai * Bobot / 100)
 
         let totalScore = 0;
+        let totalTeacherScore = 0;
         let totalMaxWeight = 0; // Should sum to category_bobot (e.g. 30)
 
         subcats.forEach(sub => {
             const subItems = catItems.filter(i => i.subcategory === sub);
             if (subItems.length === 0) return;
 
-            // Calculate Sub-Score (0-100)
-            // Bobot sums to 100 (approx) in a subcategory
+            // The actual sum of bobot values in this subcategory (may not sum to 100)
+            const bobotSum = subItems.reduce((sum, item) => sum + (item.bobot || 0), 0);
+
+            // Calculate Sub-Score (0-100): weighted average of scores
             const subScoreRaw = subItems.reduce((sum, item) => {
                 const nilai = getScoreValue(item);
                 const bobot = item.bobot || 0;
                 return sum + (nilai * bobot);
             }, 0);
 
-            const subScore = subScoreRaw / 100; // Normalize to 0-100 if bobot sums to 100
+            const subTeacherScoreRaw = subItems.reduce((sum, item) => {
+                const nilai = item.teacher_score || 0;
+                const bobot = item.bobot || 0;
+                return sum + (nilai * bobot);
+            }, 0);
 
-            // Weight of this subcategory
+            // Divide by actual bobot sum to get true weighted average (0-100)
+            const subScore = bobotSum > 0 ? subScoreRaw / bobotSum : 0;
+            const subTeacherScore = bobotSum > 0 ? subTeacherScoreRaw / bobotSum : 0;
+
+            // Weight of this subcategory within the category
             const subWeight = subItems[0].subcategory_bobot || 0;
 
             totalScore += (subScore * subWeight) / 100; // Contribution to total score
+            totalTeacherScore += (subTeacherScore * subWeight) / 100; // Contribution to total teacher score
             totalMaxWeight += subWeight;
         });
 
         // Max points is simply the category weight
         const maxPoints = catItems.length > 0 ? (catItems[0].category_bobot || 0) : 0;
 
-        return { total: totalScore, maxPoints };
+        return { total: totalScore, teacherTotal: totalTeacherScore, maxPoints };
     };
 
     const getSubCategoryScore = (category: string, subcategory: string) => {
         const subItems = mergedItems.filter(i => i.category === category && i.subcategory === subcategory);
+
+        // Actual sum of bobot in this subcategory (may not be 100)
+        const bobotSum = subItems.reduce((sum, item) => sum + (item.bobot || 0), 0);
 
         const subScoreRaw = subItems.reduce((sum, item) => {
             const nilai = getScoreValue(item);
@@ -180,7 +199,17 @@ export function AuditTable({ items, role, auditId, onItemsUpdate, effectiveRole,
             return sum + (nilai * bobot);
         }, 0);
 
-        return subScoreRaw / 100;
+        const subTeacherScoreRaw = subItems.reduce((sum, item) => {
+            const nilai = item.teacher_score || 0;
+            const bobot = item.bobot || 0;
+            return sum + (nilai * bobot);
+        }, 0);
+
+        // Weighted average (0-100); divide by actual bobot sum
+        const subScore = bobotSum > 0 ? subScoreRaw / bobotSum : 0;
+        const subTeacherScore = bobotSum > 0 ? subTeacherScoreRaw / bobotSum : 0;
+
+        return { subScore, subTeacherScore };
     };
 
 
@@ -219,7 +248,11 @@ export function AuditTable({ items, role, auditId, onItemsUpdate, effectiveRole,
         setSavingRows((prev) => new Set(prev).add(itemId));
         try {
             let updated: AuditItem;
-            if (actualRole === 'auditee') {
+            // Handle saving teacher score if it was modified
+            if (fields.teacher_score !== undefined) {
+                updated = await saveTeacherScore(itemId, Number(fields.teacher_score));
+            } else if (actualRole === 'auditee' || actualRole === 'superadmin') {
+                // Superadmin can act as Auditee for filling templates
                 updated = await saveAuditeeSelfAssessment(itemId, {
                     jawaban_auditee: fields.jawaban_auditee,
                     nilai_auditee: fields.nilai_auditee,
@@ -236,7 +269,7 @@ export function AuditTable({ items, role, auditId, onItemsUpdate, effectiveRole,
                 delete next[itemId];
                 return next;
             });
-            toast.success(actualRole === 'auditee' ? 'Penilaian berhasil disimpan' : 'Draft berhasil disimpan');
+            toast.success(actualRole === 'auditor' ? 'Draft berhasil disimpan' : 'Penilaian berhasil disimpan');
         } catch {
             toast.error('Gagal menyimpan perubahan');
         } finally {
@@ -258,7 +291,8 @@ export function AuditTable({ items, role, auditId, onItemsUpdate, effectiveRole,
             // Auto-save if there are pending changes
             const pendingChanges = editingFields[itemId];
             if (pendingChanges) {
-                if (actualRole === 'auditee') {
+                // Superadmin can act as Auditee
+                if (actualRole === 'auditee' || actualRole === 'superadmin') {
                     await saveAuditeeSelfAssessment(itemId, {
                         jawaban_auditee: pendingChanges.jawaban_auditee,
                         nilai_auditee: pendingChanges.nilai_auditee,
@@ -278,7 +312,7 @@ export function AuditTable({ items, role, auditId, onItemsUpdate, effectiveRole,
             }
 
             let updated;
-            if (actualRole === 'auditee') {
+            if (actualRole === 'auditee' || actualRole === 'superadmin') {
                 updated = await submitToAuditor(itemId);
                 toast.success('Berhasil dikirim ke Evaluator/Auditor');
             } else {
@@ -394,13 +428,19 @@ export function AuditTable({ items, role, auditId, onItemsUpdate, effectiveRole,
 
     const hasDraftItems = items.some((i) => i.status === 'DRAFTING');
 
-    const grandTotal = useMemo(() => {
+    const grandTotalDetails = useMemo(() => {
         let total = 0;
+        let teacherTotal = 0;
         Object.keys(groupedItems).forEach(cat => {
-            total += getCategoryScore(cat).total;
+            const catScores = getCategoryScore(cat);
+            total += catScores.total;
+            teacherTotal += catScores.teacherTotal;
         });
-        return total;
+        return { total, teacherTotal };
     }, [groupedItems]); // safe to depend on groupedItems as it changes with mergedItems
+
+    const grandTotal = grandTotalDetails.total;
+    const grandTeacherTotal = grandTotalDetails.teacherTotal;
 
     const predicate = getPredicate(grandTotal);
 
@@ -454,9 +494,16 @@ export function AuditTable({ items, role, auditId, onItemsUpdate, effectiveRole,
                                     <AccordionTrigger className={`px-6 py-4 hover:no-underline ${isDark ? 'hover:bg-orange-900/20' : 'hover:bg-slate-50'}`}>
                                         <div className="flex items-center justify-between w-full pr-4">
                                             <span className={`font-semibold text-lg ${isDark ? 'text-orange-100' : 'text-slate-800'}`}>{category}</span>
-                                            <span className={`text-sm font-medium px-3 py-1 rounded-full ${isDark ? 'bg-orange-500/15 text-orange-300' : 'bg-blue-50 text-blue-700'}`}>
-                                                Skor: {total.toFixed(2)}
-                                            </span>
+                                            <div className="flex gap-2">
+                                                <span className={`text-sm font-medium px-3 py-1 rounded-full ${isDark ? 'bg-orange-500/15 text-orange-300' : 'bg-blue-50 text-blue-700'}`}>
+                                                    Skor: {getCategoryScore(category).total.toFixed(2)}
+                                                </span>
+                                                {showTeacherScoreColumn && (
+                                                    <span className={`text-sm font-bold px-3 py-1 rounded-full ${isDark ? 'bg-purple-500/15 text-purple-300' : 'bg-purple-50 text-purple-700'}`}>
+                                                        Nilai Guru: {getCategoryScore(category).teacherTotal.toFixed(2)}
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
                                     </AccordionTrigger>
                                     <AccordionContent className="pt-0 pb-4 px-6">
@@ -468,7 +515,12 @@ export function AuditTable({ items, role, auditId, onItemsUpdate, effectiveRole,
                                                         <AccordionTrigger className={`px-4 py-3 text-sm font-medium hover:no-underline ${isDark ? 'text-orange-200 bg-orange-900/10' : 'text-slate-700 bg-slate-50/50'}`}>
                                                             <div className="flex items-center justify-between w-full pr-4">
                                                                 <span>{subcategory}</span>
-                                                                <span className={`text-xs ${isDark ? 'text-orange-300/60' : 'text-slate-500'}`}>Sub-skor: {subScore.toFixed(2)}</span>
+                                                                <div className="flex gap-3 text-xs">
+                                                                    <span className={`${isDark ? 'text-orange-300/60' : 'text-slate-500'}`}>Sub-skor: {getSubCategoryScore(category, subcategory).subScore.toFixed(2)}</span>
+                                                                    {showTeacherScoreColumn && (
+                                                                        <span className={`font-bold ${isDark ? 'text-purple-300/80' : 'text-purple-600'}`}>Nilai Guru: {getSubCategoryScore(category, subcategory).subTeacherScore.toFixed(2)}</span>
+                                                                    )}
+                                                                </div>
                                                             </div>
                                                         </AccordionTrigger>
                                                         <AccordionContent className="p-0">
@@ -490,8 +542,12 @@ export function AuditTable({ items, role, auditId, onItemsUpdate, effectiveRole,
                                                                             <th className={`px-3 py-3 text-left min-w-[150px] text-xs font-medium uppercase tracking-wider ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>Catatan</th>
                                                                             <th className={`px-3 py-3 text-left min-w-[150px] text-xs font-medium uppercase tracking-wider ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>Rekomendasi</th>
 
+                                                                            {showTeacherScoreColumn && (
+                                                                                <th className={`px-3 py-3 text-center w-24 text-xs font-bold uppercase tracking-wider ${isDark ? 'text-purple-400 bg-purple-900/10' : 'text-purple-700 bg-purple-50'}`}>Nilai (Guru)</th>
+                                                                            )}
+
                                                                             <th className={`px-3 py-3 text-center w-28 text-xs font-medium uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Status</th>
-                                                                            {(actualRole === 'auditor' || actualRole === 'auditee') && <th className={`px-3 py-3 text-center w-24 text-xs font-medium uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Aksi</th>}
+                                                                            {(actualRole === 'auditor' || actualRole === 'auditee' || showTeacherScoreColumn) && <th className={`px-3 py-3 text-center w-24 text-xs font-medium uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Aksi</th>}
                                                                         </tr>
                                                                     </thead>
                                                                     <tbody className={`divide-y ${isDark ? 'divide-orange-900/15' : 'divide-slate-100'}`}>
@@ -513,7 +569,7 @@ export function AuditTable({ items, role, auditId, onItemsUpdate, effectiveRole,
                                                                                 <CriteriaRow
                                                                                     key={item.id}
                                                                                     item={item}
-                                                                                    role={role === 'superadmin' ? 'superadmin' : actualRole as any}
+                                                                                    role={showTeacherScoreColumn ? (role as any) : (actualRole as any)}
                                                                                     editingFields={editingFields}
                                                                                     updateField={updateField}
                                                                                     onSaveDraft={handleSaveDraft}
@@ -549,10 +605,20 @@ export function AuditTable({ items, role, auditId, onItemsUpdate, effectiveRole,
                         <div className="grid md:grid-cols-2 gap-8 items-center">
                             <div>
                                 <h3 className="text-slate-400 text-sm font-medium uppercase tracking-wider mb-2">Total Nilai Akhir</h3>
-                                <div className="flex items-baseline gap-2">
+                                <div className="flex items-baseline gap-2 mb-4">
                                     <span className="text-5xl font-bold tracking-tight">{grandTotal.toFixed(2)}</span>
                                     <span className="text-slate-400">/ 100</span>
                                 </div>
+
+                                {showTeacherScoreColumn && (
+                                    <div className="bg-purple-900/30 border border-purple-500/20 rounded-xl p-4 md:mt-0 mt-4 inline-block">
+                                        <h3 className="text-purple-300 text-xs font-bold uppercase tracking-wider mb-1">Total Nilai Guru</h3>
+                                        <div className="flex items-baseline gap-2">
+                                            <span className="text-3xl font-black text-purple-100 tracking-tight">{grandTeacherTotal.toFixed(2)}</span>
+                                            <span className="text-purple-300 font-medium text-sm">/ 100</span>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                             <div className="bg-white/10 rounded-xl p-6 backdrop-blur-sm border border-white/10">
                                 <div className="flex items-center gap-3 mb-2">

@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { Audit } from '@/types/database';
 import Link from 'next/link';
 import { deleteAudit, getUserAudits } from '@/lib/actions/audit-server-actions';
+import { toggleExamManualLock } from '@/lib/actions/exam-actions';
 import {
     ClipboardCheck,
     Plus,
@@ -18,6 +19,7 @@ import {
     Settings,
     Trash2,
     Lock,
+    Unlock
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -27,6 +29,7 @@ export default function AuditsPage() {
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
     const [deletingId, setDeletingId] = useState<string | null>(null);
+    const [togglingId, setTogglingId] = useState<string | null>(null);
     const supabase = createClient();
 
     useEffect(() => {
@@ -66,6 +69,26 @@ export default function AuditsPage() {
         }
     };
 
+    const handleToggleLock = async (id: string, currentLockState: boolean) => {
+        setTogglingId(id);
+        const newState = !currentLockState;
+        try {
+            const res = await toggleExamManualLock(id, newState);
+            if (res.error) {
+                toast.error(res.error);
+            } else {
+                toast.success(`Ujian telah ${newState ? 'dikunci' : 'dibuka'} secara manual.`);
+                // update local state
+                setAudits(audits.map(a => a.id === id ? { ...a, is_manually_locked: newState } : a));
+            }
+        } catch (error) {
+            toast.error('Terjadi kesalahan.');
+            console.error(error);
+        } finally {
+            setTogglingId(null);
+        }
+    };
+
     const filtered = audits.filter(
         (a) =>
             a.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -82,13 +105,10 @@ export default function AuditsPage() {
                 <ArrowLeft className="w-4 h-4" /> Kembali ke Dashboard
             </Link>
 
-            {/* Page Header */}
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-2xl font-bold text-slate-800 dark:text-white">
-                        {profile?.role === 'superadmin'
-                            ? 'Manajemen Audit'
-                            : 'Daftar Tugas & Audit'}
+                        Daftar Tugas & Audit
                     </h1>
                     <p className="text-slate-500 mt-1 text-sm">
                         {filtered.length} audit ditemukan
@@ -99,7 +119,7 @@ export default function AuditsPage() {
                         href="/admin/periods"
                         className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-xl font-medium text-sm shadow-lg shadow-blue-500/25 transition-all"
                     >
-                        <Plus className="w-4 h-4" /> Kelola Periode Audit
+                        <Plus className="w-4 h-4" /> Kelola Grup & Tugas Baru
                     </Link>
                 )}
             </div>
@@ -165,7 +185,9 @@ export default function AuditsPage() {
                                         audit={audit}
                                         profile={profile}
                                         isDeleting={deletingId === audit.id}
+                                        isToggling={togglingId === audit.id}
                                         onDelete={handleDelete}
+                                        onToggleLock={handleToggleLock}
                                     />
                                 ))}
                             </div>
@@ -178,7 +200,7 @@ export default function AuditsPage() {
     );
 }
 
-function AuditCard({ audit, profile, isDeleting, onDelete }: any) {
+function AuditCard({ audit, profile, isDeleting, isToggling, onDelete, onToggleLock }: any) {
     const auditor = audit.auditor;
     const auditee = audit.auditee;
 
@@ -187,7 +209,7 @@ function AuditCard({ audit, profile, isDeleting, onDelete }: any) {
     const effectiveRole = audit.effectiveRole;
 
     const isExam = audit.type === 'midterm' || audit.type === 'final';
-    let isLocked = audit.status === 'locked';
+    let isLocked = audit.status === 'locked' || !!audit.is_manually_locked;
     if (!isLocked && isExam && audit.time_limit_minutes && audit.exam_start_time) {
         const limitSeconds = audit.time_limit_minutes * 60;
         const startedAt = new Date(audit.exam_start_time).getTime();
@@ -199,7 +221,7 @@ function AuditCard({ audit, profile, isDeleting, onDelete }: any) {
     }
 
     return (
-        <div className={`group relative bg-white dark:bg-slate-900 border rounded-2xl p-6 transition-all duration-300 ${isLocked ? 'opacity-60 border-slate-200 dark:border-slate-800 filter grayscale' :
+        <div className={`group relative bg-white dark:bg-slate-900 border rounded-2xl p-6 transition-all duration-300 ${isLocked && profile?.role !== 'superadmin' ? 'opacity-60 border-slate-200 dark:border-slate-800 filter grayscale' :
             isGroupPractice && effectiveRole
                 ? effectiveRole === 'auditor'
                     ? 'border-indigo-200 dark:border-indigo-900/50 hover:border-indigo-400 hover:shadow-lg'
@@ -216,7 +238,7 @@ function AuditCard({ audit, profile, isDeleting, onDelete }: any) {
                 </div>
             )}
 
-            {isLocked ? (
+            {isLocked && profile?.role !== 'superadmin' ? (
                 <div className="absolute inset-0 z-0 rounded-2xl cursor-not-allowed" />
             ) : (
                 <Link
@@ -263,12 +285,26 @@ function AuditCard({ audit, profile, isDeleting, onDelete }: any) {
 
                 <div className="flex flex-col items-end gap-2 mt-1 shrink-0 pointer-events-auto">
                     {profile?.role === 'superadmin' ? (
-                        <div className="flex gap-1">
+                        <div className="flex gap-1 z-20 relative">
                             {/* Admin Actions */}
+                            {isExam && (
+                                <button
+                                    onClick={(e) => { e.preventDefault(); onToggleLock(audit.id, !!audit.is_manually_locked); }}
+                                    disabled={isToggling}
+                                    className={`p-2 rounded-lg transition-colors flex items-center gap-1.5 disabled:opacity-50 border ${audit.is_manually_locked ? 'bg-amber-50 text-amber-600 border-amber-200 hover:bg-amber-100' : 'bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100'}`}
+                                    title={audit.is_manually_locked ? "Buka Akses Ujian" : "Kunci Intervensi Layar"}
+                                >
+                                    {isToggling ? <Loader2 className="w-4 h-4 animate-spin" /> : audit.is_manually_locked ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
+                                    <span className="text-xs font-bold uppercase tracking-wider hidden sm:inline-block cursor-pointer">
+                                        {audit.is_manually_locked ? 'Buka Kunci' : 'Kunci Ujian'}
+                                    </span>
+                                </button>
+                            )}
+
                             <button
-                                onClick={() => onDelete(audit.id, audit.title)}
+                                onClick={(e) => { e.preventDefault(); onDelete(audit.id, audit.title); }}
                                 disabled={isDeleting}
-                                className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors z-20 relative disabled:opacity-50"
+                                className="p-2 text-slate-400 border border-transparent hover:border-red-200 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50"
                                 title="Hapus Audit"
                             >
                                 {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}

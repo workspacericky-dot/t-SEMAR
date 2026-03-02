@@ -6,6 +6,9 @@ import { Group } from '@/types/database';
 import { CreateGroupPracticeModal } from './create-group-practice-modal';
 import { CreateIndividualAuditModal } from './create-individual-audit-modal';
 
+import { CreateMasterTemplateModal } from './create-master-template-modal';
+import { FileSymlink } from 'lucide-react';
+
 interface CreateAuditButtonsProps {
     periodId: string;
     groups: Group[];
@@ -14,6 +17,7 @@ interface CreateAuditButtonsProps {
 export function CreateAuditButtons({ periodId, groups }: CreateAuditButtonsProps) {
     const [isGroupModalOpen, setIsGroupModalOpen] = useState(false);
     const [isIndividualModalOpen, setIsIndividualModalOpen] = useState(false);
+    const [isMasterModalOpen, setIsMasterModalOpen] = useState(false);
 
     return (
         <div className="flex gap-2">
@@ -33,6 +37,14 @@ export function CreateAuditButtons({ periodId, groups }: CreateAuditButtonsProps
                 <User className="w-4 h-4" />
                 Tugas Individu
             </button>
+            <button
+                onClick={() => setIsMasterModalOpen(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-sm rounded-lg shadow-sm hover:shadow transition-all"
+            >
+                <Plus className="w-4 h-4" />
+                <FileSymlink className="w-4 h-4" />
+                Master Template
+            </button>
 
             <CreateGroupPracticeModal
                 isOpen={isGroupModalOpen}
@@ -44,6 +56,12 @@ export function CreateAuditButtons({ periodId, groups }: CreateAuditButtonsProps
             <CreateIndividualAuditModal
                 isOpen={isIndividualModalOpen}
                 onClose={() => setIsIndividualModalOpen(false)}
+                periodId={periodId}
+            />
+
+            <CreateMasterTemplateModal
+                isOpen={isMasterModalOpen}
+                onClose={() => setIsMasterModalOpen(false)}
                 periodId={periodId}
             />
         </div>

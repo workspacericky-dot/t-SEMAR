@@ -9,11 +9,12 @@ import { Audit, AuditItem, ExtendedAudit, Profile } from '@/types/database';
 import { AuditTable } from '@/components/audit/audit-table';
 import { TaskDistribution } from '@/components/audit/task-distribution';
 import { AuditExportButtons } from '@/components/audit/audit-export-buttons';
-import { ArrowLeft, Calendar, Users, Loader2, FileText, Clock, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Calendar, Users, Loader2, FileText, Clock, AlertCircle, Lock, Save } from 'lucide-react';
 import Link from 'next/link';
 import { getAuditById } from '@/lib/actions/audit-server-actions';
-import { startExam } from '@/lib/actions/exam-actions';
+import { startExam, submitExamEarly } from '@/lib/actions/exam-actions';
 import { getProfilesByIds } from '@/lib/actions/period-actions';
+import { toast } from 'sonner';
 import { AnimatePresence, motion } from 'framer-motion';
 
 export default function AuditDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -36,6 +37,7 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
     const [examTimeLeft, setExamTimeLeft] = useState<number | null>(null);
     const [isExamLocked, setIsExamLocked] = useState(false);
     const [isStartingExam, setIsStartingExam] = useState(false);
+    const [isSubmittingExam, setIsSubmittingExam] = useState(false);
 
     const supabase = createClient();
 
@@ -74,7 +76,7 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
                             const limit = (auditData.time_limit_minutes || 90) * 60 * 1000;
                             const end = start + limit;
                             const now = Date.now();
-                            if (now >= end) {
+                            if (now >= end || auditData.is_manually_locked) {
                                 setExamTimeLeft(0);
                                 setIsExamLocked(true);
                             } else {
@@ -83,6 +85,7 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
                             }
                         } else {
                             setExamTimeLeft(auditData.time_limit_minutes ? auditData.time_limit_minutes * 60 : 90 * 60);
+                            setIsExamLocked(!!auditData.is_manually_locked);
                         }
                     }
 
@@ -107,6 +110,18 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
     }, [id, profile]);
     const isExam = audit?.type === 'midterm' || audit?.type === 'final';
     const needsToStart = isExam && !audit?.exam_start_time && audit?.effectiveRole === 'auditor';
+
+    const [currentTime, setCurrentTime] = useState<number>(Date.now());
+
+    useEffect(() => {
+        if (!needsToStart) return;
+        const interval = setInterval(() => setCurrentTime(Date.now()), 1000);
+        return () => clearInterval(interval);
+    }, [needsToStart]);
+
+    const scheduledStartTimeMs = audit?.scheduled_start_time ? new Date(audit.scheduled_start_time).getTime() : 0;
+    const isWaitingForSchedule = scheduledStartTimeMs > currentTime;
+    const isManuallyLockedWait = !!audit?.is_manually_locked;
 
     // Timer Interval Effects
     useEffect(() => {
@@ -166,6 +181,23 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
         }
     };
 
+    const handleSubmitExamEarly = async () => {
+        if (!confirm('Apakah Anda yakin ingin menyelesaikan ujian sekarang? Jawaban tidak dapat diubah lagi setelah ini.')) {
+            return;
+        }
+
+        setIsSubmittingExam(true);
+        const res = await submitExamEarly(id);
+
+        if (res.error) {
+            toast.error(res.error);
+            setIsSubmittingExam(false);
+        } else {
+            toast.success('Ujian berhasil diselesaikan!');
+            window.location.reload();
+        }
+    };
+
     const formatTime = (seconds: number) => {
         const h = Math.floor(seconds / 3600);
         const m = Math.floor((seconds % 3600) / 60);
@@ -217,6 +249,58 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
                                 {countdownPhase}
                             </motion.div>
                         </AnimatePresence>
+                    ) : isManuallyLockedWait ? (
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className={`max-w-md w-full rounded-[2rem] p-8 shadow-2xl text-center border relative overflow-hidden ${isDark ? 'bg-slate-900 border-slate-800 shadow-red-900/20' : 'bg-white border-slate-100 shadow-red-500/10'}`}
+                        >
+                            <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-transparent z-0" />
+                            <div className="relative z-10">
+                                <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 text-red-600 border-4 border-white shadow-xl ${isDark ? 'bg-red-900/30' : 'bg-red-50'}`}>
+                                    <Lock className="w-10 h-10" />
+                                </div>
+                                <h2 className={`text-2xl font-black tracking-tight mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>Ujian Terkunci</h2>
+                                <p className={`text-sm mb-8 leading-relaxed font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                                    Akses ujian ini telah dikunci sementara oleh Admin. Hubungi pengawas untuk informasi lebih lanjut.
+                                </p>
+                                <button
+                                    onClick={() => window.location.reload()}
+                                    className="w-full h-14 rounded-xl bg-slate-200 text-slate-700 font-bold text-lg hover:bg-slate-300 transition-all flex justify-center items-center gap-2"
+                                >
+                                    Muat Ulang Halaman
+                                </button>
+                            </div>
+                        </motion.div>
+                    ) : isWaitingForSchedule ? (
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className={`max-w-md w-full rounded-[2rem] p-8 shadow-2xl text-center border relative overflow-hidden ${isDark ? 'bg-slate-900 border-slate-800 shadow-blue-900/20' : 'bg-white border-slate-100 shadow-blue-500/10'}`}
+                        >
+                            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent z-0" />
+                            <div className="relative z-10">
+                                <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 text-blue-600 border-4 border-white shadow-xl ${isDark ? 'bg-blue-900/30' : 'bg-blue-50'}`}>
+                                    <Clock className="w-10 h-10" />
+                                </div>
+                                <h2 className={`text-2xl font-black tracking-tight mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>Ujian Belum Dimulai</h2>
+                                <p className={`text-sm mb-4 leading-relaxed font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                                    Ujian ini dijadwalkan untuk dimulai pada: <br />
+                                    <strong className="text-white bg-blue-600 px-2 py-1 rounded inline-block mt-2">
+                                        {new Date(audit.scheduled_start_time!).toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'short' })}
+                                    </strong>
+                                </p>
+                                <p className="text-sm font-bold text-blue-500 mb-8">
+                                    Sisa waktu tunggu: {formatTime(Math.floor((scheduledStartTimeMs - currentTime) / 1000))}
+                                </p>
+                                <button
+                                    disabled
+                                    className="w-full h-14 rounded-xl bg-slate-200 text-slate-400 font-bold text-lg cursor-not-allowed transition-all flex justify-center items-center gap-2"
+                                >
+                                    Mulai Sekarang
+                                </button>
+                            </div>
+                        </motion.div>
                     ) : (
                         <motion.div
                             initial={{ opacity: 0, scale: 0.95 }}
@@ -388,6 +472,29 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
                     />
                 )
             }
+
+            {/* Manual Submit Button for Students */}
+            {isExam && audit?.exam_start_time && !isExamLocked && audit.effectiveRole === 'auditor' && (
+                <div className="pt-8 pb-12 flex justify-center">
+                    <button
+                        onClick={handleSubmitExamEarly}
+                        disabled={isSubmittingExam}
+                        className={`px-8 py-3 rounded-xl font-bold text-white shadow-xl flex items-center gap-2 transition-all ${isSubmittingExam ? 'bg-slate-400 cursor-not-allowed opacity-70' : 'bg-emerald-600 hover:bg-emerald-700 hover:scale-[1.02] shadow-emerald-600/20'}`}
+                    >
+                        {isSubmittingExam ? (
+                            <>
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                                Menyimpan Nilai...
+                            </>
+                        ) : (
+                            <>
+                                <Save className="w-5 h-5" />
+                                Submit Ujian
+                            </>
+                        )}
+                    </button>
+                </div>
+            )}
         </div>
     );
 }

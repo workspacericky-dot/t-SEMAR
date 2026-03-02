@@ -25,7 +25,7 @@ export default async function AuditPeriodsPage() {
                         Kembali ke Dashboard
                     </Link>
                     <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-                        Periode Audit
+                        Buat Audit Baru
                     </h1>
                     <p className="text-slate-500">
                         Kelola tahun ajaran dan periode audit (Semester Ganjil/Genap).

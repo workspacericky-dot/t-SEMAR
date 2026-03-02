@@ -407,12 +407,11 @@ export default function DashboardPage() {
                                                         : isDark
                                                             ? 'bg-[#1A1D27] border-slate-800 hover:border-slate-700'
                                                             : 'bg-white border-transparent hover:border-slate-200 hover:shadow-md'
-                                                        } ${isLocked ? 'opacity-60 cursor-not-allowed filter grayscale' : ''}`}
+                                                        }`}
                                                 >
                                                     <button
-                                                        onClick={() => { if (!isLocked) handleToggle(audit.id); }}
-                                                        disabled={isLocked}
-                                                        className="shrink-0 disabled:cursor-not-allowed disabled:opacity-50"
+                                                        onClick={() => { handleToggle(audit.id); }}
+                                                        className="shrink-0"
                                                     >
                                                         {isActive ? (
                                                             <ToggleRight className="w-6 h-6 text-pink-500" />
@@ -421,20 +420,8 @@ export default function DashboardPage() {
                                                         )}
                                                     </button>
 
-                                                    {isLocked ? (
-                                                        <div className="flex-1 min-w-0 flex items-center justify-between">
-                                                            <div>
-                                                                <h4 className={`font-bold text-sm leading-tight line-clamp-1 transition-colors ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                                                                    {audit.title}
-                                                                </h4>
-                                                                <p className={`text-[10px] mt-0.5 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
-                                                                    {audit.type === 'midterm' ? 'Midterm Exam' : 'Individual'} (Terkunci)
-                                                                </p>
-                                                            </div>
-                                                            <Lock className="w-4 h-4 text-slate-400 shrink-0" />
-                                                        </div>
-                                                    ) : (
-                                                        <Link href={`/audits/${audit.id}`} className="flex-1 min-w-0">
+                                                    <Link href={`/audits/${audit.id}`} className="flex-1 min-w-0 flex items-center justify-between">
+                                                        <div>
                                                             <h4 className={`font-bold text-sm leading-tight line-clamp-1 transition-colors ${isActive
                                                                 ? 'text-pink-600'
                                                                 : isDark ? 'text-white group-hover:text-pink-400' : 'text-slate-800 group-hover:text-pink-600'
@@ -442,10 +429,11 @@ export default function DashboardPage() {
                                                                 {audit.title}
                                                             </h4>
                                                             <p className={`text-[10px] mt-0.5 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
-                                                                {audit.type === 'midterm' ? 'Midterm Exam' : 'Individual'}
+                                                                {audit.type === 'midterm' ? 'Midterm Exam' : 'Individual'}{isLocked && ' (Selesai)'}
                                                             </p>
-                                                        </Link>
-                                                    )}
+                                                        </div>
+                                                        {isLocked && <Lock className={`w-4 h-4 shrink-0 ${isDark ? 'text-slate-600' : 'text-slate-400'}`} />}
+                                                    </Link>
                                                 </div>
                                             );
                                         })

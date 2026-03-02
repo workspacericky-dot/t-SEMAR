@@ -11,8 +11,8 @@ export type AuditItemStatus =
   | 'FINAL_ALTERED'
   | 'FINAL_ORIGINAL';
 
-export type UserRole = 'superadmin' | 'auditor' | 'auditee' | 'participant';
-export type AuditType = 'group_practice' | 'midterm' | 'final';
+export type UserRole = 'superadmin' | 'admin' | 'auditor' | 'auditee' | 'participant';
+export type AuditType = 'group_practice' | 'midterm' | 'final' | 'master_template';
 
 export interface Profile {
   id: string;
@@ -60,6 +60,8 @@ export interface Audit {
   individual_auditor_id: string | null;
   time_limit_minutes?: number;
   exam_start_time?: string | null;
+  scheduled_start_time?: string | null;
+  is_manually_locked?: boolean;
 
   // Legacy (Deprecated/Migrated)
   auditor_id: string | null;
@@ -79,7 +81,7 @@ export interface Audit {
   individual_auditor?: Profile;
 }
 
-export type UserAuditRole = 'auditor' | 'auditee' | 'observer';
+export type UserAuditRole = 'superadmin' | 'admin' | 'auditor' | 'auditee' | 'observer';
 
 export interface ExtendedAudit extends Audit {
   effectiveRole: UserAuditRole;
@@ -112,6 +114,9 @@ export interface AuditItem {
   auditee_response: string;
   auditor_rebuttal?: string;
   auditee_action_plan: string;
+
+  // Post-Exam Teacher Scoring
+  teacher_score?: number;
   tl_target?: string;
   tl_waktu?: string;
   tl_pic?: string;

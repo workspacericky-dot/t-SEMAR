@@ -340,3 +340,71 @@ export async function lockAllAudits(periodId: string, isLocked: boolean, type?: 
     if (error) throw error;
     revalidatePath(`/admin/periods/${periodId}`);
 }
+
+/**
+ * Creates a dedicated Master Template that handles generating the 80 criteria.
+ * This is totally unassigned to any student or group. 
+ * Kept strictly for 'Distribusi Ujian' template cloning.
+ */
+export async function createMasterTemplate(
+    periodId: string,
+    title: string,
+    description: string
+) {
+    const supabase = getSupabaseAdmin();
+
+    const { data: period, error: pErr } = await supabase.from('audit_periods').select('year').eq('id', periodId).single();
+    if (pErr) throw pErr;
+
+    // Create Audit entry mapping specifically to 'master_template'
+    const { data: audit, error: auditError } = await supabase
+        .from('audits')
+        .insert({
+            title,
+            description,
+            year: period.year,
+            period_id: periodId,
+            status: 'PUBLISHED_TO_AUDITEE', // Standard templates start here, allowing Admin to act as Auditee filling it
+            type: 'master_template',
+            auditor_group_id: null,
+            auditee_group_id: null,
+            individual_auditor_id: null, // Critical: this must be null
+        })
+        .select()
+        .single();
+
+    if (auditError) {
+        console.error("AUDIT INSERT ERROR:", JSON.stringify(auditError, null, 2));
+        throw auditError;
+    }
+
+    // Call postgres function to populate the 80 criteria
+    // OR, we can just use the same AUDIT_CRITERIA_TEMPLATE generation logic
+    const items = AUDIT_CRITERIA_TEMPLATE.map((criteria) => ({
+        audit_id: audit.id,
+        category: criteria.category,
+        subcategory: criteria.subcategory,
+        criteria: criteria.criteria,
+        bobot: criteria.bobot,
+        category_bobot: criteria.category_bobot,
+        subcategory_bobot: criteria.subcategory_bobot,
+        sort_order: criteria.sort_order,
+        status: 'DRAFTING',
+        assigned_to: null,
+    }));
+
+    const { error: itemsError } = await getSupabaseAdmin()
+        .from('audit_items')
+        .insert(items);
+
+    if (itemsError) {
+        console.error("ITEMS INSERT ERROR:", JSON.stringify(itemsError, null, 2));
+        throw itemsError;
+    }
+
+    revalidatePath(`/admin/periods/${periodId}`);
+    revalidatePath('/audits');
+
+    return audit;
+}
+

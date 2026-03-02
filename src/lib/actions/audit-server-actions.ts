@@ -21,7 +21,17 @@ const getSupabaseAdmin = () => createClient(
  */
 export async function getUserAudits(userId: string) {
     try {
-        // 1. Get user's profile to find which groups they are in
+        // 1. Get user's profile to find their role and which groups they are in
+        const { data: profile, error: profileError } = await getSupabaseAdmin()
+            .from('profiles')
+            .select('role')
+            .eq('id', userId)
+            .single();
+
+        if (profileError) throw profileError;
+
+        const isSuperadmin = profile.role === 'superadmin';
+
         const { data: groups, error: groupsError } = await getSupabaseAdmin()
             .from('groups')
             .select('id')
@@ -30,11 +40,6 @@ export async function getUserAudits(userId: string) {
         if (groupsError) throw groupsError;
 
         const groupIds = groups.map(g => g.id);
-
-        // 2. Fetch audits where:
-        //    a) User is the INDIVIDUAL auditor
-        //    b) User's group is the AUDITOR group
-        //    c) User's group is the AUDITEE group
 
         let query = getSupabaseAdmin()
             .from('audits')
@@ -47,19 +52,20 @@ export async function getUserAudits(userId: string) {
         `)
             .order('created_at', { ascending: false });
 
-        // Build OR condition
-        const conditions = [`individual_auditor_id.eq.${userId}`];
+        // Apply filters only if NOT superadmin
+        if (!isSuperadmin) {
+            // Build OR condition
+            const conditions = [`individual_auditor_id.eq.${userId}`];
 
-        if (groupIds.length > 0) {
-            // PostgREST .in. filter inside .or() does not need double quotes for UUIDs.
-            // It should simply be formatted as (val1,val2)
-            const groupList = `(${groupIds.join(',')})`;
-            conditions.push(`auditor_group_id.in.${groupList}`);
-            conditions.push(`auditee_group_id.in.${groupList}`);
+            if (groupIds.length > 0) {
+                const groupList = `(${groupIds.join(',')})`;
+                conditions.push(`auditor_group_id.in.${groupList}`);
+                conditions.push(`auditee_group_id.in.${groupList}`);
+            }
+
+            // Apply OR filter
+            query = query.or(conditions.join(','));
         }
-
-        // Apply OR filter
-        query = query.or(conditions.join(','));
 
         const { data: audits, error: auditsError } = await query;
         if (auditsError) throw auditsError;
@@ -68,7 +74,10 @@ export async function getUserAudits(userId: string) {
         const processedAudits: ExtendedAudit[] = (audits || []).map((audit: any) => {
             let role: UserAuditRole = 'observer';
 
-            if (audit.individual_auditor_id === userId) {
+            if (isSuperadmin) {
+                // Admin creates templates by acting as the Auditee
+                role = 'auditee';
+            } else if (audit.individual_auditor_id === userId) {
                 role = 'auditor';
             } else if (groupIds.includes(audit.auditor_group_id)) {
                 role = 'auditor';
@@ -158,7 +167,9 @@ export async function getAuditById(auditId: string, userId: string) {
     const isAuditorGroupMember = audit.auditor_group?.members?.includes(userId);
     const isAuditeeGroupMember = audit.auditee_group?.members?.includes(userId);
 
-    if (isIndividualAuditor) {
+    if (preferredRole === 'superadmin') {
+        effectiveRole = 'auditee';
+    } else if (isIndividualAuditor) {
         effectiveRole = 'auditor';
     } else if (isAuditorGroupMember && isAuditeeGroupMember) {
         // User is in BOTH groups. Use their global role preference.

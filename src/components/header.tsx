@@ -5,7 +5,7 @@ import { useThemeStore } from '@/store/theme-store';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { LogOut, User, ChevronDown, Sun, Moon, UserPlus, Users } from 'lucide-react';
+import { LogOut, User, ChevronDown, Sun, Moon, UserPlus, Users, Calendar, ClipboardCheck } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 
@@ -125,9 +125,44 @@ export function Header() {
                                 Edit Profile
                             </button>
 
-                            {/* Register User (Superadmin Only) */}
+                            {/* Admin Navigation Links */}
                             {profile?.role === 'superadmin' && (
                                 <>
+                                    <div className={`px-4 py-2 mt-1 mb-1 border-t border-b ${isDark ? 'border-slate-700/50' : 'border-slate-100/50'}`}>
+                                        <p className={`text-[10px] font-bold tracking-wider uppercase ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+                                            Menu Admin
+                                        </p>
+                                    </div>
+                                    <Link
+                                        href="/admin/periods"
+                                        onClick={() => setOpen(false)}
+                                        className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-xl transition-colors ${isDark ? 'text-slate-300 hover:bg-white/5' : 'text-slate-600 hover:bg-slate-50'}`}
+                                    >
+                                        <Calendar className="w-4 h-4" />
+                                        Buat Audit Baru
+                                    </Link>
+                                    <Link
+                                        href="/audits"
+                                        onClick={() => setOpen(false)}
+                                        className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-xl transition-colors ${isDark ? 'text-slate-300 hover:bg-white/5' : 'text-slate-600 hover:bg-slate-50'}`}
+                                    >
+                                        <ClipboardCheck className="w-4 h-4" />
+                                        Daftar Tugas & Audit
+                                    </Link>
+                                    <Link
+                                        href="/admin/exams"
+                                        onClick={() => setOpen(false)}
+                                        className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-xl transition-colors ${isDark ? 'text-slate-300 hover:bg-white/5' : 'text-slate-600 hover:bg-slate-50'}`}
+                                    >
+                                        <ClipboardCheck className="w-4 h-4" />
+                                        Distribusi Ujian
+                                    </Link>
+
+                                    <div className={`px-4 py-2 mt-1 mb-1 border-t border-b ${isDark ? 'border-slate-700/50' : 'border-slate-100/50'}`}>
+                                        <p className={`text-[10px] font-bold tracking-wider uppercase ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+                                            Manajemen User
+                                        </p>
+                                    </div>
                                     <button
                                         onClick={() => { setOpen(false); setIsAddUserOpen(true); }}
                                         className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-xl transition-colors ${isDark ? 'text-slate-300 hover:bg-white/5' : 'text-slate-600 hover:bg-slate-50'}`}
