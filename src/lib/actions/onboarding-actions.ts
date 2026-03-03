@@ -76,7 +76,7 @@ export async function completeOnboarding(data: OnboardingData) {
                 .single();
 
             if (!groupError && group) {
-                // 4. Inject User into Group Members safely
+                // 4a. Group exists, Inject User into Group Members safely
                 const currentMembers = group.members || [];
                 if (!currentMembers.includes(userId)) {
                     const newMembers = [...currentMembers, userId];
@@ -86,16 +86,30 @@ export async function completeOnboarding(data: OnboardingData) {
                         .eq('id', group.id);
 
                     if (updateGroupError) throw updateGroupError;
-
-                    // 5. Upgrade User Role to Participant
-                    const { error: upgradeRoleError } = await supabaseAdmin
-                        .from('profiles')
-                        .update({ role: 'participant' })
-                        .eq('id', userId);
-
-                    if (upgradeRoleError) throw upgradeRoleError;
                 }
+            } else if (groupError || !group) {
+                // 4b. Group does NOT exist in this period, let's gracefully Auto-create it!
+                const { error: insertGroupError } = await supabaseAdmin
+                    .from('groups')
+                    .insert({
+                        period_id: activePeriod.id,
+                        name: `Kelompok ${trainingGroup}`,
+                        group_number: trainingGroup,
+                        members: [userId],
+                        lead_student_id: null,
+                    });
+
+                if (insertGroupError) throw insertGroupError;
             }
+
+            // 5. Upgrade User Role to Participant
+            // (Always happens if period was active and they successfully joined/created a group)
+            const { error: upgradeRoleError } = await supabaseAdmin
+                .from('profiles')
+                .update({ role: 'participant' })
+                .eq('id', userId);
+
+            if (upgradeRoleError) throw upgradeRoleError;
         }
 
         revalidatePath('/dashboard');
