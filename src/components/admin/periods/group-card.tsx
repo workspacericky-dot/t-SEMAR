@@ -22,11 +22,15 @@ export function GroupCard({ group }: GroupCardProps) {
 
         setIsDeleting(true);
         try {
-            await deleteGroup(group.id);
-            toast.success('Kelompok berhasil dihapus');
+            const res = await deleteGroup(group.id);
+            if (res?.error) {
+                toast.error(res.error);
+            } else {
+                toast.success('Kelompok berhasil dihapus');
+            }
         } catch (error) {
             console.error(error);
-            toast.error('Gagal menghapus kelompok');
+            toast.error('Gagal menghapus kelompok (Jaringan error)');
         } finally {
             setIsDeleting(false);
         }

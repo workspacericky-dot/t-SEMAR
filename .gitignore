@@ -40,3 +40,5 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 references/alur_pembelajaran_esemar.md
+references/panduan_admin.md
+references/panduan_pengguna.md

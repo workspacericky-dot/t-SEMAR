@@ -203,8 +203,14 @@ export async function deleteGroup(groupId: string) {
         .delete()
         .eq('id', groupId);
 
-    if (error) throw error;
+    if (error) {
+        if (error.code === '23503') {
+            return { error: 'Kelompok ini tidak dapat dihapus karena masih terkait dengan penugasan audit.' };
+        }
+        return { error: error.message };
+    }
     revalidatePath('/admin/periods');
+    return { success: true };
 }
 
 export async function getGroupsByPeriod(periodId: string) {

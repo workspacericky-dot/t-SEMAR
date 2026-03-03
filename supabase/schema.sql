@@ -25,7 +25,7 @@ CREATE TYPE public.user_role AS ENUM (
 CREATE TABLE public.profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   full_name TEXT NOT NULL DEFAULT '',
-  role public.user_role NOT NULL DEFAULT 'auditee',
+  role public.user_role NOT NULL DEFAULT 'auditor',
   satker_name TEXT DEFAULT '',
   avatar_url TEXT DEFAULT '',
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -212,7 +212,7 @@ BEGIN
   VALUES (
     NEW.id,
     COALESCE(NEW.raw_user_meta_data ->> 'full_name', NEW.email),
-    COALESCE((NEW.raw_user_meta_data ->> 'role')::public.user_role, 'auditee')
+    COALESCE((NEW.raw_user_meta_data ->> 'role')::public.user_role, 'auditor')
   );
   RETURN NEW;
 END;
