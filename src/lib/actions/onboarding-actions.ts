@@ -63,7 +63,7 @@ export async function completeOnboarding(data: OnboardingData) {
         const { data: activePeriod, error: periodError } = await supabaseAdmin
             .from('audit_periods')
             .select('id')
-            .eq('status', 'active')
+            .eq('is_active', true)
             .single();
 
         if (!periodError && activePeriod) {
