@@ -134,11 +134,34 @@ export async function deleteUser(userId: string) {
         // Let's just delete the Auth User.
         // If we set up ON DELETE CASCADE in Postgres for 'profiles', that handles the DB.
 
-        // 2. Delete Auth User (this is the big one)
+        // 2. Clear user from any Groups 'members' array (since it's an array of strings, it doesn't cascade)
+        const { data: groupsWithUser, error: fetchGroupsError } = await getSupabaseAdmin()
+            .from('groups')
+            .select('id, members, lead_student_id');
+
+        if (!fetchGroupsError && groupsWithUser) {
+            for (const group of groupsWithUser) {
+                if (group.members && group.members.includes(userId)) {
+                    const newMembers = group.members.filter((id: string) => id !== userId);
+
+                    const updateData: any = { members: newMembers };
+                    if (group.lead_student_id === userId) {
+                        updateData.lead_student_id = null;
+                    }
+
+                    await getSupabaseAdmin()
+                        .from('groups')
+                        .update(updateData)
+                        .eq('id', group.id);
+                }
+            }
+        }
+
+        // 3. Delete Auth User (this is the big one)
         const { error } = await getSupabaseAdmin().auth.admin.deleteUser(userId);
         if (error) throw error;
 
-        // 3. Delete Profile (if not cascaded)
+        // 4. Delete Profile (if not cascaded)
         // const { error: dbError } = await getSupabaseAdmin().from('profiles').delete().eq('id', userId);
         // if (dbError) console.error('Error deleting profile (might be cascaded):', dbError);
 
