@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Loader2, ArrowRight, ArrowLeft, CheckCircle2, User, Camera, Users } from 'lucide-react';
 import { toast } from 'sonner';
+import { completeOnboarding } from '@/lib/actions/onboarding-actions';
 import { AvatarUpload } from '@/components/avatar-upload';
 
 export default function OnboardingPage() {
@@ -93,34 +94,17 @@ export default function OnboardingPage() {
 
         try {
             setSubmitting(true);
-            let error;
 
-            if (profileExists) {
-                const { error: updateError } = await supabase
-                    .from('profiles')
-                    .update({
-                        full_name: fullName,
-                        avatar_url: avatarUrl,
-                        training_group: trainingGroup,
-                        updated_at: new Date().toISOString(),
-                    })
-                    .eq('id', userId);
-                error = updateError;
-            } else {
-                const { error: insertError } = await supabase
-                    .from('profiles')
-                    .insert({
-                        id: userId,
-                        full_name: fullName,
-                        avatar_url: avatarUrl,
-                        training_group: trainingGroup,
-                        role: 'auditor',
-                        updated_at: new Date().toISOString(),
-                    });
-                error = insertError;
-            }
+            // Call the synchronized server action instead of doing it client-side
+            const res = await completeOnboarding({
+                userId,
+                fullName,
+                avatarUrl,
+                trainingGroup,
+                profileExists
+            });
 
-            if (error) throw error;
+            if (res.error) throw new Error(res.error);
 
             toast.success('All set! Welcome to eSEMAR.');
             router.refresh();
