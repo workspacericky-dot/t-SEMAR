@@ -71,6 +71,25 @@ export function TaskDistribution({ items, members, auditId, effectiveRole, onUpd
         }
     };
 
+    const handleUnassign = async () => {
+        if (selectedItems.size === 0) return;
+
+        setLoading(true);
+        try {
+            await assignMultipleItemsToMember(Array.from(selectedItems), null, effectiveRole);
+            toast.success(`Berhasil menghapus ${selectedItems.size} penugasan`);
+            setSelectedItems(new Set());
+            setSelectedMember(null);
+            onUpdate();
+            router.refresh();
+        } catch (error) {
+            console.error(error);
+            toast.error('Gagal menghapus penugasan');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     // Determine correct column based on role
     const assignCol = effectiveRole === 'auditee' ? 'auditee_assigned_to' : 'auditor_assigned_to';
 
@@ -84,6 +103,12 @@ export function TaskDistribution({ items, members, auditId, effectiveRole, onUpd
     }, 0);
 
     const orphanedCount = assignedCount - visibleAssignedCount;
+
+    // Count how many selected items already have an assignee
+    const selectedAssignedCount = Array.from(selectedItems).filter(id => {
+        const item = items.find(i => i.id === id);
+        return item && (item[assignCol] || item.assigned_to);
+    }).length;
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
@@ -243,7 +268,7 @@ export function TaskDistribution({ items, members, auditId, effectiveRole, onUpd
                             ))}
                         </div>
 
-                        <div className="mt-4 pt-4 border-t border-slate-100">
+                        <div className="mt-4 pt-4 border-t border-slate-100 space-y-2">
                             <button
                                 onClick={handleAssign}
                                 disabled={selectedItems.size === 0 || !selectedMember || loading}
@@ -252,8 +277,22 @@ export function TaskDistribution({ items, members, auditId, effectiveRole, onUpd
                                 {loading && <Loader2 className="w-4 h-4 animate-spin" />}
                                 Tetapkan {selectedItems.size > 0 ? `${selectedItems.size} Soal` : ''}
                             </button>
-                            {selectedItems.size > 0 && !selectedMember && (
-                                <p className="text-xs text-center text-slate-500 mt-2 animate-pulse">
+                            {selectedAssignedCount > 0 && (
+                                <button
+                                    onClick={handleUnassign}
+                                    disabled={loading}
+                                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white hover:bg-red-50 text-red-600 border border-red-200 hover:border-red-300 text-sm font-medium rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {loading ? (
+                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                    ) : (
+                                        <X className="w-4 h-4" />
+                                    )}
+                                    Hapus Penugasan ({selectedAssignedCount})
+                                </button>
+                            )}
+                            {selectedItems.size > 0 && !selectedMember && selectedAssignedCount === 0 && (
+                                <p className="text-xs text-center text-slate-500 animate-pulse">
                                     Pilih anggota untuk ditugaskan
                                 </p>
                             )}

@@ -7,6 +7,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { Audit, AuditItem } from '@/types/database';
 import { getDashboardData } from '@/lib/actions/audit-server-actions';
 import Link from 'next/link';
+
 import {
     ClipboardCheck,
     Clock,
@@ -181,7 +182,7 @@ export default function DashboardPage() {
     }
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-8 pb-12">
             {/* ── Welcome Header ── */}
             <div>
                 <h1 className={`text-4xl font-bold tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
