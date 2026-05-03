@@ -17,14 +17,16 @@ const getSupabaseAdmin = () => createClient(
 
 /**
  * Distributes a Master Exam Template to all students (role: auditor).
- * It creates a new unique Audit for each student, and clones 20 random items from the master.
+ * Clones `questionCount` random items from the specified categories of the master.
  */
 export async function distributeExam(
     masterAuditId: string,
     examType: 'midterm' | 'final',
     timeLimitMinutes: number = 60,
     scheduledStartTime?: string,
-    targetStudentIds?: string[]
+    targetStudentIds?: string[],
+    questionCount: number = 20,
+    selectedCategories?: string[]
 ) {
     try {
         const supabase = getSupabaseAdmin();
@@ -70,11 +72,24 @@ export async function distributeExam(
         const allNewItems: any[] = [];
         let distributedCount = 0;
 
+        // 3.5 Filter item pool by selected categories (if any)
+        const itemPool = selectedCategories && selectedCategories.length > 0
+            ? masterItems.filter(item => selectedCategories.includes(item.category))
+            : masterItems;
+
+        if (itemPool.length === 0) {
+            return { error: 'Tidak ada soal pada komponen yang dipilih.' };
+        }
+
+        if (itemPool.length < questionCount) {
+            return { error: `Soal tidak cukup: tersedia ${itemPool.length} dari komponen terpilih, diminta ${questionCount}.` };
+        }
+
         // 4. Distribute to each student
         for (const student of students) {
-            // Shuffle and pick 20
-            const shuffled = [...masterItems].sort(() => 0.5 - Math.random());
-            const selectedItems = shuffled.slice(0, 20);
+            // Shuffle item pool and pick questionCount items unique per student
+            const shuffled = [...itemPool].sort(() => 0.5 - Math.random());
+            const selectedItems = shuffled.slice(0, questionCount);
 
             // Create new Audit row for this student
             const { data: newAudit, error: insertAuditError } = await supabase

@@ -215,3 +215,44 @@ export async function updateActionPlanDetails(
 // ============================================
 
 // Actions moved to audit-server-actions.ts to handle permissions securely
+
+// ============================================
+// ADMIN OVERRIDE ACTIONS
+// ============================================
+
+// Maps each status to its predecessor (one step back)
+const STATUS_REVERSE_MAP: Partial<Record<AuditItemStatus, AuditItemStatus>> = {
+    'SUBMITTED': 'DRAFTING',
+    'PUBLISHED_TO_AUDITEE': 'SUBMITTED',
+    'DISPUTED': 'PUBLISHED_TO_AUDITEE',
+    'FINAL_AGREED': 'PUBLISHED_TO_AUDITEE',
+    'FINAL_ALTERED': 'DISPUTED',
+    'FINAL_ORIGINAL': 'DISPUTED',
+};
+
+/**
+ * Admin-only: Reset an item's status one step back (undo last submission/action).
+ * Bypasses the audit lock check — only callable by admin/superadmin.
+ */
+export async function adminResetItemStatus(itemId: string) {
+    const { data: item, error: itemError } = await getSupabase()
+        .from('audit_items')
+        .select('status')
+        .eq('id', itemId)
+        .single();
+
+    if (itemError || !item) throw new Error('Item tidak ditemukan');
+
+    const prevStatus = STATUS_REVERSE_MAP[item.status as AuditItemStatus];
+    if (!prevStatus) throw new Error('Status ini tidak dapat direset (sudah di tahap awal / DRAFTING)');
+
+    const { data, error } = await getSupabase()
+        .from('audit_items')
+        .update({ status: prevStatus })
+        .eq('id', itemId)
+        .select()
+        .single();
+
+    if (error) throw error;
+    return data as AuditItem;
+}

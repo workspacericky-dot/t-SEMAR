@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { AuditItem, UserRole, isFinalStatus } from '@/types/database';
 import { useThemeStore } from '@/store/theme-store';
 import { StatusBadge } from './status-badge';
-import { Save, Send, Loader2, MessageSquare, Check, X, FileText, ChevronDown, ExternalLink } from 'lucide-react';
+import { Save, Send, Loader2, MessageSquare, Check, X, FileText, ChevronDown, ExternalLink, RotateCcw } from 'lucide-react';
 
 interface CriteriaRowProps {
     item: AuditItem;
@@ -18,6 +18,7 @@ interface CriteriaRowProps {
     onAcceptDispute: (itemId: string) => void;
     onRejectDispute: (itemId: string, rebuttal?: string) => void;
     onSubmitActionPlan: (itemId: string, plan: string) => void;
+    onAdminReset?: (itemId: string) => void;
     savingRows: Set<string>;
     onToggleExpand: (itemId: string) => void;
     isExpanded: boolean;
@@ -34,7 +35,7 @@ const OPTIONS = ['AA', 'A', 'BB', 'B', 'CC', 'C', 'D', 'E'];
 export function CriteriaRow({
     item, role, editingFields, updateField,
     onSaveDraft, onPublish, onAgree, onDisagree,
-    onAcceptDispute, onRejectDispute, onSubmitActionPlan,
+    onAcceptDispute, onRejectDispute, onSubmitActionPlan, onAdminReset,
     savingRows, onToggleExpand, isExpanded, isEditable = true, scoreReleased,
 }: CriteriaRowProps) {
     const isDark = useThemeStore((s) => s.isDark);
@@ -412,6 +413,18 @@ export function CriteriaRow({
                                     title="Lihat Riwayat"
                                 >
                                     <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                                </button>
+                            )}
+
+                            {/* Admin Reset: undo last submission (visible for admin/superadmin only, when not DRAFTING) */}
+                            {isAdminOrSuperadmin && onAdminReset && item.status !== 'DRAFTING' && (
+                                <button
+                                    onClick={() => onAdminReset(item.id)}
+                                    disabled={isSaving}
+                                    className="p-1.5 rounded-lg bg-rose-50 dark:bg-rose-500/10 text-rose-500 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-colors border border-rose-100 dark:border-rose-900/30"
+                                    title={`Undo: Reset status dari "${item.status}" ke tahap sebelumnya`}
+                                >
+                                    {isSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RotateCcw className="w-3.5 h-3.5" />}
                                 </button>
                             )}
                         </div>

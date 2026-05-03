@@ -16,10 +16,19 @@ import {
     acceptDispute,
     rejectDispute,
     submitActionPlan,
+    adminResetItemStatus,
 } from '@/lib/actions/audit-actions';
 import { saveTeacherScore, bulkSaveTeacherScores } from '@/lib/actions/exam-actions';
 import { SendHorizontal, Loader2, Save } from 'lucide-react';
 import { toast } from 'sonner';
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogFooter,
+    DialogTitle,
+    DialogDescription,
+} from '@/components/ui/dialog';
 import {
     Accordion,
     AccordionContent,
@@ -62,6 +71,8 @@ export function AuditTable({ items, role, auditId, onItemsUpdate, effectiveRole,
     const [savingRows, setSavingRows] = useState<Set<string>>(new Set());
     const [publishingAll, setPublishingAll] = useState(false);
     const [savingCategory, setSavingCategory] = useState<string | null>(null);
+    // Confirmation dialog state for submit action
+    const [confirmSubmitId, setConfirmSubmitId] = useState<string | null>(null);
 
     // Determine the actual role to use for permissions
     const actualRole = effectiveRole || role;
@@ -302,17 +313,39 @@ export function AuditTable({ items, role, auditId, onItemsUpdate, effectiveRole,
         }
     };
 
-    const handlePublish = async (itemId: string) => {
-        if (isLocked) {
-            toast.error('Audit terkunci.');
-            return;
+    // Helper: get the effective (merged) value of a field for an item
+    const getEffectiveFieldValue = (itemId: string, field: keyof AuditItem): string => {
+        const item = items.find(i => i.id === itemId);
+        const edited = editingFields[itemId];
+        if (edited && field in edited) return String(edited[field as keyof typeof edited] ?? '');
+        return String(item?.[field] ?? '');
+    };
+
+    // Validate required fields before submit. Returns list of missing field names, or empty array if OK.
+    const validateBeforePublish = (itemId: string): string[] => {
+        const missing: string[] = [];
+        if (actualRole === 'auditee' || actualRole === 'superadmin') {
+            const jawaban = getEffectiveFieldValue(itemId, 'jawaban_auditee');
+            const deskripsi = getEffectiveFieldValue(itemId, 'deskripsi_auditee');
+            if (!jawaban || jawaban === '') missing.push('Jawaban Auditee');
+            if (!deskripsi.trim()) missing.push('Deskripsi / Penjelasan');
+        } else {
+            // auditor
+            const jawaban = getEffectiveFieldValue(itemId, 'jawaban_evaluator');
+            const catatan = getEffectiveFieldValue(itemId, 'catatan');
+            if (!jawaban || jawaban === '') missing.push('Jawaban Evaluator');
+            if (!catatan.trim()) missing.push('Catatan');
         }
+        return missing;
+    };
+
+    // The actual publish/submit execution (called after confirmation)
+    const executePublish = async (itemId: string) => {
         setSavingRows((prev) => new Set(prev).add(itemId));
         try {
             // Auto-save if there are pending changes
             const pendingChanges = editingFields[itemId];
             if (pendingChanges) {
-                // Superadmin can act as Auditee
                 if (actualRole === 'auditee' || actualRole === 'superadmin') {
                     await saveAuditeeSelfAssessment(itemId, {
                         jawaban_auditee: pendingChanges.jawaban_auditee,
@@ -323,8 +356,6 @@ export function AuditTable({ items, role, auditId, onItemsUpdate, effectiveRole,
                 } else {
                     await saveEvaluatorDraft(itemId, pendingChanges);
                 }
-
-                // Clear local edits after successful save
                 setEditingFields(prev => {
                     const next = { ...prev };
                     delete next[itemId];
@@ -351,6 +382,26 @@ export function AuditTable({ items, role, auditId, onItemsUpdate, effectiveRole,
                 return next;
             });
         }
+    };
+
+    const handlePublish = (itemId: string) => {
+        if (isLocked) {
+            toast.error('Audit terkunci. Tidak dapat melakukan perubahan.');
+            return;
+        }
+
+        // Step 1: Validate required fields
+        const missing = validateBeforePublish(itemId);
+        if (missing.length > 0) {
+            toast.error(
+                `Harap isi semua kolom yang wajib terlebih dahulu sebelum mengirim: ${missing.join(', ')}.`,
+                { duration: 5000 }
+            );
+            return;
+        }
+
+        // Step 2: Show confirmation dialog
+        setConfirmSubmitId(itemId);
     };
 
     const handlePublishAll = async () => {
@@ -428,6 +479,20 @@ export function AuditTable({ items, role, auditId, onItemsUpdate, effectiveRole,
             toast.success('Koreksi ditolak');
         } catch {
             toast.error('Gagal menolak koreksi');
+        } finally {
+            setSavingRows((prev) => { const n = new Set(prev); n.delete(itemId); return n; });
+        }
+    };
+
+    // ========== Admin: Reset item status one step back ==========
+    const handleAdminReset = async (itemId: string) => {
+        setSavingRows((prev) => new Set(prev).add(itemId));
+        try {
+            const updated = await adminResetItemStatus(itemId);
+            handleItemUpdate(updated);
+            toast.success('Status item berhasil direset ke tahap sebelumnya');
+        } catch (error: any) {
+            toast.error(error?.message || 'Gagal mereset status item');
         } finally {
             setSavingRows((prev) => { const n = new Set(prev); n.delete(itemId); return n; });
         }
@@ -672,6 +737,7 @@ export function AuditTable({ items, role, auditId, onItemsUpdate, effectiveRole,
                                                                                     onAcceptDispute={handleAcceptDispute}
                                                                                     onRejectDispute={handleRejectDispute}
                                                                                     onSubmitActionPlan={handleSubmitActionPlan}
+                                                                                    onAdminReset={handleAdminReset}
                                                                                     savingRows={savingRows}
                                                                                     onToggleExpand={toggleRow}
                                                                                     isExpanded={expandedRows.has(item.id)}
@@ -729,6 +795,42 @@ export function AuditTable({ items, role, auditId, onItemsUpdate, effectiveRole,
                     </div>
                 </div>
             )}
+
+            {/* ===== Confirmation Dialog for Submit ===== */}
+            <Dialog open={confirmSubmitId !== null} onOpenChange={(open) => { if (!open) setConfirmSubmitId(null); }}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="text-slate-800 dark:text-slate-100">
+                            Konfirmasi Pengiriman
+                        </DialogTitle>
+                        <DialogDescription className="text-slate-600 dark:text-slate-400 leading-relaxed">
+                            Apakah Anda sudah yakin dengan seluruh isian pada item ini dan ingin mengirimkannya?
+                            <br /><br />
+                            <span className="font-medium text-amber-600 dark:text-amber-400">
+                                Setelah dikirim, data tidak dapat diubah kembali.
+                            </span>
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="gap-2 sm:gap-0">
+                        <button
+                            onClick={() => setConfirmSubmitId(null)}
+                            className="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 text-sm font-medium transition-colors"
+                        >
+                            Batal, Periksa Kembali
+                        </button>
+                        <button
+                            onClick={() => {
+                                const id = confirmSubmitId;
+                                setConfirmSubmitId(null);
+                                if (id) executePublish(id);
+                            }}
+                            className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium transition-colors shadow-sm"
+                        >
+                            Ya, Kirim Sekarang
+                        </button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

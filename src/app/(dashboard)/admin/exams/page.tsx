@@ -23,6 +23,10 @@ export default function ManageExamsPage() {
     const [examType, setExamType] = useState<'midterm' | 'final'>('midterm');
     const [duration, setDuration] = useState<number>(60);
     const [scheduledStartTime, setScheduledStartTime] = useState<string>('');
+    const [questionCount, setQuestionCount] = useState<number>(20);
+    const [templateCategories, setTemplateCategories] = useState<string[]>([]);
+    const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+    const [categoryCounts, setCategoryCounts] = useState<Record<string, number>>({});
 
     // Student selection state
     const [students, setStudents] = useState<any[]>([]);
@@ -84,6 +88,31 @@ export default function ManageExamsPage() {
         fetchData();
     }, []);
 
+    useEffect(() => {
+        if (!selectedTemplate) {
+            setTemplateCategories([]);
+            setSelectedCategories([]);
+            setCategoryCounts({});
+            return;
+        }
+        const fetchCategories = async () => {
+            const supabase = createClient();
+            const { data } = await supabase
+                .from('audit_items')
+                .select('category')
+                .eq('audit_id', selectedTemplate);
+            if (data) {
+                const unique = [...new Set(data.map((i: any) => i.category as string))].sort();
+                const counts: Record<string, number> = {};
+                data.forEach((i: any) => { counts[i.category] = (counts[i.category] || 0) + 1; });
+                setTemplateCategories(unique);
+                setSelectedCategories(unique);
+                setCategoryCounts(counts);
+            }
+        };
+        fetchCategories();
+    }, [selectedTemplate]);
+
     const handleDistribute = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -108,7 +137,7 @@ export default function ManageExamsPage() {
 
         startTransition(async () => {
             const isoTime = scheduledStartTime ? new Date(scheduledStartTime).toISOString() : undefined;
-            const res = await distributeExam(selectedTemplate, examType, duration, isoTime, selectedStudentIds);
+            const res = await distributeExam(selectedTemplate, examType, duration, isoTime, selectedStudentIds, questionCount, selectedCategories);
 
             if (res?.error) {
                 toast.error(res.error);
@@ -170,8 +199,8 @@ export default function ManageExamsPage() {
                             <div>
                                 <p className="font-semibold mb-1">Mekanisme Distribusi Otomatis:</p>
                                 <ul className="list-disc pl-4 space-y-1">
-                                    <li>Sistem akan mengambil <strong>20 kriteria secara acak</strong> dari Master Template yang dipilih.</li>
-                                    <li>Setiap mahasiswa (auditor) mendapatkan subset kriteria yang berbeda.</li>
+                                    <li>Sistem akan mengambil <strong>{questionCount} kriteria secara acak</strong> dari komponen yang Anda pilih.</li>
+                                    <li>Setiap mahasiswa mendapatkan subset kriteria yang <strong>berbeda secara acak</strong>.</li>
                                     <li>Jawaban dan Evidence dari Auditee di template akan disalin utuh.</li>
                                     <li>Ujian dilengkapi timer otomatis ({duration} menit) yang mengunci pengisian saat waktu habis.</li>
                                 </ul>
@@ -235,13 +264,77 @@ export default function ManageExamsPage() {
                             </div>
                         </div>
 
+                        {/* Category Selection */}
+                        {templateCategories.length > 0 && (
+                            <div className="space-y-3">
+                                <div>
+                                    <label className={`text-sm font-bold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>3. Komponen yang Diujikan</label>
+                                    <p className={`text-xs mt-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Pilih komponen AKIP yang akan dijadikan sumber soal. Soal akan diacak dari pool komponen terpilih.</p>
+                                </div>
+                                <div className={`rounded-xl p-4 space-y-2 border ${isDark ? 'bg-slate-800/50 border-slate-600' : 'bg-slate-50 border-slate-200'}`}>
+                                    {templateCategories.map(cat => {
+                                        const shortName = cat.replace(/^\d+\.\s*/, '');
+                                        const isChecked = selectedCategories.includes(cat);
+                                        return (
+                                            <label key={cat} className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors border border-transparent ${isDark ? 'hover:bg-slate-700 hover:border-slate-600' : 'hover:bg-white hover:border-slate-200'}`}>
+                                                <input
+                                                    type="checkbox"
+                                                    className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
+                                                    checked={isChecked}
+                                                    onChange={() => {
+                                                        setSelectedCategories(prev =>
+                                                            isChecked ? prev.filter(c => c !== cat) : [...prev, cat]
+                                                        );
+                                                    }}
+                                                />
+                                                <span className={`text-sm font-medium ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{shortName}</span>
+                                            </label>
+                                        );
+                                    })}
+                                </div>
+                                <p className={`text-xs font-medium text-right ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                                    {selectedCategories.length} dari {templateCategories.length} komponen dipilih
+                                </p>
+                            </div>
+                        )}
+
+                        {/* Question Count */}
+                        <div className="space-y-2">
+                            <label className={`text-sm font-bold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>4. Jumlah Soal per Mahasiswa</label>
+                            <p className={`text-xs mb-2 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                                Jumlah kriteria yang akan diacak dari komponen terpilih untuk setiap mahasiswa.
+                                {selectedCategories.length > 0 && (
+                                    <> Tersedia <strong>{selectedCategories.reduce((sum, cat) => sum + (categoryCounts[cat] || 0), 0)}</strong> soal dari komponen terpilih.</>
+                                )}
+                            </p>
+                            <div className="flex gap-2">
+                                <input
+                                    type="number"
+                                    required
+                                    min="1"
+                                    max={selectedCategories.reduce((sum, cat) => sum + (categoryCounts[cat] || 0), 0) || 80}
+                                    value={questionCount}
+                                    onChange={(e) => setQuestionCount(parseInt(e.target.value) || 1)}
+                                    className={`flex-1 h-12 rounded-xl border outline-none focus:ring-2 focus:ring-blue-500/50 px-4 ${isDark ? 'bg-slate-800 border-slate-600 text-slate-200' : 'bg-slate-50 border-slate-200 text-slate-900'}`}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setQuestionCount(selectedCategories.reduce((sum, cat) => sum + (categoryCounts[cat] || 0), 0))}
+                                    disabled={selectedCategories.length === 0}
+                                    className={`h-12 px-5 rounded-xl border font-semibold text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${isDark ? 'bg-slate-700 border-slate-600 text-slate-200 hover:bg-slate-600' : 'bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200'}`}
+                                >
+                                    Max
+                                </button>
+                            </div>
+                        </div>
+
                         {/* Student Selection */}
                         <div className="space-y-3">
                             <div className="flex items-center justify-between">
                                 <div>
                                     <label className={`text-sm font-bold flex items-center gap-2 ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
                                         <Users className="w-4 h-4 text-blue-500" />
-                                        3. Pemilihan Mahasiswa (Peserta Ujian)
+                                        5. Pemilihan Mahasiswa (Peserta Ujian)
                                     </label>
                                     <p className={`text-xs mt-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Pilih siapa saja yang berhak mengikuti ujian ini.</p>
                                 </div>
@@ -290,7 +383,7 @@ export default function ManageExamsPage() {
 
                         {/* Timer Settings */}
                         <div className="space-y-2">
-                            <label className={`text-sm font-bold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>4. Batas Waktu Ujian (Menit)</label>
+                            <label className={`text-sm font-bold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>6. Batas Waktu Ujian (Menit)</label>
                             <p className={`text-xs mb-2 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Waktu mundur dimulai otomatis ketika mahasiswa membuka ujian. Akses akan terkunci setelah waktu habis.</p>
                             <input
                                 type="number"
@@ -305,7 +398,7 @@ export default function ManageExamsPage() {
 
                         {/* Schedule Settings */}
                         <div className="space-y-2">
-                            <label className={`text-sm font-bold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>5. Waktu Mulai Ujian (Opsional)</label>
+                            <label className={`text-sm font-bold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>7. Waktu Mulai Ujian (Opsional)</label>
                             <p className={`text-xs mb-2 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Jika diisi, mahasiswa tidak bisa memulai ujian sebelum tanggal dan jam yang ditentukan.</p>
                             <input
                                 type="datetime-local"

@@ -244,8 +244,8 @@ export default function DashboardPage() {
 
                             <div className="relative z-10 flex justify-between items-start">
                                 <div>
-                                    <p className="font-medium text-black/50 mb-1 text-sm">Pending Items</p>
-                                    <h3 className="text-2xl font-bold text-slate-900 leading-tight">Prioritized<br />Tasks</h3>
+                                    <p className="font-medium text-black/50 mb-1 text-sm">You currently have</p>
+                                    <h3 className="text-2xl font-bold text-slate-900 leading-tight">Pending<br />Rate</h3>
                                 </div>
                                 <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/30 text-slate-900">
                                     <Clock className="w-5 h-5" />
@@ -270,8 +270,8 @@ export default function DashboardPage() {
 
                             <div className="relative z-10 flex justify-between items-start">
                                 <div>
-                                    <p className="font-medium text-white/70 mb-1 text-sm">Completed Items</p>
-                                    <h3 className="text-2xl font-bold text-white leading-tight">Additional<br />Tasks</h3>
+                                    <p className="font-medium text-white/70 mb-1 text-sm">Cheers on your</p>
+                                    <h3 className="text-2xl font-bold text-white leading-tight">Completion<br />Rate</h3>
                                 </div>
                                 <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/30 text-white">
                                     <CheckCircle2 className="w-5 h-5" />
@@ -384,7 +384,7 @@ export default function DashboardPage() {
                                             <p className="text-[10px] opacity-70">Belum ada tugas yang ditugaskan kepada Anda secara personal.</p>
                                         </div>
                                     ) : (
-                                        audits.filter(a => a.type !== 'group_practice').map(audit => {
+                                        audits.filter(a => a.type !== 'group_practice').slice(0, 5).map(audit => {
                                             const isActive = selectedAuditId === audit.id;
                                             const isExam = audit.type === 'midterm' || audit.type === 'final';
                                             let isLocked = audit.status === 'locked';
@@ -457,7 +457,7 @@ export default function DashboardPage() {
                                             <p className="text-[10px] opacity-70">Kelompok Anda belum mendapatkan tugas simulasi.</p>
                                         </div>
                                     ) : (
-                                        audits.filter(a => a.type === 'group_practice').map(audit => {
+                                        audits.filter(a => a.type === 'group_practice').slice(0, 5).map(audit => {
                                             const isActive = selectedAuditId === audit.id;
                                             // Determine role for display based on effectiveRole
                                             const roleLabel = audit.effectiveRole === 'auditor' ? 'Auditor Team' : 'Auditee Team';
@@ -526,7 +526,7 @@ export default function DashboardPage() {
                     <div>
                         <h3 className={`text-xl font-bold mb-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>Component Status</h3>
                         <p className={`text-sm mb-6 ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>
-                            Track your AKIP evaluation progress here
+                            Track your Auditee&apos;s progress on its action plan
                         </p>
 
                         <div className="space-y-5">

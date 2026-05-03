@@ -90,6 +90,18 @@ export function AuditList({ audits }: AuditListProps) {
                                             <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-100">
                                                 Latihan Kelompok
                                             </span>
+                                        ) : audit.type === 'master_template' ? (
+                                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-100">
+                                                Master Template
+                                            </span>
+                                        ) : audit.type === 'midterm' ? (
+                                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
+                                                UTS
+                                            </span>
+                                        ) : audit.type === 'final' ? (
+                                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-violet-50 text-violet-700 border border-violet-100">
+                                                UAS
+                                            </span>
                                         ) : (
                                             <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-pink-50 text-pink-700 border border-pink-100">
                                                 Tugas Individu
