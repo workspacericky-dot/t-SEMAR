@@ -7,7 +7,7 @@ import { useThemeStore } from '@/store/theme-store';
 import { createClient } from '@/lib/supabase/client';
 import { distributeExam, toggleScoreRelease } from '@/lib/actions/exam-actions';
 import { toast } from 'sonner';
-import { Loader2, ArrowLeft, ClipboardList, Send, AlertCircle, Users, Eye, EyeOff, GraduationCap } from 'lucide-react';
+import { Loader2, ArrowLeft, ClipboardList, Send, AlertCircle, Users, Eye, EyeOff, GraduationCap, Plus, X } from 'lucide-react';
 import Link from 'next/link';
 
 export default function ManageExamsPage() {
@@ -28,6 +28,10 @@ export default function ManageExamsPage() {
     const [templateCategories, setTemplateCategories] = useState<string[]>([]);
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
     const [categoryCounts, setCategoryCounts] = useState<Record<string, number>>({});
+    
+    // Terms & Conditions
+    const [examTerms, setExamTerms] = useState<string[]>([]);
+    const [termInput, setTermInput] = useState('');
 
     // Student selection state
     const [students, setStudents] = useState<any[]>([]);
@@ -139,7 +143,7 @@ export default function ManageExamsPage() {
         startTransition(async () => {
             const isoTime = scheduledStartTime ? new Date(scheduledStartTime).toISOString() : undefined;
             const isoExpiry = examExpiresAt ? new Date(examExpiresAt).toISOString() : undefined;
-            const res = await distributeExam(selectedTemplate, examType, duration, isoTime, selectedStudentIds, questionCount, selectedCategories, isoExpiry);
+            const res = await distributeExam(selectedTemplate, examType, duration, isoTime, selectedStudentIds, questionCount, selectedCategories, isoExpiry, examTerms);
 
             if (res?.error) {
                 toast.error(res.error);
@@ -433,6 +437,64 @@ export default function ManageExamsPage() {
                             />
                             {examExpiresAt && scheduledStartTime && new Date(examExpiresAt) <= new Date(scheduledStartTime) && (
                                 <p className="text-xs text-red-500 font-medium">⚠ Waktu kadaluarsa harus setelah waktu mulai ujian.</p>
+                            )}
+                        </div>
+
+                        {/* Terms and Conditions */}
+                        <div className="space-y-3">
+                            <label className={`text-sm font-bold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>9. Syarat &amp; Ketentuan Ujian (Opsional)</label>
+                            <p className={`text-xs mb-2 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                                Tambahkan ketentuan ujian yang harus disetujui mahasiswa sebelum memulai. Tekan <strong>Enter</strong> untuk menambahkan.
+                            </p>
+                            <div className="flex gap-2">
+                                <input
+                                    type="text"
+                                    placeholder="Contoh: Saya berjanji tidak akan menyontek..."
+                                    value={termInput}
+                                    onChange={(e) => setTermInput(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            e.preventDefault();
+                                            if (termInput.trim()) {
+                                                setExamTerms(prev => [...prev, termInput.trim()]);
+                                                setTermInput('');
+                                            }
+                                        }
+                                    }}
+                                    className={`flex-1 h-12 rounded-xl border outline-none focus:ring-2 focus:ring-blue-500/50 px-4 ${isDark ? 'bg-slate-800 border-slate-600 text-slate-200 placeholder:text-slate-500' : 'bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400'}`}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        if (termInput.trim()) {
+                                            setExamTerms(prev => [...prev, termInput.trim()]);
+                                            setTermInput('');
+                                        }
+                                    }}
+                                    className={`h-12 px-5 rounded-xl border font-semibold text-sm transition-colors flex items-center justify-center ${isDark ? 'bg-slate-700 border-slate-600 text-slate-200 hover:bg-slate-600' : 'bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200'}`}
+                                >
+                                    <Plus className="w-5 h-5" />
+                                </button>
+                            </div>
+
+                            {examTerms.length > 0 && (
+                                <ul className={`mt-3 space-y-2 p-4 rounded-xl border ${isDark ? 'bg-slate-800/50 border-slate-600' : 'bg-slate-50 border-slate-200'}`}>
+                                    {examTerms.map((term, index) => (
+                                        <li key={index} className={`flex items-start justify-between gap-3 p-3 rounded-lg border ${isDark ? 'bg-slate-800 border-slate-700 text-slate-300' : 'bg-white border-slate-200 text-slate-700'}`}>
+                                            <div className="flex gap-3 items-start flex-1">
+                                                <span className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${isDark ? 'bg-slate-700 text-slate-400' : 'bg-slate-100 text-slate-500'}`}>{index + 1}</span>
+                                                <p className="text-sm pt-0.5 leading-relaxed">{term}</p>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => setExamTerms(prev => prev.filter((_, i) => i !== index))}
+                                                className={`p-1.5 rounded-md transition-colors ${isDark ? 'hover:bg-slate-700 text-slate-400 hover:text-red-400' : 'hover:bg-slate-100 text-slate-400 hover:text-red-500'}`}
+                                            >
+                                                <X className="w-4 h-4" />
+                                            </button>
+                                        </li>
+                                    ))}
+                                </ul>
                             )}
                         </div>
 

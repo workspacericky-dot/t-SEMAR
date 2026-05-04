@@ -27,7 +27,8 @@ export async function distributeExam(
     targetStudentIds?: string[],
     questionCount: number = 20,
     selectedCategories?: string[],
-    examExpiresAt?: string
+    examExpiresAt?: string,
+    examTerms?: string[]
 ) {
     try {
         const supabase = getSupabaseAdmin();
@@ -107,6 +108,7 @@ export async function distributeExam(
                     period_id: masterAudit.period_id,
                     auditee_id: masterAudit.auditee_id,
                     exam_expires_at: examExpiresAt || null,
+                    exam_terms: examTerms && examTerms.length > 0 ? examTerms : null,
                 })
                 .select('id')
                 .single();

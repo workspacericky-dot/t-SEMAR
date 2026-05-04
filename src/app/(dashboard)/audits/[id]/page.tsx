@@ -9,7 +9,7 @@ import { Audit, AuditItem, ExtendedAudit, Profile } from '@/types/database';
 import { AuditTable } from '@/components/audit/audit-table';
 import { TaskDistribution } from '@/components/audit/task-distribution';
 import { AuditExportButtons } from '@/components/audit/audit-export-buttons';
-import { ArrowLeft, Calendar, Users, Loader2, FileText, Clock, AlertCircle, Lock, Save } from 'lucide-react';
+import { ArrowLeft, Calendar, Users, Loader2, FileText, Clock, AlertCircle, Lock, Save, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 import { getAuditById } from '@/lib/actions/audit-server-actions';
 import { startExam, submitExamEarly } from '@/lib/actions/exam-actions';
@@ -28,6 +28,8 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
     const [members, setMembers] = useState<Profile[]>([]);
     const [countdownPhase, setCountdownPhase] = useState<number | null>(null);
     const [portalMounted, setPortalMounted] = useState(false);
+    const [hasAgreedTerms, setHasAgreedTerms] = useState(false);
+    const [termsChecked, setTermsChecked] = useState(false);
 
     useEffect(() => {
         setPortalMounted(true);
@@ -261,7 +263,63 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
             {/* Blocking Overlay for Exam Start */}
             {needsToStart && portalMounted && createPortal(
                 <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/90 backdrop-blur-md p-4">
-                    {countdownPhase !== null ? (
+                    {audit.exam_terms && audit.exam_terms.length > 0 && !hasAgreedTerms ? (
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className={`max-w-2xl w-full rounded-2xl shadow-2xl flex flex-col max-h-[85vh] overflow-hidden ${isDark ? 'bg-slate-900 border border-slate-800' : 'bg-white border border-slate-200'}`}
+                        >
+                            <div className={`px-6 py-4 border-b flex justify-between items-center ${isDark ? 'border-slate-800 bg-slate-800/50' : 'border-slate-100 bg-slate-50/50'}`}>
+                                <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>Terms and Conditions</h2>
+                            </div>
+                            
+                            <div className="p-6 overflow-y-auto flex-1 space-y-6">
+                                {audit.exam_terms.map((term, idx) => (
+                                    <div key={idx} className="space-y-1">
+                                        <h3 className={`font-semibold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>{idx + 1}. Ketentuan {idx + 1}</h3>
+                                        <p className={`text-sm leading-relaxed ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                                            {term}
+                                        </p>
+                                    </div>
+                                ))}
+                            </div>
+                            
+                            <div className={`p-6 border-t ${isDark ? 'border-slate-800 bg-slate-800/30' : 'border-slate-100 bg-slate-50/30'}`}>
+                                <label className="flex items-center gap-3 cursor-pointer group mb-6">
+                                    <div className="relative flex items-center justify-center">
+                                        <input 
+                                            type="checkbox" 
+                                            className="peer sr-only"
+                                            checked={termsChecked}
+                                            onChange={(e) => setTermsChecked(e.target.checked)}
+                                        />
+                                        <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-colors ${termsChecked ? 'bg-blue-600 border-blue-600' : isDark ? 'border-slate-600 group-hover:border-blue-500' : 'border-slate-300 group-hover:border-blue-500'}`}>
+                                            <CheckCircle2 className={`w-4 h-4 text-white transition-opacity ${termsChecked ? 'opacity-100' : 'opacity-0'}`} strokeWidth={3} />
+                                        </div>
+                                    </div>
+                                    <span className={`text-sm font-medium select-none ${isDark ? 'text-slate-300 group-hover:text-white' : 'text-slate-700 group-hover:text-slate-900'}`}>
+                                        I agree to the terms and conditions.
+                                    </span>
+                                </label>
+                                
+                                <div className="flex justify-between items-center">
+                                    <Link 
+                                        href="/dashboard"
+                                        className={`px-6 py-2.5 rounded-xl font-semibold text-sm transition-colors ${isDark ? 'text-slate-400 hover:text-white hover:bg-slate-800' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'}`}
+                                    >
+                                        Cancel
+                                    </Link>
+                                    <button 
+                                        disabled={!termsChecked}
+                                        onClick={() => setHasAgreedTerms(true)}
+                                        className={`px-8 py-2.5 rounded-xl font-semibold text-sm transition-all ${termsChecked ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-md shadow-blue-600/20' : 'bg-slate-200 text-slate-400 cursor-not-allowed dark:bg-slate-800 dark:text-slate-600'}`}
+                                    >
+                                        Agree and Continue
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    ) : countdownPhase !== null ? (
                         <AnimatePresence mode="wait">
                             <motion.div
                                 key={countdownPhase}
