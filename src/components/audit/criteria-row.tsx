@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { AuditItem, UserRole, isFinalStatus } from '@/types/database';
 import { useThemeStore } from '@/store/theme-store';
 import { StatusBadge } from './status-badge';
-import { Save, Send, Loader2, MessageSquare, Check, X, FileText, ChevronDown, ExternalLink, RotateCcw } from 'lucide-react';
+import { Save, Send, Loader2, MessageSquare, Check, X, FileText, ChevronDown, ExternalLink, RotateCcw, Mail } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
 
 interface CriteriaRowProps {
     item: AuditItem;
@@ -43,6 +44,7 @@ export function CriteriaRow({
     const [responseText, setResponseText] = useState('');
     const [rebuttalText, setRebuttalText] = useState('');
     const [actionPlanText, setActionPlanText] = useState(item.auditee_action_plan || '');
+    const [isNoteRevealed, setIsNoteRevealed] = useState(false);
 
     const isSaving = savingRows.has(item.id);
     const isAuditee = role === 'auditee' || role === 'superadmin';
@@ -287,7 +289,7 @@ export function CriteriaRow({
                     </td>
                 )}
 
-                {/* Catatan Asesor - Admin/Superadmin editable, Students read-only when released */}
+                {/* Catatan Asesor - Admin/Superadmin editable, Students get animated reveal */}
                 {showTeacherScore && (
                     <td className={`px-3 py-3 min-w-[160px] ${isDark ? 'bg-purple-900/10' : 'bg-purple-50'}`}>
                         {canEditTeacherScore ? (
@@ -298,10 +300,59 @@ export function CriteriaRow({
                                 rows={3}
                                 className="w-full px-2 py-1 bg-white dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-500/30 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-purple-500/50 resize-y"
                             />
+                        ) : item.catatan_asesor ? (
+                            <AnimatePresence mode="wait">
+                                {!isNoteRevealed ? (
+                                    <motion.button
+                                        key="sealed"
+                                        initial={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 0.8, filter: 'blur(6px)' }}
+                                        transition={{ duration: 0.18 }}
+                                        whileHover={{ scale: 1.04 }}
+                                        whileTap={{ scale: 0.96 }}
+                                        onClick={() => setIsNoteRevealed(true)}
+                                        className={`w-full flex flex-col items-center gap-1.5 px-3 py-4 rounded-xl border-2 border-dashed transition-colors ${isDark
+                                            ? 'border-purple-500/50 bg-purple-900/20 hover:border-purple-400 hover:bg-purple-900/30 text-purple-300'
+                                            : 'border-purple-300 bg-white hover:border-purple-500 hover:bg-purple-50 text-purple-700'
+                                        }`}
+                                    >
+                                        <motion.div
+                                            animate={{ y: [0, -4, 0] }}
+                                            transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
+                                        >
+                                            <Mail className="w-5 h-5" />
+                                        </motion.div>
+                                        <span className="text-xs font-bold tracking-wide">Buka Catatan</span>
+                                        <span className={`text-[10px] ${isDark ? 'text-purple-400/60' : 'text-purple-400'}`}>dari asesor</span>
+                                    </motion.button>
+                                ) : (
+                                    <motion.div
+                                        key="revealed"
+                                        initial={{ opacity: 0, scale: 0.82, filter: 'blur(10px)', y: 8 }}
+                                        animate={{ opacity: 1, scale: 1, filter: 'blur(0px)', y: 0 }}
+                                        transition={{ type: 'spring', duration: 0.55, bounce: 0.3 }}
+                                        className={`relative p-3 rounded-xl border ${isDark
+                                            ? 'bg-gradient-to-br from-purple-900/30 to-slate-900/50 border-purple-500/40'
+                                            : 'bg-gradient-to-br from-purple-50 to-white border-purple-200'
+                                        }`}
+                                    >
+                                        <motion.div
+                                            initial={{ boxShadow: '0 0 0 3px rgba(147,51,234,0.5)' }}
+                                            animate={{ boxShadow: '0 0 0 0px rgba(147,51,234,0)' }}
+                                            transition={{ duration: 1.2, ease: 'easeOut' }}
+                                            className="rounded-xl"
+                                        />
+                                        <p className={`text-[10px] font-bold uppercase tracking-widest mb-2 ${isDark ? 'text-purple-400' : 'text-purple-500'}`}>
+                                            Catatan Asesor
+                                        </p>
+                                        <p className={`text-sm leading-relaxed whitespace-pre-wrap ${isDark ? 'text-purple-100' : 'text-purple-900'}`}>
+                                            {item.catatan_asesor}
+                                        </p>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
                         ) : (
-                            <span className="text-sm text-purple-700 dark:text-purple-300 whitespace-pre-wrap">
-                                {item.catatan_asesor || '-'}
-                            </span>
+                            <span className={`text-xs ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>-</span>
                         )}
                     </td>
                 )}
