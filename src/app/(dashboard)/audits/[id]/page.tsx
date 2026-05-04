@@ -36,6 +36,7 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
     // Exam Timer States
     const [examTimeLeft, setExamTimeLeft] = useState<number | null>(null);
     const [isExamLocked, setIsExamLocked] = useState(false);
+    const [isExamExpired, setIsExamExpired] = useState(false);
     const [isStartingExam, setIsStartingExam] = useState(false);
     const [isSubmittingExam, setIsSubmittingExam] = useState(false);
 
@@ -71,11 +72,22 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
 
                     // Extract Timer Logic
                     if (auditData.type === 'midterm' || auditData.type === 'final') {
+                        const now = Date.now();
+
+                        // Check global expiry first
+                        if (auditData.exam_expires_at) {
+                            const expiresAt = new Date(auditData.exam_expires_at).getTime();
+                            if (now >= expiresAt) {
+                                setIsExamExpired(true);
+                                setIsExamLocked(true);
+                                setExamTimeLeft(0);
+                            }
+                        }
+
                         if (auditData.exam_start_time) {
                             const start = new Date(auditData.exam_start_time).getTime();
                             const limit = (auditData.time_limit_minutes || 90) * 60 * 1000;
                             const end = start + limit;
-                            const now = Date.now();
                             if (now >= end || auditData.is_manually_locked) {
                                 setExamTimeLeft(0);
                                 setIsExamLocked(true);
@@ -140,6 +152,19 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
 
         return () => clearInterval(interval);
     }, [examTimeLeft, isExamLocked, audit]);
+
+    // Periodic expiry check (polls every 10s while exam is active and not yet expired)
+    useEffect(() => {
+        if (!audit?.exam_expires_at || isExamExpired) return;
+        const expiresAt = new Date(audit.exam_expires_at).getTime();
+        const interval = setInterval(() => {
+            if (Date.now() >= expiresAt) {
+                setIsExamExpired(true);
+                setIsExamLocked(true);
+            }
+        }, 10000);
+        return () => clearInterval(interval);
+    }, [audit?.exam_expires_at, isExamExpired]);
 
     // Prevent background scrolling when modal is open
     useEffect(() => {
@@ -249,6 +274,29 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
                                 {countdownPhase}
                             </motion.div>
                         </AnimatePresence>
+                    ) : isExamExpired ? (
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className={`max-w-md w-full rounded-[2rem] p-8 shadow-2xl text-center border relative overflow-hidden ${isDark ? 'bg-slate-900 border-slate-800 shadow-orange-900/20' : 'bg-white border-slate-100 shadow-orange-500/10'}`}
+                        >
+                            <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent z-0" />
+                            <div className="relative z-10">
+                                <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 text-orange-600 border-4 border-white shadow-xl ${isDark ? 'bg-orange-900/30' : 'bg-orange-50'}`}>
+                                    <AlertCircle className="w-10 h-10" />
+                                </div>
+                                <h2 className={`text-2xl font-black tracking-tight mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>Ujian Telah Kadaluarsa</h2>
+                                <p className={`text-sm mb-4 leading-relaxed font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                                    Batas waktu pengerjaan ujian ini telah berakhir pada:
+                                </p>
+                                <p className="text-sm font-bold text-orange-500 mb-8">
+                                    {audit?.exam_expires_at ? new Date(audit.exam_expires_at).toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'short' }) : '-'}
+                                </p>
+                                <Link href="/dashboard" className="w-full h-14 rounded-xl bg-slate-200 text-slate-700 font-bold text-lg hover:bg-slate-300 transition-all flex justify-center items-center gap-2">
+                                    Kembali ke Dashboard
+                                </Link>
+                            </div>
+                        </motion.div>
                     ) : isManuallyLockedWait ? (
                         <motion.div
                             initial={{ opacity: 0, scale: 0.95 }}
@@ -440,8 +488,8 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
                             {isExamLocked ? <AlertCircle className="w-6 h-6" /> : <Clock className="w-6 h-6 animate-pulse" />}
                         </div>
                         <div>
-                            <h4 className="font-bold text-lg">{isExamLocked ? 'Waktu Ujian Habis' : 'Sisa Waktu Ujian'}</h4>
-                            <p className="text-xs font-medium opacity-80 mt-0.5">{isExamLocked ? 'Anda tidak dapat lagi mengubah penilaian.' : 'Sistem otomatis mengunci apabila waktu telah habis.'}</p>
+                            <h4 className="font-bold text-lg">{isExamExpired ? 'Ujian Kadaluarsa' : isExamLocked ? 'Waktu Ujian Habis' : 'Sisa Waktu Ujian'}</h4>
+                            <p className="text-xs font-medium opacity-80 mt-0.5">{isExamExpired ? 'Batas waktu pengerjaan ujian ini telah berakhir.' : isExamLocked ? 'Anda tidak dapat lagi mengubah penilaian.' : 'Sistem otomatis mengunci apabila waktu telah habis.'}</p>
                         </div>
                     </div>
                     <div className="text-4xl font-black tabular-nums tracking-tighter drop-shadow-sm">

@@ -23,6 +23,7 @@ export default function ManageExamsPage() {
     const [examType, setExamType] = useState<'midterm' | 'final'>('midterm');
     const [duration, setDuration] = useState<number>(60);
     const [scheduledStartTime, setScheduledStartTime] = useState<string>('');
+    const [examExpiresAt, setExamExpiresAt] = useState<string>('');
     const [questionCount, setQuestionCount] = useState<number>(20);
     const [templateCategories, setTemplateCategories] = useState<string[]>([]);
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -137,7 +138,8 @@ export default function ManageExamsPage() {
 
         startTransition(async () => {
             const isoTime = scheduledStartTime ? new Date(scheduledStartTime).toISOString() : undefined;
-            const res = await distributeExam(selectedTemplate, examType, duration, isoTime, selectedStudentIds, questionCount, selectedCategories);
+            const isoExpiry = examExpiresAt ? new Date(examExpiresAt).toISOString() : undefined;
+            const res = await distributeExam(selectedTemplate, examType, duration, isoTime, selectedStudentIds, questionCount, selectedCategories, isoExpiry);
 
             if (res?.error) {
                 toast.error(res.error);
@@ -166,6 +168,15 @@ export default function ManageExamsPage() {
     // Group distributed exams by type
     const midtermExams = distributedExams.filter(e => e.type === 'midterm');
     const finalExams = distributedExams.filter(e => e.type === 'final');
+
+    const ITEMS_PER_PAGE = 10;
+    const [midtermPage, setMidtermPage] = useState(1);
+    const [finalPage, setFinalPage] = useState(1);
+
+    const midtermTotalPages = Math.ceil(midtermExams.length / ITEMS_PER_PAGE);
+    const finalTotalPages = Math.ceil(finalExams.length / ITEMS_PER_PAGE);
+    const midtermPaged = midtermExams.slice((midtermPage - 1) * ITEMS_PER_PAGE, midtermPage * ITEMS_PER_PAGE);
+    const finalPaged = finalExams.slice((finalPage - 1) * ITEMS_PER_PAGE, finalPage * ITEMS_PER_PAGE);
 
     if (loading) {
         return (
@@ -408,6 +419,23 @@ export default function ManageExamsPage() {
                             />
                         </div>
 
+                        {/* Expiry */}
+                        <div className="space-y-2">
+                            <label className={`text-sm font-bold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>8. Batas Kadaluarsa Ujian (Opsional)</label>
+                            <p className={`text-xs mb-2 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                                Setelah tanggal &amp; jam ini, seluruh mahasiswa tidak lagi bisa membuka atau mengerjakan ujian — terlepas dari apakah mereka sudah mulai atau belum.
+                            </p>
+                            <input
+                                type="datetime-local"
+                                value={examExpiresAt}
+                                onChange={(e) => setExamExpiresAt(e.target.value)}
+                                className={`w-full h-12 rounded-xl border outline-none focus:ring-2 focus:ring-orange-500/50 px-4 ${isDark ? 'bg-slate-800 border-slate-600 text-slate-200' : 'bg-slate-50 border-slate-200 text-slate-900'}`}
+                            />
+                            {examExpiresAt && scheduledStartTime && new Date(examExpiresAt) <= new Date(scheduledStartTime) && (
+                                <p className="text-xs text-red-500 font-medium">⚠ Waktu kadaluarsa harus setelah waktu mulai ujian.</p>
+                            )}
+                        </div>
+
                         {/* Submit Actions */}
                         <div className={`pt-6 border-t flex justify-end ${isDark ? 'border-slate-700' : 'border-slate-200'}`}>
                             <button
@@ -454,7 +482,7 @@ export default function ManageExamsPage() {
                                     Ujian Tengah Semester (UTS) — {midtermExams.length} ujian
                                 </h3>
                                 <div className="space-y-2">
-                                    {midtermExams.map(exam => (
+                                    {midtermPaged.map(exam => (
                                         <div key={exam.id} className={`flex items-center justify-between p-4 rounded-xl border transition-all ${exam.score_released
                                             ? isDark ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-emerald-50 border-emerald-200'
                                             : isDark ? 'bg-slate-800/50 border-slate-600' : 'bg-slate-50 border-slate-200'
@@ -486,6 +514,9 @@ export default function ManageExamsPage() {
                                         </div>
                                     ))}
                                 </div>
+                                {midtermTotalPages > 1 && (
+                                    <ExamPagination page={midtermPage} totalPages={midtermTotalPages} onPageChange={setMidtermPage} isDark={isDark} />
+                                )}
                             </div>
                         )}
 
@@ -497,7 +528,7 @@ export default function ManageExamsPage() {
                                     Ujian Akhir Semester (UAS) — {finalExams.length} ujian
                                 </h3>
                                 <div className="space-y-2">
-                                    {finalExams.map(exam => (
+                                    {finalPaged.map(exam => (
                                         <div key={exam.id} className={`flex items-center justify-between p-4 rounded-xl border transition-all ${exam.score_released
                                             ? isDark ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-emerald-50 border-emerald-200'
                                             : isDark ? 'bg-slate-800/50 border-slate-600' : 'bg-slate-50 border-slate-200'
@@ -529,11 +560,48 @@ export default function ManageExamsPage() {
                                         </div>
                                     ))}
                                 </div>
+                                {finalTotalPages > 1 && (
+                                    <ExamPagination page={finalPage} totalPages={finalTotalPages} onPageChange={setFinalPage} isDark={isDark} />
+                                )}
                             </div>
                         )}
                     </div>
                 </div>
             )}
+        </div>
+    );
+}
+
+function ExamPagination({ page, totalPages, onPageChange, isDark }: {
+    page: number;
+    totalPages: number;
+    onPageChange: (p: number) => void;
+    isDark: boolean;
+}) {
+    const btn = `px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors disabled:opacity-40 disabled:cursor-not-allowed`;
+    const active = isDark ? 'bg-blue-600 text-white' : 'bg-blue-600 text-white';
+    const inactive = isDark ? 'bg-slate-700 text-slate-300 hover:bg-slate-600' : 'bg-slate-100 text-slate-600 hover:bg-slate-200';
+
+    const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+    const visible = pages.filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 1);
+
+    return (
+        <div className="flex items-center justify-center gap-1.5 mt-4 pt-3 border-t border-slate-200 dark:border-slate-700">
+            <button className={`${btn} ${inactive}`} disabled={page === 1} onClick={() => onPageChange(1)}>«</button>
+            <button className={`${btn} ${inactive}`} disabled={page === 1} onClick={() => onPageChange(page - 1)}>‹</button>
+
+            {visible.map((p, idx) => {
+                const prev = visible[idx - 1];
+                return (
+                    <span key={p} className="flex items-center gap-1.5">
+                        {prev && p - prev > 1 && <span className={`text-xs ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>…</span>}
+                        <button className={`${btn} ${p === page ? active : inactive}`} onClick={() => onPageChange(p)}>{p}</button>
+                    </span>
+                );
+            })}
+
+            <button className={`${btn} ${inactive}`} disabled={page === totalPages} onClick={() => onPageChange(page + 1)}>›</button>
+            <button className={`${btn} ${inactive}`} disabled={page === totalPages} onClick={() => onPageChange(totalPages)}>»</button>
         </div>
     );
 }

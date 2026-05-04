@@ -287,6 +287,25 @@ export function CriteriaRow({
                     </td>
                 )}
 
+                {/* Catatan Asesor - Admin/Superadmin editable, Students read-only when released */}
+                {showTeacherScore && (
+                    <td className={`px-3 py-3 min-w-[160px] ${isDark ? 'bg-purple-900/10' : 'bg-purple-50'}`}>
+                        {canEditTeacherScore ? (
+                            <textarea
+                                value={getFieldValue('catatan_asesor') || ''}
+                                onChange={(e) => updateField(item.id, 'catatan_asesor', e.target.value)}
+                                placeholder="Catatan untuk mahasiswa..."
+                                rows={3}
+                                className="w-full px-2 py-1 bg-white dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-500/30 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-purple-500/50 resize-y"
+                            />
+                        ) : (
+                            <span className="text-sm text-purple-700 dark:text-purple-300 whitespace-pre-wrap">
+                                {item.catatan_asesor || '-'}
+                            </span>
+                        )}
+                    </td>
+                )}
+
                 {/* Status */}
                 <td className="px-3 py-3 w-28 text-center">
                     <StatusBadge status={item.status} />
@@ -297,7 +316,10 @@ export function CriteriaRow({
                     <td className="px-3 py-3 w-28 text-center">
                         <div className="flex items-center justify-center gap-1.5">
                             {/* Admin/Teacher Saves Score */}
-                            {canEditTeacherScore && hasModified && getFieldValue('teacher_score') !== String(item.teacher_score ?? 0) && (
+                            {canEditTeacherScore && hasModified && (
+                                getFieldValue('teacher_score') !== String(item.teacher_score ?? 0) ||
+                                getFieldValue('catatan_asesor') !== String(item.catatan_asesor ?? '')
+                            ) && (
                                 <button
                                     onClick={() => onSaveDraft(item.id)}
                                     disabled={isSaving}

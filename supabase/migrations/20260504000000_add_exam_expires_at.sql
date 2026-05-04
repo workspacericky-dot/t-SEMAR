@@ -1,0 +1,2 @@
+ALTER TABLE audits
+ADD COLUMN IF NOT EXISTS exam_expires_at TIMESTAMPTZ;

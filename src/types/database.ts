@@ -61,6 +61,7 @@ export interface Audit {
   time_limit_minutes?: number;
   exam_start_time?: string | null;
   scheduled_start_time?: string | null;
+  exam_expires_at?: string | null;
   is_manually_locked?: boolean;
   score_released?: boolean;
 
@@ -118,6 +119,7 @@ export interface AuditItem {
 
   // Post-Exam Teacher Scoring
   teacher_score?: number;
+  catatan_asesor?: string;
   tl_target?: string;
   tl_waktu?: string;
   tl_pic?: string;

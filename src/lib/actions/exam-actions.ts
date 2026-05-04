@@ -26,7 +26,8 @@ export async function distributeExam(
     scheduledStartTime?: string,
     targetStudentIds?: string[],
     questionCount: number = 20,
-    selectedCategories?: string[]
+    selectedCategories?: string[],
+    examExpiresAt?: string
 ) {
     try {
         const supabase = getSupabaseAdmin();
@@ -104,8 +105,8 @@ export async function distributeExam(
                     scheduled_start_time: scheduledStartTime,
                     status: 'SUBMITTED', // Ready for auditor to evaluate
                     period_id: masterAudit.period_id,
-                    // Keep the original auditee ID if needed so the "satker" name shows properly
                     auditee_id: masterAudit.auditee_id,
+                    exam_expires_at: examExpiresAt || null,
                 })
                 .select('id')
                 .single();
@@ -225,6 +226,61 @@ export async function submitExamEarly(auditId: string) {
     } catch (error: any) {
         console.error('[submitExamEarly] ERROR:', error);
         return { error: error.message || 'Internal server error while submitting exam.' };
+    }
+}
+
+/**
+ * Saves teacher score and/or assessor note for a single exam item.
+ */
+export async function saveExamFeedback(itemId: string, data: { teacher_score?: number; catatan_asesor?: string }) {
+    try {
+        const supabase = getSupabaseAdmin();
+
+        const { data: updated, error } = await supabase
+            .from('audit_items')
+            .update(data)
+            .eq('id', itemId)
+            .select('*')
+            .single();
+
+        if (error || !updated) {
+            return { error: 'Gagal menyimpan.' };
+        }
+
+        return updated;
+    } catch (error: any) {
+        console.error('[saveExamFeedback] ERROR:', error);
+        return { error: error.message || 'Internal server error.' };
+    }
+}
+
+/**
+ * Bulk saves teacher scores and/or assessor notes for multiple items.
+ */
+export async function bulkSaveExamFeedback(items: { itemId: string; teacher_score?: number; catatan_asesor?: string }[]) {
+    try {
+        const supabase = getSupabaseAdmin();
+
+        const results: any[] = [];
+        for (const { itemId, ...data } of items) {
+            const { data: updated, error } = await supabase
+                .from('audit_items')
+                .update(data)
+                .eq('id', itemId)
+                .select('*')
+                .single();
+
+            if (error) {
+                console.error(`[bulkSaveExamFeedback] Failed for item ${itemId}:`, error);
+                continue;
+            }
+            results.push(updated);
+        }
+
+        return { success: true, updatedItems: results };
+    } catch (error: any) {
+        console.error('[bulkSaveExamFeedback] ERROR:', error);
+        return { error: error.message || 'Internal server error.' };
     }
 }
 

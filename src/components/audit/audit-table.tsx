@@ -18,7 +18,7 @@ import {
     submitActionPlan,
     adminResetItemStatus,
 } from '@/lib/actions/audit-actions';
-import { saveTeacherScore, bulkSaveTeacherScores } from '@/lib/actions/exam-actions';
+import { saveExamFeedback, bulkSaveExamFeedback } from '@/lib/actions/exam-actions';
 import { SendHorizontal, Loader2, Save } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -280,9 +280,12 @@ export function AuditTable({ items, role, auditId, onItemsUpdate, effectiveRole,
         setSavingRows((prev) => new Set(prev).add(itemId));
         try {
             let updated: AuditItem;
-            // Handle saving teacher score if it was modified
-            if (fields.teacher_score !== undefined) {
-                updated = await saveTeacherScore(itemId, Number(fields.teacher_score));
+            // Handle saving teacher score / assessor note if modified
+            if (fields.teacher_score !== undefined || fields.catatan_asesor !== undefined) {
+                const feedbackData: { teacher_score?: number; catatan_asesor?: string } = {};
+                if (fields.teacher_score !== undefined) feedbackData.teacher_score = Number(fields.teacher_score);
+                if (fields.catatan_asesor !== undefined) feedbackData.catatan_asesor = String(fields.catatan_asesor);
+                updated = await saveExamFeedback(itemId, feedbackData);
             } else if (actualRole === 'auditee' || actualRole === 'superadmin') {
                 // Superadmin can act as Auditee for filling templates
                 updated = await saveAuditeeSelfAssessment(itemId, {
@@ -601,24 +604,27 @@ export function AuditTable({ items, role, auditId, onItemsUpdate, effectiveRole,
                                                     e.stopPropagation();
                                                     setSavingCategory(category);
                                                     try {
-                                                        // Collect all items in this category that have teacher_score set in editingFields
+                                                        // Collect all items in this category that have teacher_score or catatan_asesor in editingFields
                                                         const catItems = mergedItems.filter(i => i.category === category);
-                                                        const scoresToSave = catItems
+                                                        const feedbackToSave = catItems
                                                             .filter(item => {
                                                                 const edited = editingFields[item.id];
-                                                                return edited && edited.teacher_score !== undefined;
+                                                                return edited && (edited.teacher_score !== undefined || edited.catatan_asesor !== undefined);
                                                             })
-                                                            .map(item => ({
-                                                                itemId: item.id,
-                                                                score: Number(editingFields[item.id].teacher_score),
-                                                            }));
+                                                            .map(item => {
+                                                                const edited = editingFields[item.id];
+                                                                const entry: { itemId: string; teacher_score?: number; catatan_asesor?: string } = { itemId: item.id };
+                                                                if (edited.teacher_score !== undefined) entry.teacher_score = Number(edited.teacher_score);
+                                                                if (edited.catatan_asesor !== undefined) entry.catatan_asesor = String(edited.catatan_asesor);
+                                                                return entry;
+                                                            });
 
-                                                        if (scoresToSave.length === 0) {
+                                                        if (feedbackToSave.length === 0) {
                                                             toast.info('Tidak ada perubahan nilai ujian di kategori ini.');
                                                             return;
                                                         }
 
-                                                        const result = await bulkSaveTeacherScores(scoresToSave);
+                                                        const result = await bulkSaveExamFeedback(feedbackToSave);
                                                         if ('error' in result) {
                                                             toast.error(result.error as string);
                                                         } else {
@@ -632,9 +638,9 @@ export function AuditTable({ items, role, auditId, onItemsUpdate, effectiveRole,
                                                             // Clear editing fields for saved items
                                                             setEditingFields(prev => {
                                                                 const next = { ...prev };
-                                                                for (const s of scoresToSave) {
+                                                                for (const s of feedbackToSave) {
                                                                     if (next[s.itemId]) {
-                                                                        const { teacher_score, ...remaining } = next[s.itemId] as any;
+                                                                        const { teacher_score, catatan_asesor, ...remaining } = next[s.itemId] as any;
                                                                         if (Object.keys(remaining).length === 0) {
                                                                             delete next[s.itemId];
                                                                         } else {
@@ -644,7 +650,7 @@ export function AuditTable({ items, role, auditId, onItemsUpdate, effectiveRole,
                                                                 }
                                                                 return next;
                                                             });
-                                                            toast.success(`Berhasil menyimpan ${scoresToSave.length} nilai ujian di ${category.split('.')[0].trim()}.`);
+                                                            toast.success(`Berhasil menyimpan ${feedbackToSave.length} item di ${category.split('.')[0].trim()}.`);
                                                         }
                                                     } catch (err) {
                                                         toast.error('Gagal menyimpan nilai ujian.');
@@ -702,6 +708,9 @@ export function AuditTable({ items, role, auditId, onItemsUpdate, effectiveRole,
 
                                                                             {showTeacherScoreColumn && (
                                                                                 <th className={`px-3 py-3 text-center w-24 text-xs font-bold uppercase tracking-wider ${isDark ? 'text-purple-400 bg-purple-900/10' : 'text-purple-700 bg-purple-50'}`}>Nilai (Ujian)</th>
+                                                                            )}
+                                                                            {showTeacherScoreColumn && (
+                                                                                <th className={`px-3 py-3 text-left min-w-[160px] text-xs font-bold uppercase tracking-wider ${isDark ? 'text-purple-400 bg-purple-900/10' : 'text-purple-700 bg-purple-50'}`}>Catatan Asesor</th>
                                                                             )}
 
                                                                             <th className={`px-3 py-3 text-center w-28 text-xs font-medium uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Status</th>
