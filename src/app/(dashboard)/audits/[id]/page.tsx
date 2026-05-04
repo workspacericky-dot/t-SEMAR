@@ -270,14 +270,14 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
                             className={`max-w-2xl w-full rounded-2xl shadow-2xl flex flex-col max-h-[85vh] overflow-hidden ${isDark ? 'bg-slate-900 border border-slate-800' : 'bg-white border border-slate-200'}`}
                         >
                             <div className={`px-6 py-4 border-b flex justify-between items-center ${isDark ? 'border-slate-800 bg-slate-800/50' : 'border-slate-100 bg-slate-50/50'}`}>
-                                <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>Terms and Conditions</h2>
+                                <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>Ketentuan Asesmen</h2>
                             </div>
                             
-                            <div className="p-6 overflow-y-auto flex-1 space-y-6">
+                            <div className="p-6 overflow-y-auto flex-1 space-y-4">
                                 {audit.exam_terms.map((term, idx) => (
-                                    <div key={idx} className="space-y-1">
-                                        <h3 className={`font-semibold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>{idx + 1}. Ketentuan {idx + 1}</h3>
-                                        <p className={`text-sm leading-relaxed ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                                    <div key={idx} className="flex gap-3 items-start">
+                                        <span className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold mt-0.5 ${isDark ? 'bg-slate-800 text-slate-400' : 'bg-slate-100 text-slate-500'}`}>{idx + 1}</span>
+                                        <p className={`text-sm leading-relaxed pt-0.5 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
                                             {term}
                                         </p>
                                     </div>
@@ -298,7 +298,7 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
                                         </div>
                                     </div>
                                     <span className={`text-sm font-medium select-none ${isDark ? 'text-slate-300 group-hover:text-white' : 'text-slate-700 group-hover:text-slate-900'}`}>
-                                        I agree to the terms and conditions.
+                                        Saya telah membaca seluruh ketentuan di atas
                                     </span>
                                 </label>
                                 
@@ -307,14 +307,14 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
                                         href="/dashboard"
                                         className={`px-6 py-2.5 rounded-xl font-semibold text-sm transition-colors ${isDark ? 'text-slate-400 hover:text-white hover:bg-slate-800' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'}`}
                                     >
-                                        Cancel
+                                        Kembali
                                     </Link>
                                     <button 
                                         disabled={!termsChecked}
                                         onClick={() => setHasAgreedTerms(true)}
                                         className={`px-8 py-2.5 rounded-xl font-semibold text-sm transition-all ${termsChecked ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-md shadow-blue-600/20' : 'bg-slate-200 text-slate-400 cursor-not-allowed dark:bg-slate-800 dark:text-slate-600'}`}
                                     >
-                                        Agree and Continue
+                                        Lanjutkan
                                     </button>
                                 </div>
                             </div>
