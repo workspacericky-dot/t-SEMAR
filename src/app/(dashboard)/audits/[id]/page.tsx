@@ -343,7 +343,7 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
                                 <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 text-orange-600 border-4 border-white shadow-xl ${isDark ? 'bg-orange-900/30' : 'bg-orange-50'}`}>
                                     <AlertCircle className="w-10 h-10" />
                                 </div>
-                                <h2 className={`text-2xl font-black tracking-tight mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>Ujian Telah Kadaluarsa</h2>
+                                <h2 className={`text-2xl font-black tracking-tight mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>Ujian Telah Kedaluwarsa</h2>
                                 <p className={`text-sm mb-4 leading-relaxed font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                                     Batas waktu pengerjaan ujian ini telah berakhir pada:
                                 </p>
@@ -546,7 +546,7 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
                             {isExamLocked ? <AlertCircle className="w-6 h-6" /> : <Clock className="w-6 h-6 animate-pulse" />}
                         </div>
                         <div>
-                            <h4 className="font-bold text-lg">{isExamExpired ? 'Ujian Kadaluarsa' : isExamLocked ? 'Waktu Ujian Habis' : 'Sisa Waktu Ujian'}</h4>
+                            <h4 className="font-bold text-lg">{isExamExpired ? 'Ujian Kedaluwarsa' : isExamLocked ? 'Waktu Ujian Habis' : 'Sisa Waktu Ujian'}</h4>
                             <p className="text-xs font-medium opacity-80 mt-0.5">{isExamExpired ? 'Batas waktu pengerjaan ujian ini telah berakhir.' : isExamLocked ? 'Anda tidak dapat lagi mengubah penilaian.' : 'Sistem otomatis mengunci apabila waktu telah habis.'}</p>
                         </div>
                     </div>

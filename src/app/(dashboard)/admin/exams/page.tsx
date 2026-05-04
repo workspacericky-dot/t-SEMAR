@@ -425,7 +425,7 @@ export default function ManageExamsPage() {
 
                         {/* Expiry */}
                         <div className="space-y-2">
-                            <label className={`text-sm font-bold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>8. Batas Kadaluarsa Ujian (Opsional)</label>
+                            <label className={`text-sm font-bold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>8. Batas Kedaluwarsa Ujian (Opsional)</label>
                             <p className={`text-xs mb-2 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                                 Setelah tanggal &amp; jam ini, seluruh mahasiswa tidak lagi bisa membuka atau mengerjakan ujian — terlepas dari apakah mereka sudah mulai atau belum.
                             </p>
@@ -436,7 +436,7 @@ export default function ManageExamsPage() {
                                 className={`w-full h-12 rounded-xl border outline-none focus:ring-2 focus:ring-orange-500/50 px-4 ${isDark ? 'bg-slate-800 border-slate-600 text-slate-200' : 'bg-slate-50 border-slate-200 text-slate-900'}`}
                             />
                             {examExpiresAt && scheduledStartTime && new Date(examExpiresAt) <= new Date(scheduledStartTime) && (
-                                <p className="text-xs text-red-500 font-medium">⚠ Waktu kadaluarsa harus setelah waktu mulai ujian.</p>
+                                <p className="text-xs text-red-500 font-medium">⚠ Waktu kedaluwarsa harus setelah waktu mulai ujian.</p>
                             )}
                         </div>
 
