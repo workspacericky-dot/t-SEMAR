@@ -48,8 +48,8 @@ export default function EditAuditPage() {
             // 1. Fetch profiles
             const { data: profiles } = await supabase.from('profiles').select('*');
             if (profiles) {
-                setAuditors(profiles.filter((p) => p.role === 'auditor' || p.role === 'superadmin'));
-                setAuditees(profiles.filter((p) => p.role === 'auditee'));
+                setAuditors(profiles.filter((p: any) => p.role === 'auditor' || p.role === 'superadmin'));
+                setAuditees(profiles.filter((p: any) => p.role === 'auditee'));
             }
 
             // 2. Fetch Audit
