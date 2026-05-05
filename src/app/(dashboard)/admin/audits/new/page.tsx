@@ -42,8 +42,8 @@ export default function NewAuditPage() {
         const fetchProfiles = async () => {
             const { data } = await supabase.from('profiles').select('*');
             if (data) {
-                setAuditors(data.filter((p) => p.role === 'auditor' || p.role === 'superadmin'));
-                setAuditees(data.filter((p) => p.role === 'auditee'));
+                setAuditors(data.filter((p: any) => p.role === 'auditor' || p.role === 'superadmin'));
+                setAuditees(data.filter((p: any) => p.role === 'auditee'));
             }
         };
         fetchProfiles();
