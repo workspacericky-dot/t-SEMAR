@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import Link from 'next/link';
+import { Eye, EyeOff, Loader2, BarChart3 } from 'lucide-react';
 
 export default function LoginPage() {
     const [isLogin, setIsLogin] = useState(true);
@@ -118,6 +119,14 @@ export default function LoginPage() {
 
             {/* Right Side - Form */}
             <div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-6 lg:p-12 relative">
+                {/* Public statistics dashboard — visible to anyone, no account needed */}
+                <Link
+                    href="/statistik"
+                    className="absolute top-6 right-6 lg:top-8 lg:right-10 inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors"
+                >
+                    <BarChart3 className="w-3.5 h-3.5" /> Dashboard Statistik
+                </Link>
+
                 {/* Logo centered above everything */}
                 <div className="flex flex-col items-center justify-center gap-3 mb-12">
                     <Image

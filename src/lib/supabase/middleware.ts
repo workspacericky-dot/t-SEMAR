@@ -33,11 +33,21 @@ export async function updateSession(request: NextRequest) {
         data: { user },
     } = await supabase.auth.getUser();
 
-    // Define public paths that don't require auth
-    const publicPaths = ['/login', '/register', '/auth/callback', '/forgot-password', '/update-password'];
-    const isPublicPath = publicPaths.some((path) =>
+    // Auth-only paths: bypass the login requirement, but bounce a logged-in
+    // user back to /dashboard (no reason to see the login form once signed in).
+    const authOnlyPaths = ['/login', '/register', '/auth/callback', '/forgot-password', '/update-password'];
+    const isAuthOnlyPath = authOnlyPaths.some((path) =>
         request.nextUrl.pathname.startsWith(path)
     );
+
+    // Always-accessible paths: public, but stay visible even to a logged-in
+    // user (e.g. the public statistics dashboard linked from the login page).
+    const alwaysAccessiblePaths = ['/statistik'];
+    const isAlwaysAccessible = alwaysAccessiblePaths.some((path) =>
+        request.nextUrl.pathname.startsWith(path)
+    );
+
+    const isPublicPath = isAuthOnlyPath || isAlwaysAccessible;
 
     if (!user && !isPublicPath) {
         const url = request.nextUrl.clone();
@@ -84,7 +94,7 @@ export async function updateSession(request: NextRequest) {
             }
         }
 
-        if (isPublicPath) {
+        if (isAuthOnlyPath) {
             const url = request.nextUrl.clone();
             url.pathname = '/dashboard';
             return NextResponse.redirect(url);
