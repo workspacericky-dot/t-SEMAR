@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import type { AuthChangeEvent } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/client';
 import { useAuthStore } from '@/store/auth-store';
 import { useThemeStore } from '@/store/theme-store';
@@ -56,7 +57,7 @@ export default function DashboardLayout({
 
         const {
             data: { subscription },
-        } = supabase.auth.onAuthStateChange(async (event) => {
+        } = supabase.auth.onAuthStateChange(async (event: AuthChangeEvent) => {
             if (event === 'SIGNED_OUT') {
                 setProfile(null);
                 router.replace('/login');

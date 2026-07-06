@@ -107,7 +107,7 @@ export default function ManageExamsPage() {
                 .select('category')
                 .eq('audit_id', selectedTemplate);
             if (data) {
-                const unique: string[] = [...new Set(data.map((i: any) => String(i.category)))].sort();
+                const unique: string[] = [...new Set<string>(data.map((i: any) => String(i.category)))].sort();
                 const counts: Record<string, number> = {};
                 data.forEach((i: any) => { counts[i.category] = (counts[i.category] || 0) + 1; });
                 setTemplateCategories(unique);
