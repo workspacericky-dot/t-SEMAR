@@ -209,16 +209,11 @@ function AuditCard({ audit, profile, isDeleting, isToggling, onDelete, onToggleL
     const effectiveRole = audit.effectiveRole;
 
     const isExam = audit.type === 'midterm' || audit.type === 'final';
-    let isLocked = audit.status === 'locked' || !!audit.is_manually_locked;
-    if (!isLocked && isExam && audit.time_limit_minutes && audit.exam_start_time) {
-        const limitSeconds = audit.time_limit_minutes * 60;
-        const startedAt = new Date(audit.exam_start_time).getTime();
-        const now = new Date().getTime();
-        const elapsed = Math.floor((now - startedAt) / 1000);
-        if (limitSeconds - elapsed <= 0) {
-            isLocked = true;
-        }
-    }
+    // Only an explicit admin lock (or a locked status) blocks access from this list.
+    // A merely time-expired exam still needs to be reachable so students can view
+    // released scores/corrections; the detail page already renders it read-only
+    // once its own timer/expiry check trips (see audits/[id]/page.tsx).
+    const isLocked = audit.status === 'locked' || !!audit.is_manually_locked;
 
     return (
         <div className={`group relative bg-white dark:bg-slate-900 border rounded-2xl p-6 transition-all duration-300 ${isLocked && profile?.role !== 'superadmin' ? 'opacity-60 border-slate-200 dark:border-slate-800 filter grayscale' :
