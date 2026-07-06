@@ -253,7 +253,7 @@ export function CriteriaRow({
                             )}
                         </div>
                     ) : showRekomendasi ? (
-                        <span className="text-sm text-slate-600 dark:text-slate-300 line-clamp-2">
+                        <span className="text-sm text-slate-600 dark:text-slate-300 whitespace-pre-wrap">
                             {item.rekomendasi || '-'}
                         </span>
                     ) : (
