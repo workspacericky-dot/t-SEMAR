@@ -17,7 +17,12 @@ const getSupabaseAdmin = () => createClient(
 
 /**
  * Distributes a Master Exam Template to all students (role: auditor).
- * Clones `questionCount` random items from the specified categories of the master.
+ *
+ * Two selection modes:
+ * - Manual (`selectedItemIds` provided): every student gets the exact same
+ *   hand-picked set of criteria, in full — no randomization.
+ * - Automatic (default): clones `questionCount` random items from the pool
+ *   filtered by `selectedCategories`, a different random subset per student.
  */
 export async function distributeExam(
     masterAuditId: string,
@@ -28,7 +33,8 @@ export async function distributeExam(
     questionCount: number = 20,
     selectedCategories?: string[],
     examExpiresAt?: string,
-    examTerms?: string[]
+    examTerms?: string[],
+    selectedItemIds?: string[]
 ) {
     try {
         const supabase = getSupabaseAdmin();
@@ -74,24 +80,31 @@ export async function distributeExam(
         const allNewItems: any[] = [];
         let distributedCount = 0;
 
-        // 3.5 Filter item pool by selected categories (if any)
-        const itemPool = selectedCategories && selectedCategories.length > 0
-            ? masterItems.filter(item => selectedCategories.includes(item.category))
-            : masterItems;
+        const isManualSelection = !!selectedItemIds && selectedItemIds.length > 0;
+
+        // 3.5 Determine the item pool: hand-picked criteria (manual mode) or
+        // everything under the selected categories (automatic/random mode).
+        const itemPool = isManualSelection
+            ? masterItems.filter(item => selectedItemIds!.includes(item.id))
+            : selectedCategories && selectedCategories.length > 0
+                ? masterItems.filter(item => selectedCategories.includes(item.category))
+                : masterItems;
 
         if (itemPool.length === 0) {
-            return { error: 'Tidak ada soal pada komponen yang dipilih.' };
+            return { error: isManualSelection ? 'Tidak ada kriteria terpilih yang ditemukan.' : 'Tidak ada soal pada komponen yang dipilih.' };
         }
 
-        if (itemPool.length < questionCount) {
+        if (!isManualSelection && itemPool.length < questionCount) {
             return { error: `Soal tidak cukup: tersedia ${itemPool.length} dari komponen terpilih, diminta ${questionCount}.` };
         }
 
         // 4. Distribute to each student
         for (const student of students) {
-            // Shuffle item pool and pick questionCount items unique per student
-            const shuffled = [...itemPool].sort(() => 0.5 - Math.random());
-            const selectedItems = shuffled.slice(0, questionCount);
+            // Manual mode: every student gets the exact same hand-picked items.
+            // Automatic mode: shuffle and pick questionCount items unique per student.
+            const selectedItems = isManualSelection
+                ? itemPool
+                : [...itemPool].sort(() => 0.5 - Math.random()).slice(0, questionCount);
 
             // Create new Audit row for this student
             const { data: newAudit, error: insertAuditError } = await supabase
