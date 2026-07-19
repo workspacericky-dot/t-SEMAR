@@ -30,6 +30,7 @@ export default function AuditsPage() {
     const [search, setSearch] = useState('');
     const [deletingId, setDeletingId] = useState<string | null>(null);
     const [togglingId, setTogglingId] = useState<string | null>(null);
+    const [examFilter, setExamFilter] = useState<'all' | 'midterm' | 'final'>('all');
     const supabase = createClient();
 
     useEffect(() => {
@@ -172,27 +173,64 @@ export default function AuditsPage() {
                     )}
 
                     {/* 2. Individual Assignment Section */}
-                    {filtered.some(a => a.type !== 'group_practice') && (
-                        <div>
-                            <h2 className="text-lg font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
-                                <ClipboardCheck className="w-5 h-5 text-pink-500" />
-                                Tugas Individu (Exam)
-                            </h2>
-                            <div className="grid gap-4">
-                                {filtered.filter(a => a.type !== 'group_practice').map((audit) => (
-                                    <AuditCard
-                                        key={audit.id}
-                                        audit={audit}
-                                        profile={profile}
-                                        isDeleting={deletingId === audit.id}
-                                        isToggling={togglingId === audit.id}
-                                        onDelete={handleDelete}
-                                        onToggleLock={handleToggleLock}
-                                    />
-                                ))}
+                    {filtered.some(a => a.type !== 'group_practice') && (() => {
+                        const individualExams = filtered.filter(a => a.type !== 'group_practice');
+                        const midtermCount = individualExams.filter(a => a.type === 'midterm').length;
+                        const finalCount = individualExams.filter(a => a.type === 'final').length;
+                        const displayedExams = examFilter === 'all'
+                            ? individualExams
+                            : individualExams.filter(a => a.type === examFilter);
+
+                        return (
+                            <div>
+                                <div className="flex items-center justify-between flex-wrap gap-4 mb-4">
+                                    <h2 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                                        <ClipboardCheck className="w-5 h-5 text-pink-500" />
+                                        Tugas Individu (Exam)
+                                    </h2>
+
+                                    {(midtermCount > 0 || finalCount > 0) && (
+                                        <div className="inline-flex items-center gap-1 rounded-xl border border-slate-200 dark:border-slate-700 p-1 shrink-0">
+                                            <button
+                                                type="button"
+                                                onClick={() => setExamFilter('all')}
+                                                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${examFilter === 'all' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'}`}
+                                            >
+                                                Semua ({individualExams.length})
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setExamFilter('midterm')}
+                                                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${examFilter === 'midterm' ? 'bg-blue-600 text-white' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'}`}
+                                            >
+                                                UTS ({midtermCount})
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setExamFilter('final')}
+                                                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${examFilter === 'final' ? 'bg-indigo-600 text-white' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'}`}
+                                            >
+                                                UAS ({finalCount})
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="grid gap-4">
+                                    {displayedExams.map((audit) => (
+                                        <AuditCard
+                                            key={audit.id}
+                                            audit={audit}
+                                            profile={profile}
+                                            isDeleting={deletingId === audit.id}
+                                            isToggling={togglingId === audit.id}
+                                            onDelete={handleDelete}
+                                            onToggleLock={handleToggleLock}
+                                        />
+                                    ))}
+                                </div>
                             </div>
-                        </div>
-                    )}
+                        );
+                    })()}
 
                 </div>
             )}

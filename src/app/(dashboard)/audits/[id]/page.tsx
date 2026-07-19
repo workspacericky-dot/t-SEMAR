@@ -39,6 +39,7 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
     const [examTimeLeft, setExamTimeLeft] = useState<number | null>(null);
     const [isExamLocked, setIsExamLocked] = useState(false);
     const [isExamExpired, setIsExamExpired] = useState(false);
+    const [viewingReleasedScore, setViewingReleasedScore] = useState(false);
     const [isStartingExam, setIsStartingExam] = useState(false);
     const [isSubmittingExam, setIsSubmittingExam] = useState(false);
 
@@ -170,7 +171,7 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
 
     // Prevent background scrolling when modal is open
     useEffect(() => {
-        if (needsToStart) {
+        if (needsToStart && !viewingReleasedScore) {
             document.body.style.overflow = 'hidden';
         } else {
             document.body.style.overflow = '';
@@ -179,7 +180,7 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
         return () => {
             document.body.style.overflow = '';
         };
-    }, [needsToStart]);
+    }, [needsToStart, viewingReleasedScore]);
 
     // Countdown Animation Effect
     useEffect(() => {
@@ -261,7 +262,7 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
     return (
         <div className="space-y-6">
             {/* Blocking Overlay for Exam Start */}
-            {needsToStart && portalMounted && createPortal(
+            {needsToStart && !viewingReleasedScore && portalMounted && createPortal(
                 <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/90 backdrop-blur-md p-4">
                     {audit.exam_terms && audit.exam_terms.length > 0 && !hasAgreedTerms ? (
                         <motion.div
@@ -350,9 +351,19 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
                                 <p className="text-sm font-bold text-orange-500 mb-8">
                                     {audit?.exam_expires_at ? new Date(audit.exam_expires_at).toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'short' }) : '-'}
                                 </p>
-                                <Link href="/dashboard" className="w-full h-14 rounded-xl bg-slate-200 text-slate-700 font-bold text-lg hover:bg-slate-300 transition-all flex justify-center items-center gap-2">
-                                    Kembali ke Dashboard
-                                </Link>
+                                <div className="flex gap-3">
+                                    {audit?.score_released && (
+                                        <button
+                                            onClick={() => setViewingReleasedScore(true)}
+                                            className="flex-1 h-14 rounded-xl bg-blue-600 text-white font-bold text-lg hover:bg-blue-700 transition-all flex justify-center items-center gap-2"
+                                        >
+                                            Lihat Nilai
+                                        </button>
+                                    )}
+                                    <Link href="/dashboard" className="flex-1 h-14 rounded-xl bg-slate-200 text-slate-700 font-bold text-lg hover:bg-slate-300 transition-all flex justify-center items-center gap-2">
+                                        Kembali ke Dashboard
+                                    </Link>
+                                </div>
                             </div>
                         </motion.div>
                     ) : isManuallyLockedWait ? (
