@@ -45,6 +45,7 @@ export default function ManageExamsPage() {
     // Distributed exams state (for score release)
     const [distributedExams, setDistributedExams] = useState<any[]>([]);
     const [togglingExam, setTogglingExam] = useState<string | null>(null);
+    const [releaseFilter, setReleaseFilter] = useState<'midterm' | 'final'>('midterm');
 
     useEffect(() => {
         // Protect Route
@@ -216,6 +217,12 @@ export default function ManageExamsPage() {
     const finalTotalPages = Math.ceil(finalExams.length / ITEMS_PER_PAGE);
     const midtermPaged = midtermExams.slice((midtermPage - 1) * ITEMS_PER_PAGE, midtermPage * ITEMS_PER_PAGE);
     const finalPaged = finalExams.slice((finalPage - 1) * ITEMS_PER_PAGE, finalPage * ITEMS_PER_PAGE);
+
+    // Score-release list, filtered to whichever exam type is selected
+    const releasePaged = releaseFilter === 'midterm' ? midtermPaged : finalPaged;
+    const releaseTotalPages = releaseFilter === 'midterm' ? midtermTotalPages : finalTotalPages;
+    const releasePage = releaseFilter === 'midterm' ? midtermPage : finalPage;
+    const setReleasePage = releaseFilter === 'midterm' ? setMidtermPage : setFinalPage;
 
     // Form step numbers, computed because "auto" mode has one more step
     // (category selection + question count) than "manual" mode does.
@@ -682,107 +689,93 @@ export default function ManageExamsPage() {
             {(midtermExams.length > 0 || finalExams.length > 0) && (
                 <div className={`rounded-2xl shadow-sm border overflow-hidden ${isDark ? 'bg-[#1A1D2E] border-slate-700/50' : 'bg-white border-slate-200'}`}>
                     <div className="p-8 space-y-6">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white shadow-sm">
-                                <GraduationCap className="w-5 h-5" />
+                        <div className="flex items-center justify-between flex-wrap gap-4">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white shadow-sm">
+                                    <GraduationCap className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>Rilis Nilai ke Mahasiswa</h2>
+                                    <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Aktifkan toggle untuk membuka akses nilai ujian ke masing-masing ujian mahasiswa.</p>
+                                </div>
                             </div>
-                            <div>
-                                <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>Rilis Nilai ke Mahasiswa</h2>
-                                <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Aktifkan toggle untuk membuka akses nilai ujian ke masing-masing ujian mahasiswa.</p>
+
+                            {/* UTS / UAS Filter */}
+                            <div className={`inline-flex items-center gap-1 rounded-xl border p-1 shrink-0 ${isDark ? 'border-slate-700' : 'border-slate-200'}`}>
+                                <button
+                                    type="button"
+                                    onClick={() => setReleaseFilter('midterm')}
+                                    className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${releaseFilter === 'midterm'
+                                        ? isDark ? 'bg-blue-600 text-white' : 'bg-blue-600 text-white'
+                                        : isDark ? 'text-slate-400 hover:text-slate-200' : 'text-slate-500 hover:text-slate-800'
+                                        }`}
+                                >
+                                    UTS ({midtermExams.length})
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setReleaseFilter('final')}
+                                    className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${releaseFilter === 'final'
+                                        ? isDark ? 'bg-indigo-600 text-white' : 'bg-indigo-600 text-white'
+                                        : isDark ? 'text-slate-400 hover:text-slate-200' : 'text-slate-500 hover:text-slate-800'
+                                        }`}
+                                >
+                                    UAS ({finalExams.length})
+                                </button>
                             </div>
                         </div>
 
-                        {/* Midterm Section */}
-                        {midtermExams.length > 0 && (
-                            <div>
-                                <h3 className={`text-sm font-bold uppercase tracking-wider mb-3 flex items-center gap-2 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
-                                    <span className="w-2 h-2 rounded-full bg-blue-500" />
-                                    Ujian Tengah Semester (UTS) — {midtermExams.length} ujian
-                                </h3>
-                                <div className="space-y-2">
-                                    {midtermPaged.map(exam => (
-                                        <div key={exam.id} className={`flex items-center justify-between p-4 rounded-xl border transition-all ${exam.score_released
-                                            ? isDark ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-emerald-50 border-emerald-200'
-                                            : isDark ? 'bg-slate-800/50 border-slate-600' : 'bg-slate-50 border-slate-200'
-                                            }`}>
-                                            <div className="flex-1 min-w-0">
-                                                <h4 className={`font-semibold text-sm truncate ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>{exam.title}</h4>
-                                                <p className={`text-xs mt-0.5 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                                                    Durasi: {exam.time_limit_minutes || '-'} menit
-                                                    {exam.is_manually_locked && <span className="ml-2 text-red-500 font-medium">• Terkunci</span>}
-                                                </p>
-                                            </div>
-                                            <button
-                                                disabled={togglingExam === exam.id}
-                                                onClick={() => handleToggleScoreRelease(exam.id, !!exam.score_released)}
-                                                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all shrink-0 ml-4 ${togglingExam === exam.id ? 'bg-slate-200 text-slate-500 cursor-wait'
-                                                    : exam.score_released
-                                                        ? 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm'
-                                                        : isDark ? 'bg-slate-700 text-slate-300 hover:bg-slate-600' : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
-                                                    }`}
-                                            >
-                                                {togglingExam === exam.id ? (
-                                                    <Loader2 className="w-4 h-4 animate-spin" />
-                                                ) : exam.score_released ? (
-                                                    <><Eye className="w-4 h-4" /> Nilai Dirilis</>
-                                                ) : (
-                                                    <><EyeOff className="w-4 h-4" /> Belum Dirilis</>
-                                                )}
-                                            </button>
-                                        </div>
-                                    ))}
-                                </div>
-                                {midtermTotalPages > 1 && (
-                                    <ExamPagination page={midtermPage} totalPages={midtermTotalPages} onPageChange={setMidtermPage} isDark={isDark} />
-                                )}
-                            </div>
-                        )}
+                        <div>
+                            <h3 className={`text-sm font-bold uppercase tracking-wider mb-3 flex items-center gap-2 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                                <span className={`w-2 h-2 rounded-full ${releaseFilter === 'midterm' ? 'bg-blue-500' : 'bg-indigo-500'}`} />
+                                {releaseFilter === 'midterm' ? 'Ujian Tengah Semester (UTS)' : 'Ujian Akhir Semester (UAS)'} — {releaseFilter === 'midterm' ? midtermExams.length : finalExams.length} ujian
+                            </h3>
 
-                        {/* Final Exam Section */}
-                        {finalExams.length > 0 && (
-                            <div>
-                                <h3 className={`text-sm font-bold uppercase tracking-wider mb-3 flex items-center gap-2 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
-                                    <span className="w-2 h-2 rounded-full bg-indigo-500" />
-                                    Ujian Akhir Semester (UAS) — {finalExams.length} ujian
-                                </h3>
-                                <div className="space-y-2">
-                                    {finalPaged.map(exam => (
-                                        <div key={exam.id} className={`flex items-center justify-between p-4 rounded-xl border transition-all ${exam.score_released
-                                            ? isDark ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-emerald-50 border-emerald-200'
-                                            : isDark ? 'bg-slate-800/50 border-slate-600' : 'bg-slate-50 border-slate-200'
-                                            }`}>
-                                            <div className="flex-1 min-w-0">
-                                                <h4 className={`font-semibold text-sm truncate ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>{exam.title}</h4>
-                                                <p className={`text-xs mt-0.5 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                                                    Durasi: {exam.time_limit_minutes || '-'} menit
-                                                    {exam.is_manually_locked && <span className="ml-2 text-red-500 font-medium">• Terkunci</span>}
-                                                </p>
+                            {releasePaged.length === 0 ? (
+                                <p className={`text-sm text-center py-8 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+                                    Belum ada ujian {releaseFilter === 'midterm' ? 'UTS' : 'UAS'} yang didistribusikan.
+                                </p>
+                            ) : (
+                                <>
+                                    <div className="space-y-2">
+                                        {releasePaged.map(exam => (
+                                            <div key={exam.id} className={`flex items-center justify-between p-4 rounded-xl border transition-all ${exam.score_released
+                                                ? isDark ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-emerald-50 border-emerald-200'
+                                                : isDark ? 'bg-slate-800/50 border-slate-600' : 'bg-slate-50 border-slate-200'
+                                                }`}>
+                                                <div className="flex-1 min-w-0">
+                                                    <h4 className={`font-semibold text-sm truncate ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>{exam.title}</h4>
+                                                    <p className={`text-xs mt-0.5 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                                                        Durasi: {exam.time_limit_minutes || '-'} menit
+                                                        {exam.is_manually_locked && <span className="ml-2 text-red-500 font-medium">• Terkunci</span>}
+                                                    </p>
+                                                </div>
+                                                <button
+                                                    disabled={togglingExam === exam.id}
+                                                    onClick={() => handleToggleScoreRelease(exam.id, !!exam.score_released)}
+                                                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all shrink-0 ml-4 ${togglingExam === exam.id ? 'bg-slate-200 text-slate-500 cursor-wait'
+                                                        : exam.score_released
+                                                            ? 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm'
+                                                            : isDark ? 'bg-slate-700 text-slate-300 hover:bg-slate-600' : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
+                                                        }`}
+                                                >
+                                                    {togglingExam === exam.id ? (
+                                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                                    ) : exam.score_released ? (
+                                                        <><Eye className="w-4 h-4" /> Nilai Dirilis</>
+                                                    ) : (
+                                                        <><EyeOff className="w-4 h-4" /> Belum Dirilis</>
+                                                    )}
+                                                </button>
                                             </div>
-                                            <button
-                                                disabled={togglingExam === exam.id}
-                                                onClick={() => handleToggleScoreRelease(exam.id, !!exam.score_released)}
-                                                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all shrink-0 ml-4 ${togglingExam === exam.id ? 'bg-slate-200 text-slate-500 cursor-wait'
-                                                    : exam.score_released
-                                                        ? 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm'
-                                                        : isDark ? 'bg-slate-700 text-slate-300 hover:bg-slate-600' : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
-                                                    }`}
-                                            >
-                                                {togglingExam === exam.id ? (
-                                                    <Loader2 className="w-4 h-4 animate-spin" />
-                                                ) : exam.score_released ? (
-                                                    <><Eye className="w-4 h-4" /> Nilai Dirilis</>
-                                                ) : (
-                                                    <><EyeOff className="w-4 h-4" /> Belum Dirilis</>
-                                                )}
-                                            </button>
-                                        </div>
-                                    ))}
-                                </div>
-                                {finalTotalPages > 1 && (
-                                    <ExamPagination page={finalPage} totalPages={finalTotalPages} onPageChange={setFinalPage} isDark={isDark} />
-                                )}
-                            </div>
-                        )}
+                                        ))}
+                                    </div>
+                                    {releaseTotalPages > 1 && (
+                                        <ExamPagination page={releasePage} totalPages={releaseTotalPages} onPageChange={setReleasePage} isDark={isDark} />
+                                    )}
+                                </>
+                            )}
+                        </div>
                     </div>
                 </div>
             )}
