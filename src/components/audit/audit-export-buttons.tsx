@@ -107,6 +107,25 @@ export function AuditExportButtons({ audit, items, isDark, role, scoreReleased }
             wsData.push(finalRow);
 
             const ws = XLSX.utils.aoa_to_sheet(wsData);
+            // The free "xlsx" package can't write cell styles (no wrapText support on
+            // export), so column width is the only lever available to keep long text
+            // like Subkategori/Kriteria from being clipped by Excel's default ~8-char
+            // column width.
+            ws['!cols'] = [
+                { wch: 5 },   // No
+                { wch: 22 },  // Kategori
+                { wch: 45 },  // Subkategori
+                { wch: 40 },  // Kriteria
+                { wch: 8 },   // Bobot
+                { wch: 12 },  // Nilai Auditee
+                { wch: 30 },  // Jawaban Auditee
+                { wch: 12 },  // Nilai Evaluator
+                { wch: 30 },  // Jawaban Evaluator
+                { wch: 30 },  // Catatan
+                { wch: 30 },  // Rekomendasi
+                { wch: 14 },  // Status
+                ...(showTeacherScore ? [{ wch: 12 }, { wch: 30 }] : []), // Nilai (Ujian), Catatan Asesor
+            ];
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, 'Audit Items');
             XLSX.writeFile(wb, `Audit_${audit.id.substring(0, 8)}_Result.xlsx`);
@@ -160,25 +179,35 @@ export function AuditExportButtons({ audit, items, isDark, role, scoreReleased }
                 return row;
             });
 
+            // Every column but the last needs an explicit width — a column left unset
+            // otherwise only gets whatever thin sliver remains after the fixed ones,
+            // which is what forced Kategori/Subkategori into one-character-per-line
+            // wrapping before. The last column is left unset on purpose so it
+            // stretches to absorb any leftover page width instead of the table
+            // falling short of the page edge.
             const columnStyles: Record<number, { cellWidth: number }> = {
-                0: { cellWidth: 10 },
-                3: { cellWidth: 50 },
-                4: { cellWidth: 20 },
-                5: { cellWidth: 20 },
-                6: { cellWidth: 15 },
-                7: { cellWidth: 40 },
-                8: { cellWidth: 40 },
+                0: { cellWidth: 8 },   // No
+                1: { cellWidth: 25 },  // Kategori
+                2: { cellWidth: 38 },  // Subkategori
+                3: { cellWidth: 43 },  // Kriteria
+                4: { cellWidth: 16 },  // Jwb Auditee
+                5: { cellWidth: 16 },  // Jwb Evaluator
+                6: { cellWidth: 12 },  // Nilai
+                7: { cellWidth: 29 },  // Catatan
             };
             if (showTeacherScore) {
-                columnStyles[9] = { cellWidth: 15 };
-                columnStyles[10] = { cellWidth: 40 };
+                columnStyles[8] = { cellWidth: 29 }; // Rekomendasi
+                columnStyles[9] = { cellWidth: 14 }; // Nilai (Ujian)
+                // column 10, Catatan Asesor, intentionally left unset (stretches)
             }
+            // else column 8, Rekomendasi, intentionally left unset (stretches)
 
             autoTable(doc, {
                 startY: 35,
+                margin: { left: 14, right: 14 },
                 head: [head],
                 body: tableData,
-                styles: { fontSize: 8, cellPadding: 2 },
+                styles: { fontSize: 8, cellPadding: 2, overflow: 'linebreak', valign: 'top' },
                 columnStyles,
                 theme: 'grid',
                 headStyles: { fillColor: [41, 128, 185], textColor: 255 }
