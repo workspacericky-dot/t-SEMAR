@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { AuditItem, ExtendedAudit } from '@/types/database';
+import { AuditItem, ExtendedAudit, UserRole } from '@/types/database';
 import { FileSpreadsheet, Download, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -9,6 +9,8 @@ interface AuditExportButtonsProps {
     audit: ExtendedAudit;
     items: AuditItem[];
     isDark?: boolean;
+    role?: UserRole;
+    scoreReleased?: boolean;
 }
 
 const getScoreValue = (item: AuditItem) => {
@@ -16,7 +18,17 @@ const getScoreValue = (item: AuditItem) => {
     return item.nilai_auditee || 0;
 };
 
-const calculateFinalScore = (items: AuditItem[]) => {
+// For exams (midterm/final), every item carries equal weight and the score
+// that matters is teacher_score — the same simple average AuditTable uses
+// for its exam-mode "Nilai Ujian" total (see audit-table.tsx isExamType branch).
+const calculateExamScore = (items: AuditItem[]) => {
+    if (items.length === 0) return 0;
+    return items.reduce((sum, item) => sum + (item.teacher_score || 0), 0) / items.length;
+};
+
+// Regular (non-exam) audits use the bobot-weighted hierarchy of
+// nilai_evaluator/nilai_auditee across category -> subcategory -> criteria.
+const calculateRegularScore = (items: AuditItem[]) => {
     const categories = [...new Set(items.map(i => i.category))];
     let totalFinalScore = 0;
 
@@ -29,13 +41,14 @@ const calculateFinalScore = (items: AuditItem[]) => {
             const subItems = catItems.filter(i => i.subcategory === sub);
             if (subItems.length === 0) return;
 
+            const bobotSum = subItems.reduce((sum, item) => sum + (item.bobot || 0), 0);
             const subScoreRaw = subItems.reduce((sum, item) => {
                 const nilai = getScoreValue(item);
                 const bobot = item.bobot || 0;
                 return sum + (nilai * bobot);
             }, 0);
 
-            const subScore = subScoreRaw / 100;
+            const subScore = bobotSum > 0 ? subScoreRaw / bobotSum : 0;
             const subWeight = subItems[0].subcategory_bobot || 0;
 
             categoryScore += (subScore * subWeight) / 100;
@@ -46,23 +59,29 @@ const calculateFinalScore = (items: AuditItem[]) => {
     return totalFinalScore;
 };
 
-export function AuditExportButtons({ audit, items, isDark }: AuditExportButtonsProps) {
+export function AuditExportButtons({ audit, items, isDark, role, scoreReleased }: AuditExportButtonsProps) {
     const [exportingExcel, setExportingExcel] = useState(false);
     const [exportingPdf, setExportingPdf] = useState(false);
 
-    const finalScore = calculateFinalScore(items);
+    const isExamType = audit.type === 'midterm' || audit.type === 'final';
+    const isAdminOrSuperadmin = role === 'superadmin' || role === 'admin';
+    const showTeacherScore = isExamType && (isAdminOrSuperadmin || !!scoreReleased);
+
+    const finalScore = isExamType ? calculateExamScore(items) : calculateRegularScore(items);
+    const finalScoreLabel = isExamType ? 'Nilai Ujian' : 'Nilai Akhir';
 
     const handleExportExcel = async () => {
         setExportingExcel(true);
         try {
             const XLSX = await import('xlsx');
 
-            const wsData = [
-                ['No', 'Kategori', 'Subkategori', 'Kriteria', 'Bobot', 'Nilai Auditee', 'Jawaban Auditee', 'Nilai Evaluator', 'Jawaban Evaluator', 'Catatan', 'Rekomendasi', 'Status']
-            ];
+            const header = ['No', 'Kategori', 'Subkategori', 'Kriteria', 'Bobot', 'Nilai Auditee', 'Jawaban Auditee', 'Nilai Evaluator', 'Jawaban Evaluator', 'Catatan', 'Rekomendasi', 'Status'];
+            if (showTeacherScore) header.push('Nilai (Ujian)', 'Catatan Asesor');
+
+            const wsData = [header];
 
             items.forEach((item, idx) => {
-                wsData.push([
+                const row = [
                     (idx + 1).toString(),
                     item.category || '',
                     item.subcategory || '',
@@ -75,12 +94,17 @@ export function AuditExportButtons({ audit, items, isDark }: AuditExportButtonsP
                     item.catatan || '',
                     item.rekomendasi || '',
                     item.status || ''
-                ]);
+                ];
+                if (showTeacherScore) row.push((item.teacher_score || 0).toString(), item.catatan_asesor || '');
+                wsData.push(row);
             });
 
-            // Add final score row
+            // Add final score row (label in the "Jawaban Evaluator" column, value in "Catatan")
+            const finalRow = new Array(header.length).fill('');
+            finalRow[8] = finalScoreLabel.toUpperCase();
+            finalRow[9] = finalScore.toFixed(2);
             wsData.push([]);
-            wsData.push(['', '', '', '', '', '', '', '', 'NILAI AKHIR', finalScore.toFixed(2), '', '']);
+            wsData.push(finalRow);
 
             const ws = XLSX.utils.aoa_to_sheet(wsData);
             const wb = XLSX.utils.book_new();
@@ -108,7 +132,7 @@ export function AuditExportButtons({ audit, items, isDark }: AuditExportButtonsP
             doc.text(`Hasil Evaluasi AKIP: ${audit.title}`, 14, 15);
             doc.setFontSize(10);
             doc.text(`Tahun: ${audit.year}`, 14, 22);
-            doc.text(`Nilai Akhir: ${finalScore.toFixed(2)}`, doc.internal.pageSize.width - 14, 22, { align: 'right' });
+            doc.text(`${finalScoreLabel}: ${finalScore.toFixed(2)}`, doc.internal.pageSize.width - 14, 22, { align: 'right' });
 
             // Satker / Auditee info
             const auditeeProfile = audit.auditee as any;
@@ -117,32 +141,45 @@ export function AuditExportButtons({ audit, items, isDark }: AuditExportButtonsP
                 doc.text(`Auditee: ${auditeeName}`, 14, 28);
             }
 
-            const tableData = items.map((item, idx) => [
-                idx + 1,
-                item.category,
-                item.subcategory,
-                item.criteria,
-                item.jawaban_auditee || '-',
-                item.jawaban_evaluator || '-',
-                item.nilai_evaluator ?? item.nilai_auditee ?? 0,
-                item.catatan || '-',
-                item.rekomendasi || '-'
-            ]);
+            const head = ['No', 'Kategori', 'Subkategori', 'Kriteria', 'Jwb Auditee', 'Jwb Evaluator', 'Nilai', 'Catatan', 'Rekomendasi'];
+            if (showTeacherScore) head.push('Nilai (Ujian)', 'Catatan Asesor');
+
+            const tableData = items.map((item, idx) => {
+                const row = [
+                    idx + 1,
+                    item.category,
+                    item.subcategory,
+                    item.criteria,
+                    item.jawaban_auditee || '-',
+                    item.jawaban_evaluator || '-',
+                    item.nilai_evaluator ?? item.nilai_auditee ?? 0,
+                    item.catatan || '-',
+                    item.rekomendasi || '-'
+                ];
+                if (showTeacherScore) row.push(item.teacher_score ?? 0, item.catatan_asesor || '-');
+                return row;
+            });
+
+            const columnStyles: Record<number, { cellWidth: number }> = {
+                0: { cellWidth: 10 },
+                3: { cellWidth: 50 },
+                4: { cellWidth: 20 },
+                5: { cellWidth: 20 },
+                6: { cellWidth: 15 },
+                7: { cellWidth: 40 },
+                8: { cellWidth: 40 },
+            };
+            if (showTeacherScore) {
+                columnStyles[9] = { cellWidth: 15 };
+                columnStyles[10] = { cellWidth: 40 };
+            }
 
             autoTable(doc, {
                 startY: 35,
-                head: [['No', 'Kategori', 'Subkategori', 'Kriteria', 'Jwb Auditee', 'Jwb Evaluator', 'Nilai', 'Catatan', 'Rekomendasi']],
+                head: [head],
                 body: tableData,
                 styles: { fontSize: 8, cellPadding: 2 },
-                columnStyles: {
-                    0: { cellWidth: 10 },
-                    3: { cellWidth: 50 },
-                    4: { cellWidth: 20 },
-                    5: { cellWidth: 20 },
-                    6: { cellWidth: 15 },
-                    7: { cellWidth: 40 },
-                    8: { cellWidth: 40 },
-                },
+                columnStyles,
                 theme: 'grid',
                 headStyles: { fillColor: [41, 128, 185], textColor: 255 }
             });

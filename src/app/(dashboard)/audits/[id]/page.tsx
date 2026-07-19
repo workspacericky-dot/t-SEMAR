@@ -485,7 +485,7 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
                         />
                     )}
 
-                    <AuditExportButtons audit={audit} items={items} isDark={isDark} />
+                    <AuditExportButtons audit={audit} items={items} isDark={isDark} role={profile?.role} scoreReleased={!!audit?.score_released} />
 
                     <Link
                         href={`/audits/${id}/action-plan`}
