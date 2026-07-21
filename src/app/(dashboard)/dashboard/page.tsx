@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useEffect, useState, useMemo } from 'react';
 import { Audit, AuditItem } from '@/types/database';
 import { getDashboardData } from '@/lib/actions/audit-server-actions';
+import { DeadlineNoticeBadge, hasUnseenDeadlineChange } from '@/components/audit/deadline-notice-badge';
 import Link from 'next/link';
 
 import {
@@ -423,14 +424,18 @@ export default function DashboardPage() {
 
                                                     <Link href={`/audits/${audit.id}`} className="flex-1 min-w-0 flex items-center justify-between">
                                                         <div>
-                                                            <h4 className={`font-bold text-sm leading-tight line-clamp-1 transition-colors ${isActive
-                                                                ? 'text-pink-600'
-                                                                : isDark ? 'text-white group-hover:text-pink-400' : 'text-slate-800 group-hover:text-pink-600'
-                                                                }`}>
-                                                                {audit.title}
-                                                            </h4>
+                                                            <div className="flex items-center gap-1.5">
+                                                                <h4 className={`font-bold text-sm leading-tight line-clamp-1 transition-colors ${isActive
+                                                                    ? 'text-pink-600'
+                                                                    : isDark ? 'text-white group-hover:text-pink-400' : 'text-slate-800 group-hover:text-pink-600'
+                                                                    }`}>
+                                                                    {audit.title}
+                                                                </h4>
+                                                                {isExam && hasUnseenDeadlineChange(audit) && <DeadlineNoticeBadge />}
+                                                            </div>
                                                             <p className={`text-[10px] mt-0.5 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
                                                                 {audit.type === 'midterm' ? 'Midterm Exam' : 'Individual'}{isLocked && ' (Selesai)'}
+                                                                {isExam && audit.exam_expires_at && ` • Deadline: ${new Date(audit.exam_expires_at).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}`}
                                                             </p>
                                                         </div>
                                                         {isLocked && <Lock className={`w-4 h-4 shrink-0 ${isDark ? 'text-slate-600' : 'text-slate-400'}`} />}

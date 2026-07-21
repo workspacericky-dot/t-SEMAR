@@ -7,7 +7,7 @@ import { useThemeStore } from '@/store/theme-store';
 import { createClient } from '@/lib/supabase/client';
 import { distributeExam, toggleScoreRelease, updateExamDeadline } from '@/lib/actions/exam-actions';
 import { toast } from 'sonner';
-import { Loader2, ArrowLeft, ClipboardList, Send, AlertCircle, Users, Eye, EyeOff, GraduationCap, Plus, X, CalendarClock } from 'lucide-react';
+import { Loader2, ArrowLeft, ClipboardList, Send, AlertCircle, Users, Eye, EyeOff, GraduationCap, Plus, X, CalendarClock, Search } from 'lucide-react';
 import Link from 'next/link';
 import {
     Dialog,
@@ -54,6 +54,7 @@ export default function ManageExamsPage() {
     const [distributedExams, setDistributedExams] = useState<any[]>([]);
     const [togglingExam, setTogglingExam] = useState<string | null>(null);
     const [releaseFilter, setReleaseFilter] = useState<'midterm' | 'final'>('midterm');
+    const [releaseSearch, setReleaseSearch] = useState('');
 
     // Per-individual deadline reset (force majeure)
     const [editingDeadlineExam, setEditingDeadlineExam] = useState<any | null>(null);
@@ -255,16 +256,24 @@ export default function ManageExamsPage() {
     const [midtermPage, setMidtermPage] = useState(1);
     const [finalPage, setFinalPage] = useState(1);
 
-    const midtermTotalPages = Math.ceil(midtermExams.length / ITEMS_PER_PAGE);
-    const finalTotalPages = Math.ceil(finalExams.length / ITEMS_PER_PAGE);
-    const midtermPaged = midtermExams.slice((midtermPage - 1) * ITEMS_PER_PAGE, midtermPage * ITEMS_PER_PAGE);
-    const finalPaged = finalExams.slice((finalPage - 1) * ITEMS_PER_PAGE, finalPage * ITEMS_PER_PAGE);
+    // Reset to page 1 whenever the search text changes, since it changes result counts
+    useEffect(() => {
+        setMidtermPage(1);
+        setFinalPage(1);
+    }, [releaseSearch]);
 
-    // Score-release list, filtered to whichever exam type is selected
-    const releasePaged = releaseFilter === 'midterm' ? midtermPaged : finalPaged;
-    const releaseTotalPages = releaseFilter === 'midterm' ? midtermTotalPages : finalTotalPages;
+    // Score-release list: whichever exam type is selected, narrowed by the search box
+    // (matches against the exam title, which embeds the student's name: "UTS - Nama").
+    const searchLower = releaseSearch.trim().toLowerCase();
+    const currentTypeExams = releaseFilter === 'midterm' ? midtermExams : finalExams;
+    const searchedExams = searchLower
+        ? currentTypeExams.filter(e => e.title.toLowerCase().includes(searchLower))
+        : currentTypeExams;
+
     const releasePage = releaseFilter === 'midterm' ? midtermPage : finalPage;
     const setReleasePage = releaseFilter === 'midterm' ? setMidtermPage : setFinalPage;
+    const releaseTotalPages = Math.ceil(searchedExams.length / ITEMS_PER_PAGE);
+    const releasePaged = searchedExams.slice((releasePage - 1) * ITEMS_PER_PAGE, releasePage * ITEMS_PER_PAGE);
 
     // Form step numbers, computed because "auto" mode has one more step
     // (category selection + question count) than "manual" mode does.
@@ -767,15 +776,29 @@ export default function ManageExamsPage() {
                             </div>
                         </div>
 
+                        {/* Search by student name */}
+                        <div className="relative">
+                            <Search className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? 'text-slate-500' : 'text-slate-400'}`} />
+                            <input
+                                type="text"
+                                placeholder="Cari nama peserta..."
+                                value={releaseSearch}
+                                onChange={(e) => setReleaseSearch(e.target.value)}
+                                className={`w-full h-11 pl-11 pr-4 rounded-xl border outline-none focus:ring-2 focus:ring-blue-500/50 text-sm ${isDark ? 'bg-slate-800 border-slate-600 text-slate-200 placeholder:text-slate-500' : 'bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400'}`}
+                            />
+                        </div>
+
                         <div>
                             <h3 className={`text-sm font-bold uppercase tracking-wider mb-3 flex items-center gap-2 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                                 <span className={`w-2 h-2 rounded-full ${releaseFilter === 'midterm' ? 'bg-blue-500' : 'bg-indigo-500'}`} />
-                                {releaseFilter === 'midterm' ? 'Ujian Tengah Semester (UTS)' : 'Ujian Akhir Semester (UAS)'} — {releaseFilter === 'midterm' ? midtermExams.length : finalExams.length} ujian
+                                {releaseFilter === 'midterm' ? 'Ujian Tengah Semester (UTS)' : 'Ujian Akhir Semester (UAS)'} — {searchLower ? `${searchedExams.length} dari ${currentTypeExams.length}` : searchedExams.length} ujian
                             </h3>
 
                             {releasePaged.length === 0 ? (
                                 <p className={`text-sm text-center py-8 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
-                                    Belum ada ujian {releaseFilter === 'midterm' ? 'UTS' : 'UAS'} yang didistribusikan.
+                                    {searchLower
+                                        ? `Tidak ada peserta ${releaseFilter === 'midterm' ? 'UTS' : 'UAS'} yang cocok dengan "${releaseSearch}".`
+                                        : `Belum ada ujian ${releaseFilter === 'midterm' ? 'UTS' : 'UAS'} yang didistribusikan.`}
                                 </p>
                             ) : (
                                 <>

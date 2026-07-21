@@ -365,9 +365,15 @@ export async function updateExamDeadline(auditId: string, newExpiresAt: string |
     try {
         const supabase = getSupabaseAdmin();
 
+        // Stamp deadline_changed_at (and clear any prior deadline_seen_at) so the
+        // student's UI can show a notice badge until they've seen the new deadline.
         const { error } = await supabase
             .from('audits')
-            .update({ exam_expires_at: newExpiresAt })
+            .update({
+                exam_expires_at: newExpiresAt,
+                deadline_changed_at: new Date().toISOString(),
+                deadline_seen_at: null,
+            })
             .eq('id', auditId);
 
         if (error) {
@@ -377,9 +383,34 @@ export async function updateExamDeadline(auditId: string, newExpiresAt: string |
         revalidatePath(`/audits/${auditId}`);
         revalidatePath('/admin/exams');
         revalidatePath('/audits');
+        revalidatePath('/dashboard');
         return { success: true };
     } catch (error: any) {
         console.error('[updateExamDeadline] ERROR:', error);
+        return { error: error.message || 'Internal server error.' };
+    }
+}
+
+/**
+ * Marks the deadline-change notice as seen by the student, so the animated
+ * notice badge on their dashboard/audit list stops showing for this exam.
+ */
+export async function markDeadlineNoticeSeen(auditId: string) {
+    try {
+        const supabase = getSupabaseAdmin();
+
+        const { error } = await supabase
+            .from('audits')
+            .update({ deadline_seen_at: new Date().toISOString() })
+            .eq('id', auditId);
+
+        if (error) {
+            return { error: 'Gagal menandai notifikasi sebagai dibaca.' };
+        }
+
+        return { success: true };
+    } catch (error: any) {
+        console.error('[markDeadlineNoticeSeen] ERROR:', error);
         return { error: error.message || 'Internal server error.' };
     }
 }

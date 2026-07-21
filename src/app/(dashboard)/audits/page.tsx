@@ -7,11 +7,13 @@ import { Audit } from '@/types/database';
 import Link from 'next/link';
 import { deleteAudit, getUserAudits } from '@/lib/actions/audit-server-actions';
 import { toggleExamManualLock } from '@/lib/actions/exam-actions';
+import { DeadlineNoticeBadge, hasUnseenDeadlineChange } from '@/components/audit/deadline-notice-badge';
 import {
     ClipboardCheck,
     Plus,
     Search,
     Calendar,
+    Clock,
     Users,
     ArrowLeft,
     ArrowRight,
@@ -283,9 +285,12 @@ function AuditCard({ audit, profile, isDeleting, isToggling, onDelete, onToggleL
 
             <div className="relative z-10 flex items-start justify-between pointer-events-none pt-2">
                 <div className="flex-1 min-w-0 pointer-events-auto">
-                    <h3 className="font-semibold text-slate-800 dark:text-white text-lg group-hover:text-blue-500 transition-colors">
-                        {audit.title}
-                    </h3>
+                    <div className="flex items-center gap-2">
+                        <h3 className="font-semibold text-slate-800 dark:text-white text-lg group-hover:text-blue-500 transition-colors">
+                            {audit.title}
+                        </h3>
+                        {isExam && hasUnseenDeadlineChange(audit) && <DeadlineNoticeBadge />}
+                    </div>
                     {audit.description && (
                         <p className="text-sm text-slate-500 mt-1 line-clamp-2">
                             {audit.description}
@@ -295,6 +300,15 @@ function AuditCard({ audit, profile, isDeleting, isToggling, onDelete, onToggleL
                         <span className="flex items-center gap-1.5">
                             <Calendar className="w-3.5 h-3.5" /> Tahun {audit.year}
                         </span>
+
+                        {isExam && (
+                            <span className="flex items-center gap-1.5">
+                                <Clock className="w-3.5 h-3.5" />
+                                {audit.exam_expires_at
+                                    ? `Deadline: ${new Date(audit.exam_expires_at).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}`
+                                    : 'Tidak ada deadline'}
+                            </span>
+                        )}
 
                         {!isGroupPractice && auditor && (
                             <span className="flex items-center gap-1.5">

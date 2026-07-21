@@ -65,6 +65,8 @@ export interface Audit {
   is_manually_locked?: boolean;
   score_released?: boolean;
   exam_terms?: string[] | null;
+  deadline_changed_at?: string | null;
+  deadline_seen_at?: string | null;
 
   // Legacy (Deprecated/Migrated)
   auditor_id: string | null;

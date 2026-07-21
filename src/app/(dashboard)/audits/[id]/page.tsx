@@ -12,7 +12,8 @@ import { AuditExportButtons } from '@/components/audit/audit-export-buttons';
 import { ArrowLeft, Calendar, Users, Loader2, FileText, Clock, AlertCircle, Lock, Save, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 import { getAuditById } from '@/lib/actions/audit-server-actions';
-import { startExam, submitExamEarly } from '@/lib/actions/exam-actions';
+import { startExam, submitExamEarly, markDeadlineNoticeSeen } from '@/lib/actions/exam-actions';
+import { hasUnseenDeadlineChange } from '@/components/audit/deadline-notice-badge';
 import { getProfilesByIds } from '@/lib/actions/period-actions';
 import { toast } from 'sonner';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -125,6 +126,13 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
     }, [id, profile]);
     const isExam = audit?.type === 'midterm' || audit?.type === 'final';
     const needsToStart = isExam && !audit?.exam_start_time && audit?.effectiveRole === 'auditor';
+
+    // Dismiss the deadline-change notice badge once the affected student opens this exam.
+    useEffect(() => {
+        if (isExam && audit?.effectiveRole === 'auditor' && hasUnseenDeadlineChange(audit)) {
+            markDeadlineNoticeSeen(audit.id);
+        }
+    }, [audit?.id]);
 
     const [currentTime, setCurrentTime] = useState<number>(Date.now());
 
