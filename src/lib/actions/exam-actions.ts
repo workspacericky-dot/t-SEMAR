@@ -463,6 +463,11 @@ export async function resetExamAttempt(auditId: string) {
     try {
         const supabase = getSupabaseAdmin();
 
+        // Freshly-distributed exam items sit at SUBMITTED (that's the status
+        // distributeExam clones from the master, and the one criteria-row.tsx's
+        // canEdit check requires for role "auditor" to be able to fill anything in
+        // -- DRAFTING is the auditee-drafting state from the non-exam workflow and
+        // would leave the item permanently read-only for the student).
         const { error: itemsError } = await supabase
             .from('audit_items')
             .update({
@@ -472,7 +477,7 @@ export async function resetExamAttempt(auditId: string) {
                 rekomendasi: null,
                 teacher_score: 0,
                 catatan_asesor: null,
-                status: 'DRAFTING' as AuditItemStatus,
+                status: 'SUBMITTED' as AuditItemStatus,
             })
             .eq('audit_id', auditId);
 
