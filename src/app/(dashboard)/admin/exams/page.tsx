@@ -5,9 +5,9 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/auth-store';
 import { useThemeStore } from '@/store/theme-store';
 import { createClient } from '@/lib/supabase/client';
-import { distributeExam, toggleScoreRelease, updateExamDeadline } from '@/lib/actions/exam-actions';
+import { distributeExam, toggleScoreRelease, updateExamDeadline, updateExamDuration, resetExamAttempt } from '@/lib/actions/exam-actions';
 import { toast } from 'sonner';
-import { Loader2, ArrowLeft, ClipboardList, Send, AlertCircle, Users, Eye, EyeOff, GraduationCap, Plus, X, CalendarClock, Search } from 'lucide-react';
+import { Loader2, ArrowLeft, ClipboardList, Send, AlertCircle, Users, Eye, EyeOff, GraduationCap, Plus, X, CalendarClock, Search, RotateCcw } from 'lucide-react';
 import Link from 'next/link';
 import {
     Dialog,
@@ -56,10 +56,12 @@ export default function ManageExamsPage() {
     const [releaseFilter, setReleaseFilter] = useState<'midterm' | 'final'>('midterm');
     const [releaseSearch, setReleaseSearch] = useState('');
 
-    // Per-individual deadline reset (force majeure)
+    // Per-individual exam settings: deadline, duration, and reset (force majeure)
     const [editingDeadlineExam, setEditingDeadlineExam] = useState<any | null>(null);
     const [deadlineInput, setDeadlineInput] = useState('');
+    const [durationInput, setDurationInput] = useState<number>(60);
     const [savingDeadline, setSavingDeadline] = useState(false);
+    const [resettingExam, setResettingExam] = useState(false);
 
     useEffect(() => {
         // Protect Route
@@ -218,21 +220,50 @@ export default function ManageExamsPage() {
     const openDeadlineDialog = (exam: any) => {
         setEditingDeadlineExam(exam);
         setDeadlineInput(toLocalInputValue(exam.exam_expires_at));
+        setDurationInput(exam.time_limit_minutes || 60);
     };
 
-    const handleSaveDeadline = async () => {
+    const handleSaveExamSettings = async () => {
         if (!editingDeadlineExam) return;
         setSavingDeadline(true);
         const isoValue = deadlineInput ? new Date(deadlineInput).toISOString() : null;
-        const res = await updateExamDeadline(editingDeadlineExam.id, isoValue);
-        if (res?.error) {
-            toast.error(res.error);
+
+        const [deadlineRes, durationRes] = await Promise.all([
+            updateExamDeadline(editingDeadlineExam.id, isoValue),
+            updateExamDuration(editingDeadlineExam.id, durationInput),
+        ]);
+
+        if (deadlineRes?.error) {
+            toast.error(deadlineRes.error);
+        } else if (durationRes?.error) {
+            toast.error(durationRes.error);
         } else {
-            toast.success(isoValue ? 'Batas waktu ujian berhasil diperbarui.' : 'Batas waktu ujian dihapus — ujian tidak akan kedaluwarsa berdasarkan tanggal.');
-            setDistributedExams(prev => prev.map(e => e.id === editingDeadlineExam.id ? { ...e, exam_expires_at: isoValue } : e));
+            toast.success('Pengaturan ujian berhasil diperbarui.');
+            setDistributedExams(prev => prev.map(e => e.id === editingDeadlineExam.id
+                ? { ...e, exam_expires_at: isoValue, time_limit_minutes: durationInput }
+                : e));
             setEditingDeadlineExam(null);
         }
         setSavingDeadline(false);
+    };
+
+    const handleResetExam = async () => {
+        if (!editingDeadlineExam) return;
+        if (!confirm(`Reset ujian "${editingDeadlineExam.title}"? Seluruh jawaban dan nilai yang sudah dikerjakan peserta ini akan terhapus, dan ujian kembali ke kondisi belum dibuka sama sekali. Aksi ini tidak dapat dibatalkan.`)) {
+            return;
+        }
+        setResettingExam(true);
+        const res = await resetExamAttempt(editingDeadlineExam.id);
+        if (res?.error) {
+            toast.error(res.error);
+        } else {
+            toast.success('Ujian berhasil direset ke kondisi awal.');
+            setDistributedExams(prev => prev.map(e => e.id === editingDeadlineExam.id
+                ? { ...e, is_manually_locked: false, score_released: false }
+                : e));
+            setEditingDeadlineExam(null);
+        }
+        setResettingExam(false);
     };
 
     const handleToggleScoreRelease = async (auditId: string, currentReleased: boolean) => {
@@ -824,7 +855,7 @@ export default function ManageExamsPage() {
                                                     <button
                                                         onClick={() => openDeadlineDialog(exam)}
                                                         className={`p-2 rounded-lg transition-colors border ${isDark ? 'bg-slate-800 text-slate-300 border-slate-600 hover:bg-slate-700' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'}`}
-                                                        title="Atur ulang deadline untuk peserta ini"
+                                                        title="Pengaturan ujian peserta ini (deadline, durasi, reset)"
                                                     >
                                                         <CalendarClock className="w-4 h-4" />
                                                     </button>
@@ -859,35 +890,68 @@ export default function ManageExamsPage() {
                 </div>
             )}
 
-            {/* ══════════════ DEADLINE RESET DIALOG ══════════════ */}
+            {/* ══════════════ PER-STUDENT EXAM SETTINGS DIALOG ══════════════ */}
             <Dialog open={editingDeadlineExam !== null} onOpenChange={(open) => { if (!open) setEditingDeadlineExam(null); }}>
                 <DialogContent className="sm:max-w-md">
                     <DialogHeader>
                         <DialogTitle className="text-slate-800 dark:text-slate-100">
-                            Atur Ulang Deadline
+                            Pengaturan Ujian Individu
                         </DialogTitle>
                         <DialogDescription className="text-slate-600 dark:text-slate-400">
-                            Batas waktu ujian untuk <strong>{editingDeadlineExam?.title}</strong> saja — peserta lain tidak terpengaruh. Gunakan untuk kasus force majeure.
+                            Berlaku hanya untuk <strong>{editingDeadlineExam?.title}</strong> — peserta lain tidak terpengaruh. Gunakan untuk kasus force majeure.
                         </DialogDescription>
                     </DialogHeader>
 
-                    <div className="space-y-2 py-2">
-                        <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Deadline Baru</label>
-                        <input
-                            type="datetime-local"
-                            value={deadlineInput}
-                            onChange={(e) => setDeadlineInput(e.target.value)}
-                            className="w-full h-12 rounded-xl border outline-none focus:ring-2 focus:ring-blue-500/50 px-4 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-600 text-slate-900 dark:text-slate-200"
-                        />
-                        {deadlineInput && (
+                    <div className="space-y-4 py-2">
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Deadline</label>
+                            <input
+                                type="datetime-local"
+                                value={deadlineInput}
+                                onChange={(e) => setDeadlineInput(e.target.value)}
+                                className="w-full h-12 rounded-xl border outline-none focus:ring-2 focus:ring-blue-500/50 px-4 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-600 text-slate-900 dark:text-slate-200"
+                            />
+                            {deadlineInput && (
+                                <button
+                                    type="button"
+                                    onClick={() => setDeadlineInput('')}
+                                    className="text-xs font-medium text-red-500 hover:text-red-600"
+                                >
+                                    Hapus batas waktu (ujian tidak akan kedaluwarsa berdasarkan tanggal)
+                                </button>
+                            )}
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Durasi Pengerjaan (Menit)</label>
+                            <input
+                                type="number"
+                                min={1}
+                                max={600}
+                                value={durationInput}
+                                onChange={(e) => setDurationInput(parseInt(e.target.value) || 1)}
+                                className="w-full h-12 rounded-xl border outline-none focus:ring-2 focus:ring-blue-500/50 px-4 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-600 text-slate-900 dark:text-slate-200"
+                            />
+                            <p className="text-xs text-slate-400">
+                                Dihitung sejak peserta membuka ujian. Mempersingkat durasi peserta yang sudah mulai bisa langsung menguncinya.
+                            </p>
+                        </div>
+
+                        <div className="pt-3 border-t border-slate-200 dark:border-slate-700">
+                            <p className="text-xs font-bold uppercase tracking-wider text-red-500 mb-2">Zona Berbahaya</p>
                             <button
                                 type="button"
-                                onClick={() => setDeadlineInput('')}
-                                className="text-xs font-medium text-red-500 hover:text-red-600"
+                                disabled={resettingExam}
+                                onClick={handleResetExam}
+                                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-red-200 dark:border-red-900/50 text-red-600 dark:text-red-400 text-sm font-semibold hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors disabled:opacity-50"
                             >
-                                Hapus batas waktu (ujian tidak akan kedaluwarsa berdasarkan tanggal)
+                                {resettingExam ? <Loader2 className="w-4 h-4 animate-spin" /> : <RotateCcw className="w-4 h-4" />}
+                                Reset Ujian Peserta Ini
                             </button>
-                        )}
+                            <p className="text-xs text-slate-400 mt-1.5">
+                                Menghapus seluruh jawaban &amp; nilai, mengembalikan ujian ke kondisi belum pernah dibuka. Tidak dapat dibatalkan.
+                            </p>
+                        </div>
                     </div>
 
                     <DialogFooter className="gap-2 sm:gap-0">
@@ -899,7 +963,7 @@ export default function ManageExamsPage() {
                         </button>
                         <button
                             disabled={savingDeadline}
-                            onClick={handleSaveDeadline}
+                            onClick={handleSaveExamSettings}
                             className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-medium transition-colors shadow-sm flex items-center gap-2"
                         >
                             {savingDeadline && <Loader2 className="w-4 h-4 animate-spin" />}

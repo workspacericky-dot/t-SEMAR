@@ -416,6 +416,98 @@ export async function markDeadlineNoticeSeen(auditId: string) {
 }
 
 /**
+ * Updates the exam duration (time_limit_minutes) for a single student's exam,
+ * independent of every other student's. Typically used alongside a deadline
+ * extension (force majeure) to also shorten/lengthen how long they get once
+ * they open the exam.
+ */
+export async function updateExamDuration(auditId: string, newTimeLimitMinutes: number) {
+    try {
+        if (!Number.isFinite(newTimeLimitMinutes) || newTimeLimitMinutes < 1) {
+            return { error: 'Durasi tidak valid.' };
+        }
+
+        const supabase = getSupabaseAdmin();
+
+        const { error } = await supabase
+            .from('audits')
+            .update({
+                time_limit_minutes: newTimeLimitMinutes,
+                deadline_changed_at: new Date().toISOString(),
+                deadline_seen_at: null,
+            })
+            .eq('id', auditId);
+
+        if (error) {
+            return { error: 'Gagal mengubah durasi ujian.' };
+        }
+
+        revalidatePath(`/audits/${auditId}`);
+        revalidatePath('/admin/exams');
+        revalidatePath('/audits');
+        revalidatePath('/dashboard');
+        return { success: true };
+    } catch (error: any) {
+        console.error('[updateExamDuration] ERROR:', error);
+        return { error: error.message || 'Internal server error.' };
+    }
+}
+
+/**
+ * Resets a single student's exam attempt back to its just-distributed state:
+ * clears their evaluator answers and any teacher grading on every item, and
+ * unlocks/un-starts the exam itself -- as if they had never opened it. Deadline
+ * and duration are left untouched (adjust those separately if needed).
+ */
+export async function resetExamAttempt(auditId: string) {
+    try {
+        const supabase = getSupabaseAdmin();
+
+        const { error: itemsError } = await supabase
+            .from('audit_items')
+            .update({
+                jawaban_evaluator: null,
+                nilai_evaluator: null,
+                catatan: null,
+                rekomendasi: null,
+                teacher_score: 0,
+                catatan_asesor: null,
+                status: 'DRAFTING' as AuditItemStatus,
+            })
+            .eq('audit_id', auditId);
+
+        if (itemsError) {
+            return { error: 'Gagal mereset jawaban ujian.' };
+        }
+
+        const { error: auditError } = await supabase
+            .from('audits')
+            .update({
+                exam_start_time: null,
+                is_manually_locked: false,
+                score_released: false,
+                status: 'SUBMITTED',
+                deadline_changed_at: new Date().toISOString(),
+                deadline_seen_at: null,
+            })
+            .eq('id', auditId);
+
+        if (auditError) {
+            return { error: 'Gagal mereset status ujian.' };
+        }
+
+        revalidatePath(`/audits/${auditId}`);
+        revalidatePath('/admin/exams');
+        revalidatePath('/audits');
+        revalidatePath('/dashboard');
+        return { success: true };
+    } catch (error: any) {
+        console.error('[resetExamAttempt] ERROR:', error);
+        return { error: error.message || 'Internal server error.' };
+    }
+}
+
+/**
  * Toggles score_released on an audit to reveal/hide teacher scores for students.
  */
 export async function toggleScoreRelease(auditId: string, released: boolean) {
