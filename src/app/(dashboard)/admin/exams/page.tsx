@@ -5,10 +5,18 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/auth-store';
 import { useThemeStore } from '@/store/theme-store';
 import { createClient } from '@/lib/supabase/client';
-import { distributeExam, toggleScoreRelease } from '@/lib/actions/exam-actions';
+import { distributeExam, toggleScoreRelease, updateExamDeadline } from '@/lib/actions/exam-actions';
 import { toast } from 'sonner';
-import { Loader2, ArrowLeft, ClipboardList, Send, AlertCircle, Users, Eye, EyeOff, GraduationCap, Plus, X } from 'lucide-react';
+import { Loader2, ArrowLeft, ClipboardList, Send, AlertCircle, Users, Eye, EyeOff, GraduationCap, Plus, X, CalendarClock } from 'lucide-react';
 import Link from 'next/link';
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogFooter,
+    DialogTitle,
+    DialogDescription,
+} from '@/components/ui/dialog';
 
 export default function ManageExamsPage() {
     const router = useRouter();
@@ -47,6 +55,11 @@ export default function ManageExamsPage() {
     const [togglingExam, setTogglingExam] = useState<string | null>(null);
     const [releaseFilter, setReleaseFilter] = useState<'midterm' | 'final'>('midterm');
 
+    // Per-individual deadline reset (force majeure)
+    const [editingDeadlineExam, setEditingDeadlineExam] = useState<any | null>(null);
+    const [deadlineInput, setDeadlineInput] = useState('');
+    const [savingDeadline, setSavingDeadline] = useState(false);
+
     useEffect(() => {
         // Protect Route
         if (profile && profile.role !== 'superadmin' && profile.role !== 'admin') {
@@ -84,7 +97,7 @@ export default function ManageExamsPage() {
         // Fetch distributed exams (midterm/final)
         const { data: examsData } = await supabase
             .from('audits')
-            .select('id, title, type, time_limit_minutes, is_manually_locked, score_released, individual_auditor_id')
+            .select('id, title, type, time_limit_minutes, is_manually_locked, score_released, individual_auditor_id, exam_expires_at')
             .in('type', ['midterm', 'final'])
             .order('created_at', { ascending: false });
 
@@ -190,6 +203,35 @@ export default function ManageExamsPage() {
                 fetchData(); // Refresh distributed exams list
             }
         });
+    };
+
+    // Converts a stored UTC ISO timestamp into the value a <input type="datetime-local">
+    // expects, expressed in the browser's local timezone.
+    const toLocalInputValue = (isoString: string | null) => {
+        if (!isoString) return '';
+        const d = new Date(isoString);
+        const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+        return local.toISOString().slice(0, 16);
+    };
+
+    const openDeadlineDialog = (exam: any) => {
+        setEditingDeadlineExam(exam);
+        setDeadlineInput(toLocalInputValue(exam.exam_expires_at));
+    };
+
+    const handleSaveDeadline = async () => {
+        if (!editingDeadlineExam) return;
+        setSavingDeadline(true);
+        const isoValue = deadlineInput ? new Date(deadlineInput).toISOString() : null;
+        const res = await updateExamDeadline(editingDeadlineExam.id, isoValue);
+        if (res?.error) {
+            toast.error(res.error);
+        } else {
+            toast.success(isoValue ? 'Batas waktu ujian berhasil diperbarui.' : 'Batas waktu ujian dihapus — ujian tidak akan kedaluwarsa berdasarkan tanggal.');
+            setDistributedExams(prev => prev.map(e => e.id === editingDeadlineExam.id ? { ...e, exam_expires_at: isoValue } : e));
+            setEditingDeadlineExam(null);
+        }
+        setSavingDeadline(false);
     };
 
     const handleToggleScoreRelease = async (auditId: string, currentReleased: boolean) => {
@@ -749,24 +791,38 @@ export default function ManageExamsPage() {
                                                         Durasi: {exam.time_limit_minutes || '-'} menit
                                                         {exam.is_manually_locked && <span className="ml-2 text-red-500 font-medium">• Terkunci</span>}
                                                     </p>
+                                                    <p className={`text-xs mt-0.5 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+                                                        Deadline: {exam.exam_expires_at
+                                                            ? new Date(exam.exam_expires_at).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })
+                                                            : 'Tidak ada'}
+                                                    </p>
                                                 </div>
-                                                <button
-                                                    disabled={togglingExam === exam.id}
-                                                    onClick={() => handleToggleScoreRelease(exam.id, !!exam.score_released)}
-                                                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all shrink-0 ml-4 ${togglingExam === exam.id ? 'bg-slate-200 text-slate-500 cursor-wait'
-                                                        : exam.score_released
-                                                            ? 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm'
-                                                            : isDark ? 'bg-slate-700 text-slate-300 hover:bg-slate-600' : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
-                                                        }`}
-                                                >
-                                                    {togglingExam === exam.id ? (
-                                                        <Loader2 className="w-4 h-4 animate-spin" />
-                                                    ) : exam.score_released ? (
-                                                        <><Eye className="w-4 h-4" /> Nilai Dirilis</>
-                                                    ) : (
-                                                        <><EyeOff className="w-4 h-4" /> Belum Dirilis</>
-                                                    )}
-                                                </button>
+                                                <div className="flex items-center gap-2 shrink-0 ml-4">
+                                                    <button
+                                                        onClick={() => openDeadlineDialog(exam)}
+                                                        className={`p-2 rounded-lg transition-colors border ${isDark ? 'bg-slate-800 text-slate-300 border-slate-600 hover:bg-slate-700' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'}`}
+                                                        title="Atur ulang deadline untuk peserta ini"
+                                                    >
+                                                        <CalendarClock className="w-4 h-4" />
+                                                    </button>
+                                                    <button
+                                                        disabled={togglingExam === exam.id}
+                                                        onClick={() => handleToggleScoreRelease(exam.id, !!exam.score_released)}
+                                                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${togglingExam === exam.id ? 'bg-slate-200 text-slate-500 cursor-wait'
+                                                            : exam.score_released
+                                                                ? 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm'
+                                                                : isDark ? 'bg-slate-700 text-slate-300 hover:bg-slate-600' : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
+                                                            }`}
+                                                    >
+                                                        {togglingExam === exam.id ? (
+                                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                                        ) : exam.score_released ? (
+                                                            <><Eye className="w-4 h-4" /> Nilai Dirilis</>
+                                                        ) : (
+                                                            <><EyeOff className="w-4 h-4" /> Belum Dirilis</>
+                                                        )}
+                                                    </button>
+                                                </div>
                                             </div>
                                         ))}
                                     </div>
@@ -779,6 +835,56 @@ export default function ManageExamsPage() {
                     </div>
                 </div>
             )}
+
+            {/* ══════════════ DEADLINE RESET DIALOG ══════════════ */}
+            <Dialog open={editingDeadlineExam !== null} onOpenChange={(open) => { if (!open) setEditingDeadlineExam(null); }}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="text-slate-800 dark:text-slate-100">
+                            Atur Ulang Deadline
+                        </DialogTitle>
+                        <DialogDescription className="text-slate-600 dark:text-slate-400">
+                            Batas waktu ujian untuk <strong>{editingDeadlineExam?.title}</strong> saja — peserta lain tidak terpengaruh. Gunakan untuk kasus force majeure.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="space-y-2 py-2">
+                        <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Deadline Baru</label>
+                        <input
+                            type="datetime-local"
+                            value={deadlineInput}
+                            onChange={(e) => setDeadlineInput(e.target.value)}
+                            className="w-full h-12 rounded-xl border outline-none focus:ring-2 focus:ring-blue-500/50 px-4 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-600 text-slate-900 dark:text-slate-200"
+                        />
+                        {deadlineInput && (
+                            <button
+                                type="button"
+                                onClick={() => setDeadlineInput('')}
+                                className="text-xs font-medium text-red-500 hover:text-red-600"
+                            >
+                                Hapus batas waktu (ujian tidak akan kedaluwarsa berdasarkan tanggal)
+                            </button>
+                        )}
+                    </div>
+
+                    <DialogFooter className="gap-2 sm:gap-0">
+                        <button
+                            onClick={() => setEditingDeadlineExam(null)}
+                            className="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 text-sm font-medium transition-colors"
+                        >
+                            Batal
+                        </button>
+                        <button
+                            disabled={savingDeadline}
+                            onClick={handleSaveDeadline}
+                            className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-medium transition-colors shadow-sm flex items-center gap-2"
+                        >
+                            {savingDeadline && <Loader2 className="w-4 h-4 animate-spin" />}
+                            Simpan
+                        </button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

@@ -355,6 +355,36 @@ export async function bulkSaveTeacherScores(scores: { itemId: string; score: num
 }
 
 /**
+ * Updates the exam expiry deadline (exam_expires_at) for a single student's
+ * exam, independent of every other student's deadline. Meant for force
+ * majeure cases (e.g. one student had a valid reason to miss the group
+ * deadline) without having to redistribute or touch anyone else's exam.
+ * Pass `null` to clear the deadline entirely (exam never expires by date).
+ */
+export async function updateExamDeadline(auditId: string, newExpiresAt: string | null) {
+    try {
+        const supabase = getSupabaseAdmin();
+
+        const { error } = await supabase
+            .from('audits')
+            .update({ exam_expires_at: newExpiresAt })
+            .eq('id', auditId);
+
+        if (error) {
+            return { error: 'Gagal mengubah batas waktu ujian.' };
+        }
+
+        revalidatePath(`/audits/${auditId}`);
+        revalidatePath('/admin/exams');
+        revalidatePath('/audits');
+        return { success: true };
+    } catch (error: any) {
+        console.error('[updateExamDeadline] ERROR:', error);
+        return { error: error.message || 'Internal server error.' };
+    }
+}
+
+/**
  * Toggles score_released on an audit to reveal/hide teacher scores for students.
  */
 export async function toggleScoreRelease(auditId: string, released: boolean) {
