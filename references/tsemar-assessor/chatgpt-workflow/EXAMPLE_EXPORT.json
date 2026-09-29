@@ -1,0 +1,201 @@
+{
+  "schema_version": "tsemar-chatgpt-assessor/v1",
+  "rubric_version": "2026-09-29-chatgpt-v1",
+  "package_id": "10000000-0000-4000-8000-000000000001",
+  "audit_id": "20000000-0000-4000-8000-000000000001",
+  "exported_at": "2026-09-29T06:00:00Z",
+  "exam_type": "final",
+  "evaluation_year": 2026,
+  "reference_year": 2025,
+  "scope": "entire_student_exam",
+  "expected_item_count": 5,
+  "grade_rules": [
+    {
+      "perspective": "keberadaan",
+      "grade": "AA",
+      "description": "Jika seluruh kriteria telah terpenuhi (100%) dan telah dipertahankan dalam setidaknya 5 tahun terakhir."
+    },
+    {
+      "perspective": "keberadaan",
+      "grade": "A",
+      "description": "Jika seluruh kriteria telah terpenuhi (100%) dan telah dipertahankan dalam setidaknya 1 tahun terakhir."
+    },
+    {
+      "perspective": "keberadaan",
+      "grade": "BB",
+      "description": "Jika kualitas seluruh kriteria telah terpenuhi (100%) sesuai dengan mandat kebijakan nasional."
+    },
+    {
+      "perspective": "keberadaan",
+      "grade": "B",
+      "description": "Jika kualitas sebagian besar kriteria telah terpenuhi (>75% - 100%)."
+    },
+    {
+      "perspective": "keberadaan",
+      "grade": "CC",
+      "description": "Jika kualitas sebagian besar kriteria telah terpenuhi (>50% - 75%)."
+    },
+    {
+      "perspective": "keberadaan",
+      "grade": "C",
+      "description": "Jika kualitas sebagian kecil kriteria telah terpenuhi (>25% - 50%)."
+    },
+    {
+      "perspective": "keberadaan",
+      "grade": "D",
+      "description": "Jika kriteria penilaian akuntabilitas kinerja telah mulai dipenuhi (>0% - 25%)."
+    },
+    {
+      "perspective": "keberadaan",
+      "grade": "E",
+      "description": "Jika sama sekali tidak ada upaya dalam pemenuhan kriteria penilaian akuntabilitas kinerja."
+    },
+    {
+      "perspective": "kualitas",
+      "grade": "AA",
+      "description": "Jika kualitas seluruh kriteria telah terpenuhi (100%) dan terdapat upaya inovatif serta layak menjadi percontohan secara nasional."
+    },
+    {
+      "perspective": "kualitas",
+      "grade": "A",
+      "description": "Jika kualitas seluruh kriteria telah terpenuhi (100%) dan terdapat beberapa upaya yang bisa dihargai dari pemenuhan kriteria tersebut."
+    },
+    {
+      "perspective": "kualitas",
+      "grade": "BB",
+      "description": "Jika kualitas seluruh kriteria telah terpenuhi (100%) sesuai dengan mandat kebijakan nasional."
+    },
+    {
+      "perspective": "kualitas",
+      "grade": "B",
+      "description": "Jika kualitas sebagian besar kriteria telah terpenuhi (>75% - 100%)."
+    },
+    {
+      "perspective": "kualitas",
+      "grade": "CC",
+      "description": "Jika kualitas sebagian besar kriteria telah terpenuhi (>50% - 75%)."
+    },
+    {
+      "perspective": "kualitas",
+      "grade": "C",
+      "description": "Jika kualitas sebagian kecil kriteria telah terpenuhi (>25% - 50%)."
+    },
+    {
+      "perspective": "kualitas",
+      "grade": "D",
+      "description": "Jika kriteria penilaian akuntabilitas kinerja telah mulai dipenuhi (>0% - 25%)."
+    },
+    {
+      "perspective": "kualitas",
+      "grade": "E",
+      "description": "Jika sama sekali tidak ada upaya dalam pemenuhan kriteria penilaian akuntabilitas kinerja."
+    },
+    {
+      "perspective": "pemanfaatan",
+      "grade": "AA",
+      "description": "Jika kualitas seluruh kriteria telah terpenuhi (100%) dan terdapat upaya inovatif serta layak menjadi percontohan secara nasional."
+    },
+    {
+      "perspective": "pemanfaatan",
+      "grade": "A",
+      "description": "Jika kualitas seluruh kriteria telah terpenuhi (100%) dan terdapat beberapa upaya yang bisa dihargai dari pemenuhan kriteria tersebut."
+    },
+    {
+      "perspective": "pemanfaatan",
+      "grade": "BB",
+      "description": "Jika kualitas seluruh kriteria telah terpenuhi (100%) sesuai dengan mandat kebijakan nasional."
+    },
+    {
+      "perspective": "pemanfaatan",
+      "grade": "B",
+      "description": "Jika kualitas sebagian besar kriteria telah terpenuhi (>75% - 100%)."
+    },
+    {
+      "perspective": "pemanfaatan",
+      "grade": "CC",
+      "description": "Jika kualitas sebagian besar kriteria telah terpenuhi (>50% - 75%)."
+    },
+    {
+      "perspective": "pemanfaatan",
+      "grade": "C",
+      "description": "Jika kualitas sebagian kecil kriteria telah terpenuhi (>25% - 50%)."
+    },
+    {
+      "perspective": "pemanfaatan",
+      "grade": "D",
+      "description": "Jika kriteria penilaian akuntabilitas kinerja telah mulai dipenuhi (>0% - 25%)."
+    },
+    {
+      "perspective": "pemanfaatan",
+      "grade": "E",
+      "description": "Jika sama sekali tidak ada upaya dalam pemenuhan kriteria penilaian akuntabilitas kinerja."
+    }
+  ],
+  "items": [
+    {
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "1. Dokumen Perencanaan kinerja telah tersedia",
+      "criteria": "1. Terdapat pedoman teknis perencanaan kinerja.",
+      "assessment_perspective": "keberadaan",
+      "jawaban_auditee": "AA",
+      "jawaban_evaluator": "AA",
+      "catatan": "Satker memiliki pedoman teknis perencanaan kinerja yang digunakan sebagai acuan pada tahun 2025.",
+      "rekomendasi": "Pertahankan ketersediaan pedoman sebagai acuan perencanaan.",
+      "item_id": "00000000-0000-4000-8000-000000000001",
+      "sort_order": 0,
+      "input_fingerprint": "f8231a84b1d3493d820c8779f3aa78d90d655d547d2d7d11e40c9756b7249542"
+    },
+    {
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "2. Dokumen Perencanaan kinerja telah memenuhi standar yang baik",
+      "criteria": "5. Ukuran Keberhasilan (Indikator Kinerja) telah memenuhi kriteria SMART.",
+      "assessment_perspective": "kualitas",
+      "jawaban_auditee": "BB",
+      "jawaban_evaluator": "BB",
+      "catatan": "Sebagian indikator sudah spesifik dan terukur, tetapi beberapa indikator belum memiliki batas waktu sehingga belum seluruh unsur SMART terpenuhi.",
+      "rekomendasi": "Tambahkan batas waktu pada indikator yang belum time-bound.",
+      "item_id": "00000000-0000-4000-8000-000000000002",
+      "sort_order": 1,
+      "input_fingerprint": "7ae5ac29c9625adf3cdc9c4c872e477789f28a86ce76929061c02d7ab9a589b0"
+    },
+    {
+      "category": "2. Pengukuran Kinerja",
+      "subcategory": "2. Pengukuran kinerja telah memenuhi standar yang baik",
+      "criteria": "Pengukuran kinerja dilakukan menggunakan definisi operasional yang jelas.",
+      "assessment_perspective": "kualitas",
+      "jawaban_auditee": "BB",
+      "jawaban_evaluator": "BB",
+      "catatan": "Seluruh indikator yang diuji memiliki definisi operasional, rumus, sumber data, dan periode pengukuran yang jelas. Numerator dan denominator dinyatakan konsisten sehingga ukuran hasil dapat ditafsirkan dengan cara yang sama. Seluruh unsur kriteria dipenuhi, tanpa upaya tambahan yang menjadi dasar A atau AA.",
+      "rekomendasi": "Pertahankan konsistensi definisi dan rumus pada pengukuran berikutnya.",
+      "item_id": "00000000-0000-4000-8000-000000000003",
+      "sort_order": 2,
+      "input_fingerprint": "73788c197330a33d1a54a337a45584e9ff135e8f3b50d2ce0b2049c31c1c243a"
+    },
+    {
+      "category": "3. Pelaporan Kinerja",
+      "subcategory": "3. Pelaporan kinerja telah dimanfaatkan",
+      "criteria": "Informasi laporan kinerja digunakan untuk perbaikan kinerja berikutnya.",
+      "assessment_perspective": "pemanfaatan",
+      "jawaban_auditee": "BB",
+      "jawaban_evaluator": "B",
+      "catatan": "Sebanyak 80% tindak lanjut analisis laporan sudah digunakan untuk memperbaiki perencanaan berikutnya; sisa 20% belum ditindaklanjuti. Dengan demikian sebagian besar, tetapi belum seluruh pemanfaatan yang diuji telah terpenuhi.",
+      "rekomendasi": "Tindaklanjuti 20% hasil analisis yang belum diterapkan pada perencanaan berikutnya.",
+      "item_id": "00000000-0000-4000-8000-000000000004",
+      "sort_order": 3,
+      "input_fingerprint": "2317a9cdb8ff7e9cb0832b8ebda7d050ea45747281deadaaecfaa36ebcd75062"
+    },
+    {
+      "category": "4. Evaluasi Akuntabilitas Kinerja Internal",
+      "subcategory": "1. Evaluasi internal telah dilaksanakan",
+      "criteria": "Terdapat pedoman evaluasi internal.",
+      "assessment_perspective": "keberadaan",
+      "jawaban_auditee": "A",
+      "jawaban_evaluator": "",
+      "catatan": "",
+      "rekomendasi": "",
+      "item_id": "00000000-0000-4000-8000-000000000005",
+      "sort_order": 4,
+      "input_fingerprint": "57c9e9195598d7ddaa5f80c57aa5d293fe5e24ea7fca96d79d2b21374d38c3a8"
+    }
+  ]
+}

@@ -3,6 +3,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import { AuditItem, UserRole } from '@/types/database';
 import { CriteriaRow } from './criteria-row';
+import { AssessorPanel } from './assessor-panel';
 import { useThemeStore } from '@/store/theme-store';
 import { useSearchStore } from '@/store/search-store';
 import {
@@ -535,6 +536,19 @@ export function AuditTable({ items, role, auditId, onItemsUpdate, effectiveRole,
 
     return (
         <div className="space-y-6">
+            {isAdminOrSuperadmin && (auditType === 'midterm' || auditType === 'final') && (
+                <AssessorPanel
+                    key={auditId}
+                    auditId={auditId}
+                    items={items}
+                    busyItems={new Set([...savingRows, ...(savingCategory ? items.filter(item => item.category === savingCategory).map(item => item.id) : [])])}
+                    unsavedItems={new Set(Object.keys(editingFields).filter(id => Object.keys(editingFields[id]).length > 0))}
+                    onApproved={updated => {
+                        const changed = new Map(updated.map(item => [item.id, item]));
+                        onItemsUpdate(items.map(item => changed.get(item.id) || item));
+                    }}
+                />
+            )}
 
             {/* Search filter feedback */}
             {searchQuery.trim() && (

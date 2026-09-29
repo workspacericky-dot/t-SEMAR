@@ -1,0 +1,136 @@
+{
+  "schema_version": "tsemar-chatgpt-assessor/v1",
+  "rubric_version": "2026-09-29-chatgpt-v1",
+  "package_id": "10000000-0000-4000-8000-000000000001",
+  "audit_id": "20000000-0000-4000-8000-000000000001",
+  "expected_item_count": 5,
+  "completion_status": "complete",
+  "result_count": 5,
+  "results": [
+    {
+      "item_id": "00000000-0000-4000-8000-000000000001",
+      "input_fingerprint": "f8231a84b1d3493d820c8779f3aa78d90d655d547d2d7d11e40c9756b7249542",
+      "score": 85,
+      "assessor_note": "Catatan sudah menyebut keberadaan pedoman dan penggunaan pada 2025. Namun, pilihan AA belum didukung penjelasan bahwa pemenuhan telah dipertahankan minimal lima tahun terakhir. Rekomendasi mempertahankan ketersediaan pedoman selaras dengan catatan.",
+      "rationale": "Reasoning keberadaan sudah relevan, tetapi alasan keberlanjutan AA belum dijelaskan; memakai jangkar catatan keberadaan baik dengan alasan grade terbatas.",
+      "diagnosis": {
+        "relevance": "aligned",
+        "perspective": "aligned",
+        "grade_consistency": "unsupported",
+        "recommendation_consistency": "aligned",
+        "depth": "adequate"
+      },
+      "issue_codes": [
+        "no_grade_justification"
+      ],
+      "review_flags": [
+        "Pembedaan kekurangan alasan AA dengan grade yang berkontradiksi perlu ditinjau dosen."
+      ],
+      "needs_manual_review": true,
+      "basis_refs": [
+        "K-GRADE-EXISTENCE",
+        "K-SCORE-85"
+      ]
+    },
+    {
+      "item_id": "00000000-0000-4000-8000-000000000002",
+      "input_fingerprint": "7ae5ac29c9625adf3cdc9c4c872e477789f28a86ce76929061c02d7ab9a589b0",
+      "score": 25,
+      "assessor_note": "Catatan telah menjelaskan indikator yang belum memiliki batas waktu. Namun, BB mensyaratkan seluruh unsur terpenuhi, sedangkan siswa menyatakan sebagian unsur SMART belum terpenuhi. Rekomendasi memperbaiki unsur time-bound sudah sesuai dengan masalah yang disebutkan.",
+      "rationale": "Terdapat kontradiksi eksplisit antara BB dan pengakuan belum seluruh unsur terpenuhi, sehingga menggunakan jangkar 25.",
+      "diagnosis": {
+        "relevance": "aligned",
+        "perspective": "aligned",
+        "grade_consistency": "contradictory",
+        "recommendation_consistency": "aligned",
+        "depth": "adequate"
+      },
+      "issue_codes": [
+        "grade_note_conflict"
+      ],
+      "review_flags": [],
+      "needs_manual_review": false,
+      "basis_refs": [
+        "K-GRADE-PARTIAL",
+        "K-SCORE-25"
+      ]
+    },
+    {
+      "item_id": "00000000-0000-4000-8000-000000000003",
+      "input_fingerprint": "73788c197330a33d1a54a337a45584e9ff135e8f3b50d2ce0b2049c31c1c243a",
+      "score": 100,
+      "assessor_note": "Catatan menjelaskan pemenuhan definisi operasional, rumus, sumber data, dan periode serta alasan konsistensi pengukuran. Pemilihan BB selaras dengan pernyataan seluruh unsur terpenuhi tanpa nilai tambah A atau AA. Rekomendasi mempertahankan konsistensi juga mengikuti hasil analisis.",
+      "rationale": "Argumentasi relevan, spesifik, dan grade serta rekomendasi selaras; menggunakan jangkar 100 sebagai contoh sintetis.",
+      "diagnosis": {
+        "relevance": "aligned",
+        "perspective": "aligned",
+        "grade_consistency": "aligned",
+        "recommendation_consistency": "aligned",
+        "depth": "detailed"
+      },
+      "issue_codes": [
+        "unfamiliar_component"
+      ],
+      "review_flags": [
+        "Komponen Pengukuran belum dikalibrasi dengan contoh penilaian UTS dosen."
+      ],
+      "needs_manual_review": true,
+      "basis_refs": [
+        "K-SCORE-100",
+        "K-AMBIGUITY"
+      ]
+    },
+    {
+      "item_id": "00000000-0000-4000-8000-000000000004",
+      "input_fingerprint": "2317a9cdb8ff7e9cb0832b8ebda7d050ea45747281deadaaecfaa36ebcd75062",
+      "score": 100,
+      "assessor_note": "Siswa menghubungkan tindak lanjut analisis laporan dengan perbaikan perencanaan berikutnya. Pilihan B sesuai dengan premis 80% pemanfaatan dan masih adanya bagian yang belum ditindaklanjuti. Rekomendasi menuntaskan sisa 20% mengikuti kekurangan yang dijelaskan.",
+      "rationale": "Premis angka berasal dari narasi siswa sendiri, bukan hitungan dokumen buatan; grade B dan tindak lanjut konsisten.",
+      "diagnosis": {
+        "relevance": "aligned",
+        "perspective": "aligned",
+        "grade_consistency": "aligned",
+        "recommendation_consistency": "aligned",
+        "depth": "detailed"
+      },
+      "issue_codes": [
+        "unfamiliar_component"
+      ],
+      "review_flags": [
+        "Komponen Pelaporan belum dikalibrasi dengan contoh penilaian UTS dosen."
+      ],
+      "needs_manual_review": true,
+      "basis_refs": [
+        "K-GRADE-PARTIAL",
+        "K-SCORE-100",
+        "K-AMBIGUITY"
+      ]
+    },
+    {
+      "item_id": "00000000-0000-4000-8000-000000000005",
+      "input_fingerprint": "57c9e9195598d7ddaa5f80c57aa5d293fe5e24ea7fca96d79d2b21374d38c3a8",
+      "score": 0,
+      "assessor_note": "Siswa belum memilih Jwb Evaluator maupun mengisi Catatan dan Rekomendasi pada kriteria ini. Nilai 0 diusulkan karena seluruh jawaban siswa kosong.",
+      "rationale": "Seluruh field jawaban siswa kosong; grade Auditee yang terisi tidak mengubah keadaan tersebut.",
+      "diagnosis": {
+        "relevance": "not_explained",
+        "perspective": "not_explained",
+        "grade_consistency": "not_explained",
+        "recommendation_consistency": "missing",
+        "depth": "absent"
+      },
+      "issue_codes": [
+        "empty_answer",
+        "unfamiliar_component"
+      ],
+      "review_flags": [
+        "Komponen Evaluasi Internal belum dikalibrasi dengan contoh UTS, tetapi kondisi jawaban kosong mengikuti jangkar yang tersedia."
+      ],
+      "needs_manual_review": true,
+      "basis_refs": [
+        "K-SCORE-0",
+        "K-SCOPE"
+      ]
+    }
+  ]
+}

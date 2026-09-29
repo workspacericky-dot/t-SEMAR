@@ -1,0 +1,182 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "tsemar-chatgpt-assessor/v1"
+    },
+    "rubric_version": {
+      "const": "2026-09-29-chatgpt-v1"
+    },
+    "package_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "audit_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "exported_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "exam_type": {
+      "type": "string",
+      "enum": [
+        "midterm",
+        "final"
+      ]
+    },
+    "evaluation_year": {
+      "type": "integer",
+      "minimum": 2000,
+      "maximum": 2200
+    },
+    "reference_year": {
+      "type": "integer",
+      "minimum": 1999,
+      "maximum": 2199
+    },
+    "scope": {
+      "const": "entire_student_exam"
+    },
+    "expected_item_count": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 200
+    },
+    "grade_rules": {
+      "type": "array",
+      "minItems": 24,
+      "maxItems": 24,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "perspective": {
+            "type": "string",
+            "enum": [
+              "keberadaan",
+              "kualitas",
+              "pemanfaatan"
+            ]
+          },
+          "grade": {
+            "type": "string",
+            "enum": [
+              "AA",
+              "A",
+              "BB",
+              "B",
+              "CC",
+              "C",
+              "D",
+              "E"
+            ]
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 6000
+          }
+        },
+        "required": [
+          "perspective",
+          "grade",
+          "description"
+        ]
+      }
+    },
+    "items": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 200,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "item_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "input_fingerprint": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "sort_order": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "category": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 6000
+          },
+          "subcategory": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 6000
+          },
+          "criteria": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 6000
+          },
+          "assessment_perspective": {
+            "type": "string",
+            "enum": [
+              "keberadaan",
+              "kualitas",
+              "pemanfaatan"
+            ]
+          },
+          "jawaban_auditee": {
+            "type": "string",
+            "maxLength": 6000
+          },
+          "jawaban_evaluator": {
+            "type": "string",
+            "maxLength": 6000
+          },
+          "catatan": {
+            "type": "string",
+            "maxLength": 40000
+          },
+          "rekomendasi": {
+            "type": "string",
+            "maxLength": 40000
+          }
+        },
+        "required": [
+          "item_id",
+          "input_fingerprint",
+          "sort_order",
+          "category",
+          "subcategory",
+          "criteria",
+          "assessment_perspective",
+          "jawaban_auditee",
+          "jawaban_evaluator",
+          "catatan",
+          "rekomendasi"
+        ]
+      }
+    }
+  },
+  "required": [
+    "schema_version",
+    "rubric_version",
+    "package_id",
+    "audit_id",
+    "exported_at",
+    "exam_type",
+    "evaluation_year",
+    "reference_year",
+    "scope",
+    "expected_item_count",
+    "grade_rules",
+    "items"
+  ],
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "t-SEMAR one-student entire-exam export v1"
+}
