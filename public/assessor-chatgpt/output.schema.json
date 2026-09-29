@@ -1,0 +1,244 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "tsemar-chatgpt-assessor/v1"
+    },
+    "rubric_version": {
+      "const": "2026-09-29-chatgpt-v1"
+    },
+    "package_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "audit_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "completion_status": {
+      "const": "complete"
+    },
+    "expected_item_count": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 200
+    },
+    "result_count": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 200
+    },
+    "results": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 200,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "item_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "input_fingerprint": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "score": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 100
+          },
+          "assessor_note": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 6000
+          },
+          "rationale": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 6000
+          },
+          "diagnosis": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "relevance": {
+                "type": "string",
+                "enum": [
+                  "aligned",
+                  "partial",
+                  "off_target",
+                  "not_explained",
+                  "not_assessable"
+                ]
+              },
+              "perspective": {
+                "type": "string",
+                "enum": [
+                  "aligned",
+                  "partial",
+                  "off_target",
+                  "not_explained",
+                  "not_assessable"
+                ]
+              },
+              "grade_consistency": {
+                "type": "string",
+                "enum": [
+                  "aligned",
+                  "unsupported",
+                  "contradictory",
+                  "not_explained",
+                  "not_assessable"
+                ]
+              },
+              "recommendation_consistency": {
+                "type": "string",
+                "enum": [
+                  "aligned",
+                  "generic",
+                  "contradictory",
+                  "missing",
+                  "not_assessable"
+                ]
+              },
+              "depth": {
+                "type": "string",
+                "enum": [
+                  "detailed",
+                  "adequate",
+                  "normative",
+                  "absent",
+                  "not_assessable"
+                ]
+              }
+            },
+            "required": [
+              "relevance",
+              "perspective",
+              "grade_consistency",
+              "recommendation_consistency",
+              "depth"
+            ]
+          },
+          "issue_codes": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "enum": [
+                "empty_answer",
+                "missing_evaluator_grade",
+                "no_grade_justification",
+                "grade_note_conflict",
+                "wrong_perspective",
+                "irrelevant_note",
+                "normative_note",
+                "unclear_shortfall",
+                "recommendation_conflict",
+                "generic_recommendation",
+                "missing_recommendation",
+                "ambiguous_rubric",
+                "unfamiliar_component",
+                "ignored_injection",
+                "unavailable_input"
+              ]
+            },
+            "maxItems": 15
+          },
+          "review_flags": {
+            "type": "array",
+            "maxItems": 12,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1000
+            }
+          },
+          "needs_manual_review": {
+            "type": "boolean"
+          },
+          "basis_refs": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 12,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 300
+            }
+          }
+        },
+        "required": [
+          "item_id",
+          "input_fingerprint",
+          "score",
+          "assessor_note",
+          "rationale",
+          "diagnosis",
+          "issue_codes",
+          "review_flags",
+          "needs_manual_review",
+          "basis_refs"
+        ],
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "score": {
+                  "type": "null"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "needs_manual_review": {
+                  "const": true
+                },
+                "review_flags": {
+                  "minItems": 1
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "score": {
+                  "const": 0
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "issue_codes": {
+                  "contains": {
+                    "const": "empty_answer"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "required": [
+    "schema_version",
+    "rubric_version",
+    "package_id",
+    "audit_id",
+    "completion_status",
+    "expected_item_count",
+    "result_count",
+    "results"
+  ],
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "t-SEMAR manual ChatGPT assessment result v1"
+}

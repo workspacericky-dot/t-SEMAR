@@ -4,10 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npm run sync:assessor && next build",
     "start": "next start",
     "lint": "eslint",
-    "test:assessor": "node --import tsx --test scripts/assessor.test.ts"
+    "test:assessor": "node --import tsx --test scripts/assessor.test.ts",
+    "sync:assessor": "node scripts/sync-assessor-chatgpt.mjs"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",
@@ -15,6 +16,8 @@
     "@splinetool/runtime": "^1.12.65",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.95.3",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.34.3",

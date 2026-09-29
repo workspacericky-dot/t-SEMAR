@@ -1,20 +1,25 @@
 # Rekomendasi Asesor
 
-**Desain terbaru:** analisis manual melalui Project ChatGPT, satu ekspor seluruh ujian per siswa, lalu impor rekomendasi untuk review. Lihat [panduan workflow](chatgpt-workflow/README.md), [instruksi Project siap ditempel](chatgpt-workflow/PROJECT_INSTRUCTIONS.md), dan [prompt operasional](chatgpt-workflow/PROMPTS.md). Dokumen di bawah menjelaskan implementasi panel awal; ekspor/impor manual belum diimplementasikan.
+**Workflow:** analisis manual melalui Project ChatGPT, satu ekspor seluruh ujian per siswa, lalu impor rekomendasi untuk review. Lihat [panduan workflow](chatgpt-workflow/README.md), [instruksi Project siap ditempel](chatgpt-workflow/PROJECT_INSTRUCTIONS.md), dan [prompt operasional](chatgpt-workflow/PROMPTS.md). Ekspor/impor manual tersedia setelah kedua migrasi diterapkan.
 
 Panel tersedia untuk admin/superadmin pada halaman UTS/UAS. Penilaian berfokus pada hubungan Jwb Evaluator, Catatan, Rekomendasi, serta inti/perspektif kriteria. Jwb Auditee hanya konteks. Eviden asli tidak diperiksa.
 
 ## Status aktivasi
 
-Koneksi analisis eksternal belum diaktifkan. Desain terbaru memakai pengiriman manual oleh dosen melalui ChatGPT, sehingga tidak merencanakan pemanggilan API dari aplikasi. Implementasi saat ini tidak mengirim data ke layanan AI. Hanya jawaban seluruhnya kosong yang dapat memperoleh rekomendasi lokal nilai 0, mengikuti contoh UTS. Tidak ada simulasi nilai AI untuk jawaban yang terisi.
+Analisis dilakukan manual melalui Project ChatGPT. Aplikasi menyediakan ekspor seluruh ujian, bahan Project, salin prompt, dan impor JSON untuk review. Tidak ada API AI, API key AI, atau tombol aktivasi koneksi AI dalam workflow.
 
-Sebelum dipakai pada aplikasi yang terhubung database, jalankan `supabase/migrations/20260929090000_assessor_recommendations.sql` melalui mekanisme migrasi Supabase proyek. Migrasi belum diterapkan pada database produksi oleh implementasi ini. Server menggunakan konfigurasi Supabase yang sudah berlaku: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, dan `SUPABASE_SERVICE_ROLE_KEY`.
+Terapkan berurutan:
+
+1. `supabase/migrations/20260929090000_assessor_recommendations.sql` (jika belum pernah diterapkan).
+2. `supabase/migrations/20260929100000_assessor_chatgpt_workflow.sql`.
+
+Migrasi produksi belum diterapkan dari workspace ini. Server memakai konfigurasi Supabase yang sudah berlaku: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, dan `SUPABASE_SERVICE_ROLE_KEY`.
 
 ## Alur review
 
 1. Siswa menyelesaikan ujian (submit atau batas waktu berakhir).
 2. Dosen membuka panel Rekomendasi Asesor pada tabel ujian.
-3. Analisis menghasilkan draft tersimpan terpisah, tanpa mengubah `teacher_score`/`catatan_asesor`.
+3. Dosen mengekspor seluruh ujian, menganalisis pada ChatGPT, lalu mengimpor satu JSON lengkap. Impor menghasilkan draft tersimpan terpisah, tanpa mengubah `teacher_score`/`catatan_asesor`.
 4. Dosen memeriksa dasar penilaian, menyunting usulan nilai/catatan bila perlu.
 5. Approve kriteria menyimpan satu pasangan. Approve komponen menyimpan seluruh pasangan yang masih pending pada komponen; yang telah disahkan tidak ditimpa.
 6. Approval mencatat siapa/waktu dan pasangan yang disahkan. Seluruh approval komponen berada dalam satu transaksi PostgreSQL. Perubahan jawaban, penggantian draft, atau perubahan penilaian manual sejak analisis membatalkan approval.
@@ -33,4 +38,4 @@ Nilai yang terisi 1–100; 0 tetap tersedia untuk jawaban kosong dan koreksi man
 
 `npm run test:assessor` menguji validasi skor, lingkup input, kondisi provider nonaktif, RLS draft, batas peran/ujian, approval berpasangan, dan rollback komponen menggunakan PostgreSQL lokal PGlite tanpa koneksi ke database produksi.
 
-`npx tsc --noEmit` memeriksa tipe, dan `npm run build` memverifikasi build aplikasi. Pengujian AI terhadap jawaban berisi dan pengujian dengan sesi dosen di database terhubung masih diperlukan setelah aktivasi.
+`npx tsc --noEmit` memeriksa tipe, dan `npm run build` memverifikasi build aplikasi. Pengujian sesi dosen pada database terhubung masih diperlukan setelah migrasi. Akurasi analisis ChatGPT membutuhkan kalibrasi empiris.

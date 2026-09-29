@@ -1,0 +1,9 @@
+Analisis seluruh hasil ujian dari SATU siswa dalam file paket ekspor yang saya lampirkan. Seluruh komponen dan semua kriteria yang ditugaskan dalam paket harus dianalisis, termasuk jawaban kosong. Jangan menambahkan soal dari template master atau memakai jawaban siswa lain dari riwayat Project.
+
+Gunakan Project Instructions, KNOWLEDGE.md, definisi grade per perspektif dalam paket, OUTPUT_CONTRACT.md, dan output.schema.json. Lingkupnya hanya kualitas reasoning berdasarkan Jwb Evaluator, Catatan, dan Rekomendasi siswa terhadap inti kriteria. Jwb Auditee hanya konteks. Tidak perlu browsing atau membuka eviden.
+
+Pastikan paket tunggal terbaca lengkap. Identifikasi expected_item_count dan seluruh item_id; selesaikan penilaian satu per satu, lalu periksa konsistensi penggunaan jangkar skor. Jangan memberi penalti karena kebenaran faktual dokumen belum diverifikasi. Jangan menghitung rata-rata atau menetapkan nilai final siswa.
+
+Hasil final: SATU file JSON UTF-8 lengkap sesuai kontrak, semua metadata dan fingerprint disalin tepat dari paket. Jika pembuatan file tidak tersedia, tampilkan satu blok JSON lengkap. Tidak ada status approval. Semua hasil adalah usulan untuk review dosen. Gunakan score:null dengan penjelasan bila satu item tidak dapat dinilai; tetap sertakan item tersebut agar coverage lengkap.
+
+Sebelum menyerahkan, periksa ID unik, tidak ada item hilang/ekstra, result_count, rentang/tipe skor, diagnosis dan catatan yang selaras, serta validitas JSON. Jika tidak bisa menghasilkan semua item dalam satu keluaran lengkap, katakan belum lengkap dan jangan menandai completion_status sebagai complete. Jika kontrak atau paket penting tidak dapat diakses, jelaskan tepat apa yang kurang.

@@ -17,7 +17,13 @@ export interface ReasoningResult {
     review_flags: string[];
 }
 
-export interface AssessorRecommendation extends ReasoningResult {
+export interface AssessorRecommendation extends Omit<ReasoningResult, 'score'> {
+    score: number | null;
+    diagnosis?: Record<string, string>;
+    issue_codes?: string[];
+    basis_refs?: string[];
+    needs_manual_review?: boolean;
+    package_id?: string | null;
     item_id: string;
     audit_id: string;
     input_snapshot: ReasoningInput;
@@ -63,4 +69,3 @@ export function validateApproval(score: number, note: string) {
         throw new Error('Isi nilai bulat 0–100 dan Catatan Asesor sebelum approval.');
     }
 }
-

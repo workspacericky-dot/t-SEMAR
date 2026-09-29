@@ -1,0 +1,235 @@
+{
+  "version": "2026-09-29-v2-public",
+  "provenance": "Generic rubric and fictional examples only; no original student assessment material.",
+  "interpretations": [
+    {
+      "sheet": "Generic rubric",
+      "row": 1,
+      "cells": {
+        "B": 100,
+        "C": "Analisis lengkap, relevan, dan selaras dengan grade serta rekomendasi."
+      }
+    },
+    {
+      "sheet": "Generic rubric",
+      "row": 2,
+      "cells": {
+        "B": 25,
+        "C": "Kontradiksi eksplisit antara grade dan catatan."
+      }
+    },
+    {
+      "sheet": "Generic rubric",
+      "row": 3,
+      "cells": {
+        "B": 30,
+        "C": "Perspektif bercampur tetapi sebagian analisis masih tepat."
+      }
+    },
+    {
+      "sheet": "Generic rubric",
+      "row": 4,
+      "cells": {
+        "B": 5,
+        "C": "Grade dipilih tanpa pengujian atau alasan."
+      }
+    },
+    {
+      "sheet": "Generic rubric",
+      "row": 5,
+      "cells": {
+        "B": 0,
+        "C": "Seluruh jawaban siswa kosong."
+      }
+    }
+  ],
+  "grade_rules": [
+    {
+      "perspective": "A. Keberadaan",
+      "grade": "AA",
+      "description": "Jika seluruh kriteria telah terpenuhi (100%) dan telah dipertahankan dalam setidaknya 5 tahun terakhir."
+    },
+    {
+      "perspective": "A. Keberadaan",
+      "grade": "A",
+      "description": "Jika seluruh kriteria telah terpenuhi (100%) dan telah dipertahankan dalam setidaknya 1 tahun terakhir."
+    },
+    {
+      "perspective": "A. Keberadaan",
+      "grade": "BB",
+      "description": "Jika kualitas seluruh kriteria telah terpenuhi (100%) sesuai dengan mandat kebijakan nasional."
+    },
+    {
+      "perspective": "A. Keberadaan",
+      "grade": "B",
+      "description": "Jika kualitas sebagian besar kriteria telah terpenuhi (>75% - 100%)."
+    },
+    {
+      "perspective": "A. Keberadaan",
+      "grade": "CC",
+      "description": "Jika kualitas sebagian besar kriteria telah terpenuhi (>50% - 75%)."
+    },
+    {
+      "perspective": "A. Keberadaan",
+      "grade": "C",
+      "description": "Jika kualitas sebagian kecil kriteria telah terpenuhi (>25% - 50%)."
+    },
+    {
+      "perspective": "A. Keberadaan",
+      "grade": "D",
+      "description": "Jika kriteria penilaian akuntabilitas kinerja telah mulai dipenuhi (>0% - 25%)."
+    },
+    {
+      "perspective": "A. Keberadaan",
+      "grade": "E",
+      "description": "Jika sama sekali tidak ada upaya dalam pemenuhan kriteria penilaian akuntabilitas kinerja."
+    },
+    {
+      "perspective": "B. Kualitas",
+      "grade": "AA",
+      "description": "Jika kualitas seluruh kriteria telah terpenuhi (100%) dan terdapat upaya inovatif serta layak menjadi percontohan secara nasional."
+    },
+    {
+      "perspective": "B. Kualitas",
+      "grade": "A",
+      "description": "Jika kualitas seluruh kriteria telah terpenuhi (100%) dan terdapat beberapa upaya yang bisa dihargai dari pemenuhan kriteria tersebut."
+    },
+    {
+      "perspective": "B. Kualitas",
+      "grade": "BB",
+      "description": "Jika kualitas seluruh kriteria telah terpenuhi (100%) sesuai dengan mandat kebijakan nasional."
+    },
+    {
+      "perspective": "B. Kualitas",
+      "grade": "B",
+      "description": "Jika kualitas sebagian besar kriteria telah terpenuhi (>75% - 100%)."
+    },
+    {
+      "perspective": "B. Kualitas",
+      "grade": "CC",
+      "description": "Jika kualitas sebagian besar kriteria telah terpenuhi (>50% - 75%)."
+    },
+    {
+      "perspective": "B. Kualitas",
+      "grade": "C",
+      "description": "Jika kualitas sebagian kecil kriteria telah terpenuhi (>25% - 50%)."
+    },
+    {
+      "perspective": "B. Kualitas",
+      "grade": "D",
+      "description": "Jika kriteria penilaian akuntabilitas kinerja telah mulai dipenuhi (>0% - 25%)."
+    },
+    {
+      "perspective": "B. Kualitas",
+      "grade": "E",
+      "description": "Jika sama sekali tidak ada upaya dalam pemenuhan kriteria penilaian akuntabilitas kinerja."
+    },
+    {
+      "perspective": "C. Pemanfaatan",
+      "grade": "AA",
+      "description": "Jika kualitas seluruh kriteria telah terpenuhi (100%) dan terdapat upaya inovatif serta layak menjadi percontohan secara nasional."
+    },
+    {
+      "perspective": "C. Pemanfaatan",
+      "grade": "A",
+      "description": "Jika kualitas seluruh kriteria telah terpenuhi (100%) dan terdapat beberapa upaya yang bisa dihargai dari pemenuhan kriteria tersebut."
+    },
+    {
+      "perspective": "C. Pemanfaatan",
+      "grade": "BB",
+      "description": "Jika kualitas seluruh kriteria telah terpenuhi (100%) sesuai dengan mandat kebijakan nasional."
+    },
+    {
+      "perspective": "C. Pemanfaatan",
+      "grade": "B",
+      "description": "Jika kualitas sebagian besar kriteria telah terpenuhi (>75% - 100%)."
+    },
+    {
+      "perspective": "C. Pemanfaatan",
+      "grade": "CC",
+      "description": "Jika kualitas sebagian besar kriteria telah terpenuhi (>50% - 75%)."
+    },
+    {
+      "perspective": "C. Pemanfaatan",
+      "grade": "C",
+      "description": "Jika kualitas sebagian kecil kriteria telah terpenuhi (>25% - 50%)."
+    },
+    {
+      "perspective": "C. Pemanfaatan",
+      "grade": "D",
+      "description": "Jika kriteria penilaian akuntabilitas kinerja telah mulai dipenuhi (>0% - 25%)."
+    },
+    {
+      "perspective": "C. Pemanfaatan",
+      "grade": "E",
+      "description": "Jika sama sekali tidak ada upaya dalam pemenuhan kriteria penilaian akuntabilitas kinerja."
+    }
+  ],
+  "examples": [
+    {
+      "source": "synthetic-example",
+      "pages": [],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "1. Dokumen Perencanaan kinerja telah tersedia",
+      "criteria": "1. Terdapat pedoman teknis perencanaan kinerja.",
+      "auditee_grade": "AA",
+      "evaluator_grade": "AA",
+      "note": "Satker memiliki pedoman teknis perencanaan kinerja yang digunakan sebagai acuan pada tahun 2025.",
+      "recommendation": "Pertahankan ketersediaan pedoman sebagai acuan perencanaan.",
+      "teacher_score": 85,
+      "assessor_note": "Catatan sudah menyebut keberadaan pedoman dan penggunaan pada 2025. Namun, pilihan AA belum didukung penjelasan bahwa pemenuhan telah dipertahankan minimal lima tahun terakhir. Rekomendasi mempertahankan ketersediaan pedoman selaras dengan catatan."
+    },
+    {
+      "source": "synthetic-example",
+      "pages": [],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "2. Dokumen Perencanaan kinerja telah memenuhi standar yang baik",
+      "criteria": "5. Ukuran Keberhasilan (Indikator Kinerja) telah memenuhi kriteria SMART.",
+      "auditee_grade": "BB",
+      "evaluator_grade": "BB",
+      "note": "Sebagian indikator sudah spesifik dan terukur, tetapi beberapa indikator belum memiliki batas waktu sehingga belum seluruh unsur SMART terpenuhi.",
+      "recommendation": "Tambahkan batas waktu pada indikator yang belum time-bound.",
+      "teacher_score": 25,
+      "assessor_note": "Catatan telah menjelaskan indikator yang belum memiliki batas waktu. Namun, BB mensyaratkan seluruh unsur terpenuhi, sedangkan siswa menyatakan sebagian unsur SMART belum terpenuhi. Rekomendasi memperbaiki unsur time-bound sudah sesuai dengan masalah yang disebutkan."
+    },
+    {
+      "source": "synthetic-example",
+      "pages": [],
+      "category": "2. Pengukuran Kinerja",
+      "subcategory": "2. Pengukuran kinerja telah memenuhi standar yang baik",
+      "criteria": "Pengukuran kinerja dilakukan menggunakan definisi operasional yang jelas.",
+      "auditee_grade": "BB",
+      "evaluator_grade": "BB",
+      "note": "Seluruh indikator yang diuji memiliki definisi operasional, rumus, sumber data, dan periode pengukuran yang jelas. Numerator dan denominator dinyatakan konsisten sehingga ukuran hasil dapat ditafsirkan dengan cara yang sama. Seluruh unsur kriteria dipenuhi, tanpa upaya tambahan yang menjadi dasar A atau AA.",
+      "recommendation": "Pertahankan konsistensi definisi dan rumus pada pengukuran berikutnya.",
+      "teacher_score": 100,
+      "assessor_note": "Catatan menjelaskan pemenuhan definisi operasional, rumus, sumber data, dan periode serta alasan konsistensi pengukuran. Pemilihan BB selaras dengan pernyataan seluruh unsur terpenuhi tanpa nilai tambah A atau AA. Rekomendasi mempertahankan konsistensi juga mengikuti hasil analisis."
+    },
+    {
+      "source": "synthetic-example",
+      "pages": [],
+      "category": "3. Pelaporan Kinerja",
+      "subcategory": "3. Pelaporan kinerja telah dimanfaatkan",
+      "criteria": "Informasi laporan kinerja digunakan untuk perbaikan kinerja berikutnya.",
+      "auditee_grade": "BB",
+      "evaluator_grade": "B",
+      "note": "Sebanyak 80% tindak lanjut analisis laporan sudah digunakan untuk memperbaiki perencanaan berikutnya; sisa 20% belum ditindaklanjuti. Dengan demikian sebagian besar, tetapi belum seluruh pemanfaatan yang diuji telah terpenuhi.",
+      "recommendation": "Tindaklanjuti 20% hasil analisis yang belum diterapkan pada perencanaan berikutnya.",
+      "teacher_score": 100,
+      "assessor_note": "Siswa menghubungkan tindak lanjut analisis laporan dengan perbaikan perencanaan berikutnya. Pilihan B sesuai dengan premis 80% pemanfaatan dan masih adanya bagian yang belum ditindaklanjuti. Rekomendasi menuntaskan sisa 20% mengikuti kekurangan yang dijelaskan."
+    },
+    {
+      "source": "synthetic-example",
+      "pages": [],
+      "category": "4. Evaluasi Akuntabilitas Kinerja Internal",
+      "subcategory": "1. Evaluasi internal telah dilaksanakan",
+      "criteria": "Terdapat pedoman evaluasi internal.",
+      "auditee_grade": "A",
+      "evaluator_grade": "",
+      "note": "",
+      "recommendation": "",
+      "teacher_score": 0,
+      "assessor_note": "Siswa belum memilih Jwb Evaluator maupun mengisi Catatan dan Rekomendasi pada kriteria ini. Nilai 0 diusulkan karena seluruh jawaban siswa kosong."
+    }
+  ]
+}

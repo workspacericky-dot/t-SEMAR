@@ -166,7 +166,9 @@ test('recommendation panel renders only for teachers on UTS/UAS, not students or
         items: [], role, auditId: audit, auditType, onItemsUpdate: () => {},
     }));
     assert.match(render('admin', 'final'), /Rekomendasi Asesor/);
-    assert.match(render('admin', 'midterm'), /Koneksi AI belum aktif/);
+    assert.match(render('admin', 'midterm'), /Ekspor seluruh ujian siswa/);
+    assert.match(render('admin', 'final'), /Impor sebagai draft/);
+    assert.doesNotMatch(render('admin', 'final'), /Koneksi AI belum aktif|Analisis komponen|Analisis kriteria/);
     assert.doesNotMatch(render('auditor', 'final'), /Rekomendasi Asesor/);
     assert.doesNotMatch(render('admin', 'group_practice'), /Rekomendasi Asesor/);
 });
@@ -189,5 +191,182 @@ test('saving generated draft cannot replace a recommendation approved while anal
             [audit, second, teacher, timestamp, JSON.stringify(payload)]), /STALE_RECOMMENDATION/);
         const approved = await db.query<{ status: string }>('select status from assessor_recommendations where item_id = $1', [second]);
         assert.equal(approved.rows[0].status, 'approved');
+    } finally { await db.close(); }
+});
+
+// Manual ChatGPT workflow: schema boundaries and actual PostgreSQL transactions.
+import { createExamPackage, parseChatGPTOutput, validateOutputAgainstPackage, assessmentPerspective, type ExamPackage, type ChatGPTOutput } from '../src/lib/assessor/chatgpt-workflow';
+import type { Audit, AuditItem } from '../src/types/database';
+
+const examFixture = { id: audit, type: 'final', year: 2026 } as Audit;
+const itemFixture = (id = first, order = 0) => ({ ...input, id, audit_id: audit, sort_order: order, teacher_score: 99, catatan_asesor: 'Private feedback', evidence_link: 'private evidence', assigned_to: student }) as AuditItem;
+const diagnosis = { relevance: 'aligned', perspective: 'aligned', grade_consistency: 'aligned', recommendation_consistency: 'aligned', depth: 'adequate' };
+function outputFixture(payload: ExamPackage): ChatGPTOutput {
+    return {
+        schema_version: payload.schema_version, rubric_version: payload.rubric_version,
+        package_id: payload.package_id, audit_id: payload.audit_id, completion_status: 'complete',
+        expected_item_count: payload.expected_item_count, result_count: payload.expected_item_count,
+        results: payload.items.map(item => ({ item_id: item.item_id, input_fingerprint: item.input_fingerprint,
+            score: 85, assessor_note: 'Catatan usulan.', rationale: 'Alasan usulan.', diagnosis,
+            issue_codes: [], review_flags: [], needs_manual_review: false, basis_refs: ['K-SCOPE'] })),
+    };
+}
+async function manualDatabase() {
+    const db = await database();
+    await db.exec('alter table audits add column year integer default 2026; alter table audit_items add column sort_order integer default 0');
+    await db.exec(await readFile(new URL('../supabase/migrations/20260929100000_assessor_chatgpt_workflow.sql', import.meta.url), 'utf8'));
+    const payload = createExamPackage(examFixture, [itemFixture(first), itemFixture(second, 0)], 2025);
+    await db.query(`insert into assessor_export_packages (id, audit_id, exported_by, payload, reasoning_snapshots, feedback_snapshots, draft_versions)
+        values ($1, $2, $3, $4::jsonb, $5::jsonb, $6::jsonb, $7::jsonb)`, [payload.package_id, audit, teacher, JSON.stringify(payload),
+        JSON.stringify({ [first]: input, [second]: input }),
+        JSON.stringify({ [first]: { teacher_score: 0, catatan_asesor: '' }, [second]: { teacher_score: 0, catatan_asesor: '' } }),
+        JSON.stringify({ [first]: timestamp, [second]: timestamp })]);
+    return { db, payload, output: outputFixture(payload) };
+}
+function importManual(db: PGlite, output: ChatGPTOutput, user = teacher) {
+    return db.query('select import_assessor_chatgpt_results($1, $2, $3::jsonb)', [audit, user, JSON.stringify(output)]);
+}
+
+test('export covers every supplied criterion in order, with no evidence or teacher feedback, and stable fingerprints', () => {
+    const payload = createExamPackage(examFixture, [itemFixture(second, 9), itemFixture(first, 2)], 2025);
+    assert.deepEqual(payload.items.map(item => item.item_id), [first, second]);
+    assert.equal(payload.expected_item_count, 2);
+    assert.equal(payload.grade_rules.length, 24);
+    assert.equal(new Set(payload.grade_rules.map(rule => rule.perspective + rule.grade)).size, 24);
+    for (const item of payload.items) {
+        assert.equal('teacher_score' in item, false); assert.equal('catatan_asesor' in item, false);
+        assert.equal('evidence_link' in item, false); assert.equal('assigned_to' in item, false);
+        assert.match(item.input_fingerprint, /^[a-f0-9]{64}$/);
+    }
+    const next = createExamPackage(examFixture, [itemFixture(first, 2), itemFixture(second, 9)], 2025);
+    assert.deepEqual(next.items, payload.items);
+    const changed = createExamPackage(examFixture, [{ ...itemFixture(first, 2), catatan: 'Changed' }], 2025);
+    assert.notEqual(changed.items[0].input_fingerprint, payload.items[0].input_fingerprint);
+    assert.equal(assessmentPerspective('3. Kemanfaatan'), 'pemanfaatan');
+    assert.throws(() => assessmentPerspective('Subkomponen 1'), /tidak jelas/);
+    assert.throws(() => assessmentPerspective('Keberadaan dan kualitas'), /tidak jelas/);
+    assert.throws(() => createExamPackage(examFixture, [], 2025), /tidak valid/);
+});
+
+test('manual result parser rejects unknown fields, wrong scores, truncated, duplicate and partial outputs', () => {
+    const payload = createExamPackage(examFixture, [itemFixture()], 2025);
+    const output = outputFixture(payload);
+    assert.deepEqual(parseChatGPTOutput('```json\n' + JSON.stringify(output) + '\n```'), output);
+    validateOutputAgainstPackage(parseChatGPTOutput(JSON.stringify(output)), payload);
+    const invalids = [
+        { ...output, approved: true }, { ...output, result_count: 2 },
+        { ...output, results: [{ ...output.results[0], score: 100.5 }] },
+        { ...output, results: [{ ...output.results[0], score: 101 }] },
+        { ...output, results: [{ ...output.results[0], issue_codes: ['grade_note_conflict'] }] },
+        { ...output, results: [{ ...output.results[0], assessor_note: ' ' }] },
+        { ...output, results: [{ ...output.results[0], score: null }] },
+        { ...output, results: [{ ...output.results[0], diagnosis: { ...diagnosis, depth: 'invented' } }] },
+        { ...output, results: [output.results[0], output.results[0]], expected_item_count: 2, result_count: 2 },
+    ];
+    for (const invalid of invalids) assert.throws(() => parseChatGPTOutput(JSON.stringify(invalid)));
+    assert.throws(() => parseChatGPTOutput(JSON.stringify(output).slice(0, -2)), /belum lengkap/);
+    assert.throws(() => parseChatGPTOutput(' '.repeat(4 * 1024 * 1024 + 1)), /4 MB/);
+    for (const invalid of [{ ...output, audit_id: student }, { ...output, package_id: student },
+        { ...output, results: [{ ...output.results[0], input_fingerprint: '0'.repeat(64) }] },
+        { ...output, results: [{ ...output.results[0], item_id: second }] }]) {
+        assert.throws(() => validateOutputAgainstPackage(invalid, payload));
+    }
+    const missing = outputFixture(createExamPackage(examFixture, [itemFixture(), itemFixture(second)], 2025));
+    missing.results.pop(); missing.result_count = 1; missing.expected_item_count = 1;
+    assert.throws(() => validateOutputAgainstPackage(missing, payload));
+});
+
+test('zero requires actually empty student answer; null stays unscored with explicit review flag', () => {
+    const payload = createExamPackage(examFixture, [itemFixture()], 2025);
+    const output = outputFixture(payload);
+    output.results[0] = { ...output.results[0], score: 0, issue_codes: ['empty_answer'] };
+    assert.throws(() => validateOutputAgainstPackage(output, payload), /Nilai 0/);
+    output.results[0] = { ...output.results[0], score: null, issue_codes: ['ambiguous_rubric'], needs_manual_review: true, review_flags: ['Perlu penilaian dosen.'] };
+    validateOutputAgainstPackage(parseChatGPTOutput(JSON.stringify(output)), payload);
+    const empty = createExamPackage(examFixture, [{ ...itemFixture(), jawaban_evaluator: '-', catatan: '', rekomendasi: '-' }], 2025);
+    const zero = outputFixture(empty); zero.results[0].score = 0; zero.results[0].issue_codes = ['empty_answer'];
+    validateOutputAgainstPackage(parseChatGPTOutput(JSON.stringify(zero)), empty);
+});
+
+test('manual import persists complete drafts atomically; null can be scored by teacher approval; repeated import cannot overwrite', async () => {
+    const { db, payload, output } = await manualDatabase();
+    try {
+        output.results[1] = { ...output.results[1], score: null, needs_manual_review: true, review_flags: ['Perlu nilai manual.'] };
+        await importManual(db, output);
+        const official = await db.query<{ teacher_score: string }>('select teacher_score from audit_items');
+        assert.ok(official.rows.every(row => Number(row.teacher_score) === 0));
+        const drafts = await db.query<{ item_id: string; score: number | null; status: string; package_id: string }>('select item_id, score, status, package_id from assessor_recommendations order by item_id');
+        assert.deepEqual(drafts.rows.map(row => row.score), [85, null]);
+        assert.ok(drafts.rows.every(row => row.status === 'pending' && row.package_id === payload.package_id));
+        const imported = await db.query<{ imported_output: ChatGPTOutput }>('select imported_output from assessor_export_packages');
+        assert.deepEqual(imported.rows[0].imported_output, output);
+        await assert.rejects(importManual(db, output), /PACKAGE_ALREADY_IMPORTED/);
+        const versions = await db.query<{ item_id: string; updated_at: string }>('select item_id, updated_at::text from assessor_recommendations');
+        const entries = versions.rows.map(row => ({ ...approval(row.item_id, 77), expected_updated_at: row.updated_at }));
+        await approve(db, entries, category);
+        const graded = await db.query<{ teacher_score: string }>('select teacher_score from audit_items');
+        assert.ok(graded.rows.every(row => Number(row.teacher_score) === 77));
+    } finally { await db.close(); }
+});
+
+test('manual import rolls back whole package on stale answer, feedback or draft and invalid fingerprints', async () => {
+    for (const [change, expected] of [
+        ["update audit_items set catatan = 'Changed' where id = '" + second + "'", /STALE_ANSWER/],
+        ["update audit_items set teacher_score = 1 where id = '" + second + "'", /STALE_FEEDBACK/],
+        ["update assessor_recommendations set updated_at = now() where item_id = '" + second + "'", /STALE_RECOMMENDATION/],
+        ["update audit_items set sort_order = 5 where id = '" + second + "'", /STALE_ANSWER/],
+    ] as const) {
+        const { db, output } = await manualDatabase();
+        try {
+            await db.exec(change); await assert.rejects(importManual(db, output), expected);
+            const scores = await db.query<{ score: number }>('select score from assessor_recommendations');
+            assert.ok(scores.rows.every(row => row.score === 80));
+            const manifest = await db.query<{ imported_at: string | null }>('select imported_at from assessor_export_packages');
+            assert.equal(manifest.rows[0].imported_at, null);
+        } finally { await db.close(); }
+    }
+    const { db, output } = await manualDatabase();
+    try {
+        output.results[1].input_fingerprint = '0'.repeat(64);
+        await assert.rejects(importManual(db, output), /INVALID_FINGERPRINT/);
+        const scores = await db.query<{ score: number }>('select score from assessor_recommendations');
+        assert.ok(scores.rows.every(row => row.score === 80));
+    } finally { await db.close(); }
+});
+
+test('import guards roles, active exams, extra IDs, duplicate IDs and unknown or superseded packages', async () => {
+    const { db, output, payload } = await manualDatabase();
+    try {
+        await assert.rejects(importManual(db, output, student), /FORBIDDEN/);
+        await assert.rejects(importManual(db, { ...output, package_id: student }), /UNKNOWN_PACKAGE/);
+        await assert.rejects(importManual(db, { ...output, results: [output.results[0], output.results[0]] }), /INCOMPLETE_RESULTS/);
+        await assert.rejects(importManual(db, { ...output, results: [output.results[0], { ...output.results[1], item_id: student }] }), /INVALID_FINGERPRINT/);
+        await db.exec('update audits set is_manually_locked = false');
+        await assert.rejects(importManual(db, output), /EXAM_ACTIVE/);
+        await db.exec('update audits set is_manually_locked = true');
+        await db.query(`insert into assessor_export_packages (id, audit_id, exported_by, payload, reasoning_snapshots, feedback_snapshots, draft_versions, exported_at)
+            select $1, audit_id, exported_by, payload, reasoning_snapshots, feedback_snapshots, draft_versions, exported_at + interval '1 second'
+            from assessor_export_packages where id = $2`, [student, payload.package_id]);
+        await assert.rejects(importManual(db, output), /SUPERSEDED_PACKAGE/);
+        await db.exec('set role authenticated');
+        const manifests = await db.query('select * from assessor_export_packages'); assert.equal(manifests.rows.length, 0);
+        await assert.rejects(importManual(db, output), /permission denied for function/);
+    } finally { await db.close(); }
+});
+
+test('import of newly exported package preserves previously approved pairs', async () => {
+    const { db, payload, output } = await manualDatabase();
+    try {
+        await approve(db);
+        const version = await db.query<{ updated_at: string }>('select updated_at::text from assessor_recommendations where item_id = $1', [first]);
+        await db.query(`update assessor_export_packages set feedback_snapshots = jsonb_set(feedback_snapshots, array[$1], $2::jsonb),
+            draft_versions = jsonb_set(draft_versions, array[$1], to_jsonb($3::text)) where id = $4`,
+            [first, JSON.stringify({ teacher_score: 85, catatan_asesor: 'Catatan disunting dosen.' }), version.rows[0].updated_at, payload.package_id]);
+        output.results[0].score = 10;
+        await importManual(db, output);
+        const draft = await db.query<{ score: number; status: string }>('select score, status from assessor_recommendations where item_id = $1', [first]);
+        assert.deepEqual(draft.rows[0], { score: 80, status: 'approved' });
+        const official = await db.query<{ teacher_score: string }>('select teacher_score from audit_items where id = $1', [first]);
+        assert.equal(Number(official.rows[0].teacher_score), 85);
     } finally { await db.close(); }
 });
