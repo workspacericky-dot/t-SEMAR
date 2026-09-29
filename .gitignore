@@ -42,9 +42,3 @@ next-env.d.ts
 references/alur_pembelajaran_esemar.md
 references/panduan_admin.md
 references/panduan_pengguna.md
-
-# Local assessor sources contain student assessment material; do not publish.
-/references/tsemar-assessor/*.pdf
-/references/tsemar-assessor/*.xlsx
-/references/tsemar-assessor/chatgpt-workflow/CALIBRATION.json
-/src/lib/assessor/reference.json

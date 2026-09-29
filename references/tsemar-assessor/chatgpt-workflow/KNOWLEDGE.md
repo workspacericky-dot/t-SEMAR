@@ -130,8 +130,8 @@ Contoh di bawah adalah adaptasi prinsip, bukan kutipan atau penilaian aktual dos
 - `interpreting_tsemar_assessor.xlsx`, sheet Interpreting, 29 baris/8 kolom pada file yang diperiksa. Rujukan sel di atas dapat diperiksa pada file asli.
 - `Tabel Pengisian Nilai (A s.d. E).xlsx`, bagian A Keberadaan, B Kualitas, C Pemanfaatan: masing-masing delapan grade. Definisi ini ikut dalam paket ekspor agar perbedaan perspektif selalu terbawa.
 - `Audit_4f2e7482_Result.pdf` (16 halaman), `Audit_c3fd81d2_Result.pdf` (6 halaman), `Audit_d13cb490_Result.pdf` (7 halaman): masing-masing 25 kriteria Perencanaan, termasuk jawaban kosong.
-- `CALIBRATION.json` (privat, tersedia lokal dan tidak diterbitkan di GitHub): ekstraksi 75 contoh per kriteria, definisi grade, dan sel interpretasi; identitas siswa pada judul PDF tidak disertakan. Memuat catatan historis apa adanya, termasuk koreksi faktual yang sekarang di luar lingkup. Baca dengan aturan K-SCOPE/K-AMBIGUITY, bukan sebagai aturan baru.
+- `CALIBRATION.json`: ekstraksi 75 contoh per kriteria, definisi grade, dan sel interpretasi; identitas siswa pada judul PDF tidak disertakan. Memuat catatan historis apa adanya, termasuk koreksi faktual yang sekarang di luar lingkup. Baca dengan aturan K-SCOPE/K-AMBIGUITY, bukan sebagai aturan baru.
 
 Gunakan `basis_refs` dari ID bagian/aturan di file ini jika memang dibaca. Jangan mengklaim membuka file asli hanya karena ringkasannya ada. Kutipan siswa harus singkat dan sesuai teks paket. Tidak ada sumber yang membuktikan akurasi persentase workflow ini sebelum uji blind terhadap penilaian dosen.
 
-Dataset publik CALIBRATION_SYNTHETIC.json hanya berisi contoh fiktif dan aturan generik. Nama file sumber di K-SOURCES adalah petunjuk untuk pemilik bahan lokal, bukan lampiran sumber yang tersedia di repositori publik.
+CALIBRATION_SYNTHETIC.json hanya berisi contoh fiktif dan aturan generik. Sumber asli pada K-SOURCES dan kalibrasi historis tersedia di repositori publik atas persetujuan pemilik pada 29 September 2026; PDF asli tetap memuat identitas pada judul.

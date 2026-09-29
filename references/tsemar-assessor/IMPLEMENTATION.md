@@ -23,9 +23,9 @@ Nilai yang terisi 1–100; 0 tetap tersedia untuk jawaban kosong dan koreksi man
 
 ## Kalibrasi
 
-`src/lib/assessor/reference.json` adalah bahan lokal privat (diabaikan Git), berisi 75 contoh per kriteria dari tiga PDF, interpretasi Excel beserta lokator sel, dan definisi grade per perspektif dari tabel referensi terbaru. Identitas siswa pada judul PDF tidak diekstrak. Halaman tabel yang bersambung digabungkan per kriteria. Jalankan `python scripts/extract-assessor-reference.py` dengan `openpyxl` dan `pdfplumber` untuk memperbarui bahan jika referensi berubah, lalu naikkan versi rubrik di ekstraktor dan `reasoning.ts`.
+`src/lib/assessor/reference.json` berisi 75 contoh per kriteria dari tiga PDF, interpretasi Excel beserta lokator sel, dan definisi grade per perspektif dari tabel referensi terbaru. Bahan asli dan ekstraksinya diterbitkan di repositori publik dengan persetujuan pemilik pada 29 September 2026. Identitas siswa pada judul PDF tidak diekstrak, tetapi tetap ada dalam PDF asli. Halaman tabel yang bersambung digabungkan per kriteria. Jalankan `python scripts/extract-assessor-reference.py` dengan `openpyxl` dan `pdfplumber` untuk memperbarui bahan jika referensi berubah, lalu naikkan versi rubrik di ekstraktor dan `reasoning.ts`.
 
-`reference.public.json` yang dipakai build publik hanya berisi aturan generik dan contoh fiktif. Tidak ada jawaban atau nilai mahasiswa asli dalam dataset publik.
+`reference.public.json` yang dipakai build aplikasi tetap berisi aturan generik dan contoh fiktif. Publikasi sumber historis tidak mengubah dataset yang digunakan aplikasi atau mengaktifkan koneksi AI.
 
 `rubric.ts` menyediakan instruksi reasoning-only, jangkar skor, contoh kriteria yang relevan, dan batas terhadap instruksi yang disisipkan dalam jawaban siswa. Koreksi faktual eviden dalam contoh lama tidak menjadi kewajiban pemeriksaan baru. Tidak ada klaim akurasi yang telah tervalidasi; komponen selain Perencanaan membutuhkan kalibrasi tambahan.
 

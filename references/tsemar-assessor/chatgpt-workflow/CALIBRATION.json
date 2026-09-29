@@ -1,0 +1,1473 @@
+{
+  "interpretations": [
+    {
+      "sheet": "Interpreting",
+      "row": 3,
+      "cells": {
+        "B": "PERENCANAAN - KEBERADAAN"
+      }
+    },
+    {
+      "sheet": "Interpreting",
+      "row": 4,
+      "cells": {
+        "B": 100,
+        "C": "Catatan sudah sangat baik dan lengkap menganalisis korelasi antara nilai yang dipilih dan alasannya pada kolom \"Catatan\".",
+        "H": "Catatan yang diberikan belum selaras dengan nilai/huruf yg dipilih. Nilai A seharusnya dipilih karena ada hal lain yang patut diapresiasi oleh Evaluator. Catatan yang diberikan mengarah pada nilai B atau lebih rendah."
+      }
+    },
+    {
+      "sheet": "Interpreting",
+      "row": 5,
+      "cells": {
+        "B": 80,
+        "C": "Catatan sudah baik, namun analisis pada catatan hasil evaluasi belum kian mendalam dan lengkap.",
+        "F": "Catatan sudah cukup baik, kecenderungan argumentasi telah sesuai dengan huruf yang dipilih; namun, analisis belum cukup detail membuktikan terpenuhi/tidaknya kriteria ini.",
+        "H": "Catatan Evaluator tidak relevan terhadap kriteria sama sekali (yakni seharusnya terkait \"seberapa berkomitmen para pegawai di dalam satker ingin mencapai kinerjanya\")."
+      }
+    },
+    {
+      "sheet": "Interpreting",
+      "row": 6,
+      "cells": {
+        "B": 30,
+        "C": "Mixed antar perspektif, tapi ada perspektif yg benar dianalisis. Jika tidak ada perspektif yg benar menjadi bernilai \"10\"",
+        "F": "Evaluator menggeser fokusnya dari penilaian berbasis \"keberadaan\" menuju \"kualitas\" dengan memberikan catatan bahwa RKT belum ditandatangani. Dengan demikian, hasil evaluasinya kurang valid."
+      }
+    },
+    {
+      "sheet": "Interpreting",
+      "row": 7,
+      "cells": {
+        "B": 25,
+        "C": "Analisis yang berfokus pada kesalahan periode (seharusnya 2025) sudah tepat, namun berkontrasdiksi dengan pemilihan nilai oleh Evaluator. Pemilihan nilai D berarti akurasi eviden milik Evaluatan setidaknya 1%, padahal secara naratif Evaluator menyatakan bahwa satu-satunya eviden milik satker (Program Kerja 2026) adalah salah (akurasi 0%); dengan demikain, seharusnya penilaian yang diberikan adalah \"E\".",
+        "F": "terdapat disparitas antara nilai yang diberikan Evaluator (yakni \"B\", yang berarti setidaknya di atas 75% kriteria telah terpenuhi) dengan catatannya yg masih menilai ada yg belum terpenuhi sebanyak satu dokumen lagi, yakni pedoman teknis perencanaan kinerja yang disusun secara internal oleh Pengadilan Agama Sampang. Dengan demikian, seharusnya pemenuhan eviden kriteria ini adalah sekitar 50%, atau bernilai \"C\". Dengan demikian, analisis atas kriteria ini dinilai kurang valid."
+      }
+    },
+    {
+      "sheet": "Interpreting",
+      "row": 8,
+      "cells": {
+        "B": 60,
+        "C": "Penilaian hanya bersifat normatif (ceklist); sebatas menyatakan sesuai/tidak sesuai tanpa membedah data dukung.",
+        "F": "40 jika \"tidak sesuai\""
+      }
+    },
+    {
+      "sheet": "Interpreting",
+      "row": 9,
+      "cells": {
+        "C": "dokumen SK SEKMA yang dimaksud sah sebagai panduan yang diklaim oleh satuan kerja sebagai salah satu \"Badan Peradilan di bawah MA RI\" (lihat judul SK tersebut bagian Memutuskannya). Dengan demikian, penilaian Evaluator tidak tepat secara substansi.",
+        "F": "Dokumen SK SEKMA yang dimaksud sah sebagai panduan yang diklaim oleh satuan kerja sebagai salah satu \"Badan Peradilan di bawah MA RI\" (lihat judul SK tersebut bagian Memutuskannya). Namun, karena Evaluator berpedoman pada Lampiran III Keputusan SEKMA 878/2022, maka sementara ini dibenarkan. Namun, belum ada penjelasan tentang alasan pemilihan nilai (huruf) nya untuk kriteria ini."
+      }
+    },
+    {
+      "sheet": "Interpreting",
+      "row": 10,
+      "cells": {
+        "C": "persepsi Evaluator masih menganggap Program \"Kerja\" adalah bagian dari perencanaan \"Kinerja\", yang mana ini tidak tepat."
+      }
+    },
+    {
+      "sheet": "Interpreting",
+      "row": 11,
+      "cells": {
+        "C": "Namun, hasil analisisnya patut diberikan poin apresiasi."
+      }
+    },
+    {
+      "sheet": "Interpreting",
+      "row": 12,
+      "cells": {
+        "C": "Analisis yang diberikan evaluator tidak tepat secara substansial. Mengingat bahwa Evaluatan telah menyerahkan eviden yang diinginkan untuk tahun 2025 sudah berarti telah dipertahankan selama setahun terakhir, Memasukkan dokumen tahun 2024 berarti telah mempertahankan kriteria ini selama 2 tahun terakhir. Pemaknaan \"tahun terakhir\" adalah dari perspektif Evaluator (tahun evaluasi adalah 2026 sehingga setahun terakhir adalah 2025) karena pedoman Evaluasi ditujukan bagi pembaca sebagai Evaluator bukan Evaluatan."
+      }
+    },
+    {
+      "sheet": "Interpreting",
+      "row": 14,
+      "cells": {
+        "C": "Dengan demikian, hasil evaluasinya dianggap kurang valid."
+      }
+    },
+    {
+      "sheet": "Interpreting",
+      "row": 16,
+      "cells": {
+        "B": 5,
+        "C": "Tidak ada catatan/tidak melakukan pengujian merupakan suatu kesalahan (nilai profesionalisme) dalam melaksanakan tugas pengawasan. Namun, karena Evaluator sudah memberikan penilaian, akan ada poin apresiasi."
+      }
+    },
+    {
+      "sheet": "Interpreting",
+      "row": 18,
+      "cells": {
+        "F": "PERENCANAAN - KUALITAS"
+      }
+    },
+    {
+      "sheet": "Interpreting",
+      "row": 19,
+      "cells": {
+        "E": "A",
+        "F": "Catatan yang diberikan belum selaras dengan nilai/huruf yg dipilih. Nilai A seharusnya dipilih karena ada hal lain yang patut diapresiasi oleh Evaluator. Catatan yang diberikan mengarah pada nilai B atau lebih rendah.",
+        "H": "Catatan sudah sangat baik dan lengkap menganalisis korelasi antara nilai yang dipilih dan alasannya pada kolom \"Catatan\"."
+      }
+    },
+    {
+      "sheet": "Interpreting",
+      "row": 20,
+      "cells": {
+        "E": "AA",
+        "F": "Catatan yang diberikan belum selaras dengan nilai/huruf yg dipilih. Nilai AA seharusnya dipilih karena ada hal lain yang patut menjadi percontohan nasional. Catatan yang diberikan mengarah pada nilai BB."
+      }
+    },
+    {
+      "sheet": "Interpreting",
+      "row": 21,
+      "cells": {
+        "E": "BB",
+        "F": "Catatan yang diberikan belum selaras dengan nilai/huruf yg dipilih. Nilai BB seharusnya dipilih karena seluruh unsur kriteria telah terpenuhi. Catatan yang diberikan mengarah pada nilai B atau lebih rendah.",
+        "H": "Catatan yang diberikan belum selaras dengan nilai/huruf yg dipilih. Frasa \"tidak ada\" berarti pemenuhan unsur kriteria ini adalah 0%, sehingga seharusnya bernilai E, bukan B."
+      }
+    },
+    {
+      "sheet": "Interpreting",
+      "row": 22,
+      "cells": {
+        "E": "B",
+        "F": "Catatan yang diberikan belum selaras dengan nilai/huruf yg dipilih. Nilai B seharusnya dipilih karena belum seluruh unsur kriteria terpenuhi. Catatan yang diberikan mengarah pada nilai BB.",
+        "G": "20 (khusus 1.2.6)",
+        "H": "Catatan Evaluator berkontradiksi dengan yang dimaksud oleh kriteria ini. Kriteria meminta agar IKU tidak sering diubah, namun Evaluator menilai positif ke arah perubahan IKU."
+      }
+    },
+    {
+      "sheet": "Interpreting",
+      "row": 23,
+      "cells": {
+        "E": 20,
+        "F": "Evaluator memberikan penjelasan yang nihil terkait alasan dipilihnya nilai A."
+      }
+    },
+    {
+      "sheet": "Interpreting",
+      "row": 24,
+      "cells": {
+        "E": 20,
+        "F": "Catatan Evaluator tidak relevan terhadap kriteria sama sekali (yakni seharusnya terkait \"membaiknya perencanaan kinerja selanjutnya\")."
+      }
+    },
+    {
+      "sheet": "Interpreting",
+      "row": 25,
+      "cells": {
+        "E": "BB",
+        "F": "Catatan yang diberikan belum selaras dengan nilai/huruf yg dipilih. Nilai BB seharusnya dipilih karena seluruh unsur kriteria telah terpenuhi. Catatan yang diberikan mengarah pada nilai B."
+      }
+    },
+    {
+      "sheet": "Interpreting",
+      "row": 26,
+      "cells": {
+        "F": "Pemilihan grade sudah dinilai sesuai dengan catatan yang disajikan. Namun, Evaluator terlihat baru sebagian memeriksa eviden yang satker sajikan."
+      }
+    },
+    {
+      "sheet": "Interpreting",
+      "row": 27,
+      "cells": {
+        "E": 50,
+        "F": "Catatan yang diberikan sudah setara dengan nilai yang diberikan, namun penjelasan ketidaksesuaian terhadap unsur kriteria ini belum cukup lengkap dan jelas agar dapat dipahami oleh Evaluatan."
+      }
+    },
+    {
+      "sheet": "Interpreting",
+      "row": 28,
+      "cells": {
+        "E": "C",
+        "F": "Catatan yang diberikan belum selaras dengan nilai/huruf yg dipilih. Nilai C seharusnya dipilih jika masih ada sebagian unsur kriteria terpenuhi. Catatan yang diberikan mengarah pada nilai E (\"tidak ada yang sesuai\")."
+      }
+    },
+    {
+      "sheet": "Interpreting",
+      "row": 29,
+      "cells": {
+        "E": "D",
+        "F": "Catatan yang diberikan belum selaras dengan nilai/huruf yg dipilih. Nilai D seharusnya dipilih jika masih ada sebagian kecil unsur kriteria terpenuhi. Catatan yang diberikan mengarah pada nilai E (\"tidak ada yang sesuai\")."
+      }
+    }
+  ],
+  "grade_rules": [
+    {
+      "perspective": "A. Keberadaan",
+      "grade": "AA",
+      "description": "Jika seluruh kriteria telah terpenuhi (100%) dan telah dipertahankan dalam setidaknya 5 tahun terakhir."
+    },
+    {
+      "perspective": "A. Keberadaan",
+      "grade": "A",
+      "description": "Jika seluruh kriteria telah terpenuhi (100%) dan telah dipertahankan dalam setidaknya 1 tahun terakhir."
+    },
+    {
+      "perspective": "A. Keberadaan",
+      "grade": "BB",
+      "description": "Jika kualitas seluruh kriteria telah terpenuhi (100%) sesuai dengan mandat kebijakan nasional."
+    },
+    {
+      "perspective": "A. Keberadaan",
+      "grade": "B",
+      "description": "Jika kualitas sebagian besar kriteria telah terpenuhi (>75% - 100%)."
+    },
+    {
+      "perspective": "A. Keberadaan",
+      "grade": "CC",
+      "description": "Jika kualitas sebagian besar kriteria telah terpenuhi (>50% - 75%)."
+    },
+    {
+      "perspective": "A. Keberadaan",
+      "grade": "C",
+      "description": "Jika kualitas sebagian kecil kriteria telah terpenuhi (>25% - 50%)."
+    },
+    {
+      "perspective": "A. Keberadaan",
+      "grade": "D",
+      "description": "Jika kriteria penilaian akuntabilitas kinerja telah mulai dipenuhi (>0% - 25%)."
+    },
+    {
+      "perspective": "A. Keberadaan",
+      "grade": "E",
+      "description": "Jika sama sekali tidak ada upaya dalam pemenuhan kriteria penilaian akuntabilitas kinerja."
+    },
+    {
+      "perspective": "B. Kualitas",
+      "grade": "AA",
+      "description": "Jika kualitas seluruh kriteria telah terpenuhi (100%) dan terdapat upaya inovatif serta layak menjadi percontohan secara nasional."
+    },
+    {
+      "perspective": "B. Kualitas",
+      "grade": "A",
+      "description": "Jika kualitas seluruh kriteria telah terpenuhi (100%) dan terdapat beberapa upaya yang bisa dihargai dari pemenuhan kriteria tersebut."
+    },
+    {
+      "perspective": "B. Kualitas",
+      "grade": "BB",
+      "description": "Jika kualitas seluruh kriteria telah terpenuhi (100%) sesuai dengan mandat kebijakan nasional."
+    },
+    {
+      "perspective": "B. Kualitas",
+      "grade": "B",
+      "description": "Jika kualitas sebagian besar kriteria telah terpenuhi (>75% - 100%)."
+    },
+    {
+      "perspective": "B. Kualitas",
+      "grade": "CC",
+      "description": "Jika kualitas sebagian besar kriteria telah terpenuhi (>50% - 75%)."
+    },
+    {
+      "perspective": "B. Kualitas",
+      "grade": "C",
+      "description": "Jika kualitas sebagian kecil kriteria telah terpenuhi (>25% - 50%)."
+    },
+    {
+      "perspective": "B. Kualitas",
+      "grade": "D",
+      "description": "Jika kriteria penilaian akuntabilitas kinerja telah mulai dipenuhi (>0% - 25%)."
+    },
+    {
+      "perspective": "B. Kualitas",
+      "grade": "E",
+      "description": "Jika sama sekali tidak ada upaya dalam pemenuhan kriteria penilaian akuntabilitas kinerja."
+    },
+    {
+      "perspective": "C. Pemanfaatan",
+      "grade": "AA",
+      "description": "Jika kualitas seluruh kriteria telah terpenuhi (100%) dan terdapat upaya inovatif serta layak menjadi percontohan secara nasional."
+    },
+    {
+      "perspective": "C. Pemanfaatan",
+      "grade": "A",
+      "description": "Jika kualitas seluruh kriteria telah terpenuhi (100%) dan terdapat beberapa upaya yang bisa dihargai dari pemenuhan kriteria tersebut."
+    },
+    {
+      "perspective": "C. Pemanfaatan",
+      "grade": "BB",
+      "description": "Jika kualitas seluruh kriteria telah terpenuhi (100%) sesuai dengan mandat kebijakan nasional."
+    },
+    {
+      "perspective": "C. Pemanfaatan",
+      "grade": "B",
+      "description": "Jika kualitas sebagian besar kriteria telah terpenuhi (>75% - 100%)."
+    },
+    {
+      "perspective": "C. Pemanfaatan",
+      "grade": "CC",
+      "description": "Jika kualitas sebagian besar kriteria telah terpenuhi (>50% - 75%)."
+    },
+    {
+      "perspective": "C. Pemanfaatan",
+      "grade": "C",
+      "description": "Jika kualitas sebagian kecil kriteria telah terpenuhi (>25% - 50%)."
+    },
+    {
+      "perspective": "C. Pemanfaatan",
+      "grade": "D",
+      "description": "Jika kriteria penilaian akuntabilitas kinerja telah mulai dipenuhi (>0% - 25%)."
+    },
+    {
+      "perspective": "C. Pemanfaatan",
+      "grade": "E",
+      "description": "Jika sama sekali tidak ada upaya dalam pemenuhan kriteria penilaian akuntabilitas kinerja."
+    }
+  ],
+  "examples": [
+    {
+      "source": "Audit_4f2e7482_Result.pdf",
+      "pages": [
+        1
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "1. Dokumen Perencanaan kinerja telah tersedia",
+      "criteria": "1. Terdapat pedoman teknis perencanaan kinerja.",
+      "auditee_grade": "AA",
+      "evaluator_grade": "AA",
+      "note": "Satker telah memiliki pedoman teknis perencanaan kinerja yang formal, lengkap, dan legal melalui Keputusan Sekretaris Mahkamah Agung RI Nomor 2049/SE K/SK/XII/2022. Pedoman telah mengatur secara komprehensif proses penyelenggaraan SAKIP mulai dari perencanaan, pengukuran, pelaporan, evaluasi, hingga format dokumen kinerja yang berlaku bagi badan peradilan di bawah Mahkamah Agung termasuk Pengadilan Agama Sampang.",
+      "recommendation": "1.Menyusun evidence implementasi pedoman dalam penyusunan Renstra, RKT, PK, dan LKjIP satker. 2. Menyediakan dokumentasi sosialisasi atau tindak lanjut implementasi pedoman SAKIP di tingkat satker.",
+      "teacher_score": 85.0,
+      "assessor_note": "Catatan sudah sangat baik, namun belum menyertakan alasan pemilihan nilai (huruf) nya untuk kriteria ini"
+    },
+    {
+      "source": "Audit_4f2e7482_Result.pdf",
+      "pages": [
+        1
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "1. Dokumen Perencanaan kinerja telah tersedia",
+      "criteria": "2. Terdapat dokumen perencanaan kinerja jangka panjang.",
+      "auditee_grade": "AA",
+      "evaluator_grade": "AA",
+      "note": "Satker telah memiliki dokumen perencanaan kinerja jangka panjang berupa Cetak Biru Pembaruan Peradilan 2010–2035 Mahkamah Agung RI sebagai arah kebijakan strategis jangka panjang organisasi peradilan.",
+      "recommendation": "Menyediakan evidence internal berupa telaah, pedoman, atau berita acara penyusunan Renstra yang menunjukkan penggunaan blueprint Mahkamah Agung sebagai acuan resmi perencanaan strategis satker.",
+      "teacher_score": 85.0,
+      "assessor_note": "Catatan sudah sangat baik, namun belum menyertakan alasan pemilihan nilai (huruf) nya untuk kriteria ini"
+    },
+    {
+      "source": "Audit_4f2e7482_Result.pdf",
+      "pages": [
+        1,
+        2
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "1. Dokumen Perencanaan kinerja telah tersedia",
+      "criteria": "3. Terdapat dokumen perencanaan kinerja jangka menengah.",
+      "auditee_grade": "AA",
+      "evaluator_grade": "AA",
+      "note": "Satker telah memiliki dokumen perencanaan kinerja jangka menengah berupa Dokumen Rencana Strategis (Renstra) Pengadilan Agama Sampang periode 2025–2029 yang digunakan sebagai pedoman pelaksanaan program, kegiatan, sasaran, dan target kinerja organisasi dalam periode 5 (lima) tahun. Dokumen Renstra telah memuat keterkaitan dengan arah kebijakan Mahkamah Agung dan RPJMN serta mengacu pada Cetak Biru Pembaruan Peradilan 2010–2035. Berdasarkan hasil penelaahan evidence, Renstra juga telah memuat sasaran strategis, indikator kinerja, target kinerja, analisis kondisi organisasi, kerangka kelembagaan, serta arah kebijakan strategis satker.",
+      "recommendation": "1. Satker agar melakukan penyesuaian dan penyempurnaan deskripsi evidence agar sesuai dengan dokumen yang diunggah, sehingga tidak menimbulkan inkonsistensi antara uraian auditee dan bukti dukung.",
+      "teacher_score": 70.0,
+      "assessor_note": "Catatan sudah cukup baik, namun belum menyertakan alasan pemilihan nilai (huruf) nya untuk kriteria ini aserta substansi eviden yg dibahas masih parsial."
+    },
+    {
+      "source": "Audit_4f2e7482_Result.pdf",
+      "pages": [
+        2,
+        3
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "1. Dokumen Perencanaan kinerja telah tersedia",
+      "criteria": "4. Terdapat dokumen perencanaan kinerja jangka pendek.",
+      "auditee_grade": "A",
+      "evaluator_grade": "A",
+      "note": "Satker telah memiliki dokumen perencanaan kinerja jangka pendek berupa Rencana Kinerja Tahunan (RKT) yang tersedia secara berkelanjutan untuk beberapa periode tahun berjalan. Dokumen telah disusun secara formal, ditetapkan pimpinan satker, dan memuat sasaran strategis, indikator kinerja, target capaian, serta unsur perencanaan tahunan lainnya sesuai karakteristik format perencanaan pada masing-masing periode penyusunan. Evidence juga menunjukkan bahwa format RKT telah selaras dengan Pedoman Pelaksanaan SAKIP Mahkamah Agung sesuai Keputusan Sekretaris Mahkamah Agung Nomor 2049/SEK/S K/XII/2022.",
+      "recommendation": "1.Satker agar melengkapi evidence reviu dan evaluasi berkala atas pelaksanaan RKT sebagai dasar penyempurnaan target dan strategi kinerja tahun berikutnya. 2. Satker agar memastikan seluruh dokumen RKT terdokumentasi secara sistematis dan mudah ditelusuri sebagai evidence akuntabilitas perencanaan kinerja tahunan.",
+      "teacher_score": 30.0,
+      "assessor_note": "Analisis Evaluator atas keberadaan eviden pada kriteria ini sudah cukup baik. Namun, Evaluator tiba-tiba menggeser fokus evaluasinya menjadi \"kualitas\" dengan mencatat hal-hal seperti \"...telah disusun secara formal, ditetapkan pimpinan satker, dan memuat...\" dan \"....format RKT telah selaras dengan Pedoman...\". Dengan demikian, hasil evaluasinya dinilai kurang valid."
+    },
+    {
+      "source": "Audit_4f2e7482_Result.pdf",
+      "pages": [
+        3,
+        4
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "1. Dokumen Perencanaan kinerja telah tersedia",
+      "criteria": "5. Terdapat dokumen perencanaan aktivitas yang mendukung kinerja.",
+      "auditee_grade": "A",
+      "evaluator_grade": "A",
+      "note": "Satker telah memiliki dokumen perencanaan aktivitas yang mendukung kinerja organisasi berupa Program Kerja/Rencana Aksi beserta dokumen pendukung lainnya seperti jadwal pelaksanaan kegiatan, TOR/KAK, dokumen aktivitas pendukung, dan format monitoring pelaksanaan kegiatan. Evidence menunjukkan bahwa dokumen telah digunakan untuk mendukung pelaksanaan aktivitas organisasi dan pencapaian target kinerja satker.",
+      "recommendation": "-",
+      "teacher_score": 30.0,
+      "assessor_note": "Analisis Evaluator atas keberadaan eviden pada kriteria ini sudah cukup baik. Namun, Evaluator tiba-tiba menggeser fokus evaluasinya menjadi \"kemanfaatan\" dengan mencatat hal-hal seperti \"...telah digunakan untuk mendukung pelaksanaan aktivitas...\". Dengan demikian, hasil evaluasinya dinilai kurang valid."
+    },
+    {
+      "source": "Audit_4f2e7482_Result.pdf",
+      "pages": [
+        4
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "1. Dokumen Perencanaan kinerja telah tersedia",
+      "criteria": "6. Terdapat dokumen perencanaan anggaran yang mendukung kinerja.",
+      "auditee_grade": "A",
+      "evaluator_grade": "A",
+      "note": "Satker telah memiliki dokumen perencanaan anggaran yang mendukung pencapaian sasaran dan target kinerja organisasi. Hal ini ditunjukkan melalui keberadaan DIPA Tahun Anggaran 2026 yang telah ditetapkan secara formal dan matriks pendanaan Renstra 2025–2029 yang menggambarkan keterkaitan antara sasaran strategis, program/kegiatan, indikator, target, dan alokasi pendanaan tahunan. Dokumen yang disampaikan telah memenuhi keterkaitan antara perencanaan kinerja dan penganggaran",
+      "recommendation": "1. Menyusun mapping yang lebih rinci antara PK, RKA/DIPA, dan output kegiatan agar hubungan kausalitas anggaran terhadap kinerja lebih mudah ditelusuri. 2.Memastikan seluruh dokumen penganggaran terdokumentasi secara konsisten dan terdigitalisasi sebagai evidence evaluasi AKIP berikutnya.",
+      "teacher_score": 30.0,
+      "assessor_note": "Analisis Evaluator atas keberadaan eviden pada kriteria ini sudah cukup baik. Namun, Evaluator tiba-tiba menggeser fokus evaluasinya menjadi \"kemanfaatan\" dengan mencatat hal-hal seperti \"...telah memiliki dokumen perencanaan anggaran yang mendukung pencapaian...\". Dengan demikian, hasil evaluasinya dinilai kurang valid."
+    },
+    {
+      "source": "Audit_4f2e7482_Result.pdf",
+      "pages": [
+        4,
+        5
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "1. Dokumen Perencanaan kinerja telah tersedia",
+      "criteria": "7. Setiap unit satuan kerja merumuskan dan menetapkan Perencanaan Kinerja.",
+      "auditee_grade": "A",
+      "evaluator_grade": "A",
+      "note": "Satker telah memiliki dokumen perencanaan kinerja yang menggambarkan penurunan sasaran dan target kinerja hingga level unit kerja melalui dokumen PK, Renstra, RKT/Renja, dan cascading kinerja. Evidence tersebut menunjukkan bahwa perencanaan kinerja pada unit/satuan kerja telah tersedia dan ditetapkan secara formal.",
+      "recommendation": "Melengkapi evidence penetapan hingga level individu/SKP untuk memperkuat keterhubungan cascading kinerja organisasi.",
+      "teacher_score": 30.0,
+      "assessor_note": "Analisis Evaluator atas keberadaan eviden pada kriteria ini sudah cukup baik. Namun, Evaluator tiba-tiba menggeser fokus evaluasinya menjadi \"kualitas\" dengan mencatat hal-hal seperti \"...yang menggambarkan penurunan sasaran dan target kinerja...\". Dengan demikian, hasil evaluasinya dinilai kurang valid."
+    },
+    {
+      "source": "Audit_4f2e7482_Result.pdf",
+      "pages": [
+        5
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "2. Dokumen Perencanaan kinerja telah memenuhi standar yang baik, yaitu untuk mencapai hasil dengan ukuran kinerja yang SMART, menggunakan penyelarasan (cascading) disetiap level secara logis, serta memperhatikan kinerja bidang lain (crosscutting)",
+      "criteria": "1. Dokumen Perencanaan Kinerja telah diformalkan.",
+      "auditee_grade": "AA",
+      "evaluator_grade": "A",
+      "note": "Dokumen perencanaan kinerja telah diformalkan dan disahkan secara resmi oleh pimpinan satker serta telah memenuhi unsur legalitas dokumen perencanaan kinerja. Proses formalisasi dokumen juga menunjukkan keteraturan administrasi yang cukup baik dan mendukung pelaksanaan manajemen kinerja organisasi. Namun belum terlihat adanya inovasi atau mekanisme pengendalian administrasi dokumen yang lebih maju sebagai nilai tambah kualitas.",
+      "recommendation": "-",
+      "teacher_score": 100.0,
+      "assessor_note": "Catatan sudah sangat baik dan lengkap menganalisis korelasi antara nilai yang dipilih dan alasannya pada kolom \"Catatan\"."
+    },
+    {
+      "source": "Audit_4f2e7482_Result.pdf",
+      "pages": [
+        5,
+        6
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "2. Dokumen Perencanaan kinerja telah memenuhi standar yang baik, yaitu untuk mencapai hasil dengan ukuran kinerja yang SMART, menggunakan penyelarasan (cascading) disetiap level secara logis, serta memperhatikan kinerja bidang lain (crosscutting)",
+      "criteria": "2. Dokumen Perencanaan Kinerja telah dipublikasikan tepat waktu.",
+      "auditee_grade": "A",
+      "evaluator_grade": "A",
+      "note": "Satker telah mempublikasikan dokumen perencanaan kinerja melalui website resmi Pengadilan Agama Sampang secara terbuka dan terstruktur. Evidence menunjukkan tersedianya dokumen Renstra, RKT, Rencana Aksi Kinerja, dan Program Kerja Tahunan beserta link download pada media publikasi resmi organisasi. Publikasi dokumen juga telah menunjukkan konsistensi antar tahun dan mendukung prinsip transparansi informasi publik. Namun demikian, bukti spesifik terkait timestamp atau ketepatan waktu publikasi masing-masing dokumen belum terlihat secara eksplisit dalam evidence yang disampaikan.",
+      "recommendation": "-",
+      "teacher_score": 25.0,
+      "assessor_note": "Catatan yang diberikan belum selaras dengan nilai/huruf yg dipilih. Nilai A seharusnya dipilih karena ada hal lain yang patut diapresiasi oleh Evaluator. Catatan yang diberikan mengarah pada nilai B atau lebih rendah."
+    },
+    {
+      "source": "Audit_4f2e7482_Result.pdf",
+      "pages": [
+        6,
+        7
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "2. Dokumen Perencanaan kinerja telah memenuhi standar yang baik, yaitu untuk mencapai hasil dengan ukuran kinerja yang SMART, menggunakan penyelarasan (cascading) disetiap level secara logis, serta memperhatikan kinerja bidang lain (crosscutting)",
+      "criteria": "3. Dokumen Perencanaan Kinerja telah menggambarkan Kebutuhan atas Kinerja sebenarnya yang perlu dicapai.",
+      "auditee_grade": "BB",
+      "evaluator_grade": "A",
+      "note": "Evidence menunjukkan bahwa proses penyusunan PK telah mengacu pada Renstra dan terdapat mekanisme reviu Renstra/IKU. Secara umum telah terdapat hubungan logis antara: (cid:0)R(cid:0)e(cid:0)n(cid:0)s(cid:0)t(cid:0)r(cid:0)a(cid:0) !’(cid:0) (cid:0)R(cid:0)e(cid:0)v(cid:0)i(cid:0)u (cid:0)R(cid:0)e(cid:0)n(cid:0)s(cid:0)t(cid:0)r(cid:0)a(cid:0) !’(cid:0) (cid:0)R(cid:0)K(cid:0)T(cid:0) !’ PK. Namun evaluator tdk dapat memverifikasi LKJIP final",
+      "recommendation": "Masih diperlukan evidence tambahan berupa: LKjIP final;",
+      "teacher_score": 60.0,
+      "assessor_note": "Catatan sudah cukup baik, kecenderungan argumentasi telah sesuai dengan huruf yang dipilih; namun, analisis belum cukup detail membuktikan terpenuhi/tidaknya kriteria ini."
+    },
+    {
+      "source": "Audit_4f2e7482_Result.pdf",
+      "pages": [
+        7,
+        8
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "2. Dokumen Perencanaan kinerja telah memenuhi standar yang baik, yaitu untuk mencapai hasil dengan ukuran kinerja yang SMART, menggunakan penyelarasan (cascading) disetiap level secara logis, serta memperhatikan kinerja bidang lain (crosscutting)",
+      "criteria": "4. Kualitas Rumusan Hasil (Tujuan/Sasaran) telah jelas menggambarkan kondisi kinerja yang akan dicapai.",
+      "auditee_grade": "A",
+      "evaluator_grade": "A",
+      "note": "Berdasarkan hasil pencermatan dokumen Renstra, RKT, dan PK pada bukti dukung, diketahui bahwa sasaran strategis dalam Renstra telah digunakan sebagai acuan dalam penyusunan dokumen perencanaan lainnya. Hal ini terlihat dari konsistensi rumusan sasaran strategis beserta indikator kinerjanya. asaran tersebut diturunkan kembali dalam dokumen RKT beserta target indikator tahunannya seperti persentase penyelesaian perkara tepat waktu, indeks kepuasan pengguna layanan, IKPA, dan IP ASN. Dengan demikian, sasaran kinerja pada dokumen rencana telah menjadi acuan dalam penyusunan dokumen perencanaan lainnya secara berjenjang dan selaras. Berdasarkan hasil analisis dokumen Renstra dan RKT, rumusan tujuan dan sasaran pada umumnya telah berorientasi hasil (outcome) karena menggambarkan kondisi kinerja yang ingin dicapai dan bukan hanya aktivitas/kegiatan. Indikator yang digunakan juga telah menggambarkan hasil kinerja organisasi",
+      "recommendation": "1.Mempertahankan konsistensi penyelarasan sasaran strategis Renstra ke dalam RKT dan PK agar hubungan kinerja antar dokumen perencanaan tetap terjaga secara logis dan terukur. 2. Memperkuat rumusan sasaran dan indikator kinerja agar lebih berorientasi pada outcome/hasil yang dirasakan pengguna layanan, bukan dominan pada aktivitas atau proses internal.",
+      "teacher_score": 100.0,
+      "assessor_note": "Catatan sudah sangat baik dan lengkap menganalisis korelasi antara nilai yang dipilih dan alasannya pada kolom \"Catatan\"."
+    },
+    {
+      "source": "Audit_4f2e7482_Result.pdf",
+      "pages": [
+        8
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "2. Dokumen Perencanaan kinerja telah memenuhi standar yang baik, yaitu untuk mencapai hasil dengan ukuran kinerja yang SMART, menggunakan penyelarasan (cascading) disetiap level secara logis, serta memperhatikan kinerja bidang lain (crosscutting)",
+      "criteria": "5. Ukuran Keberhasilan (Indikator Kinerja) telah memenuhi kriteria SMART.",
+      "auditee_grade": "BB",
+      "evaluator_grade": "A",
+      "note": "Satker telah menunjukkan upaya dalam memenuhi prinsip SMART pada indikator kinerja melalui penyusunan matriks SMART, formula pengukuran, sumber data, dan penanggung jawab indikator, meskipun masih diperlukan penguatan pada orientasi outcome dan ketajaman target kinerja",
+      "recommendation": "1. Melakukan penyempurnaan terhadap beberapa indikator agar lebih berorientasi outcome dan mampu menggambarkan dampak atau manfaat layanan secara lebih substantif. 2.Memperkuat kualitas target indikator agar lebih spesifik, terukur, dan mencerminkan kondisi kinerja yang ingin dicapai secara lebih jelas.",
+      "teacher_score": 100.0,
+      "assessor_note": "Catatan sudah sangat baik dan lengkap menganalisis korelasi antara nilai yang dipilih dan alasannya pada kolom \"Catatan\"."
+    },
+    {
+      "source": "Audit_4f2e7482_Result.pdf",
+      "pages": [
+        8,
+        9
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "2. Dokumen Perencanaan kinerja telah memenuhi standar yang baik, yaitu untuk mencapai hasil dengan ukuran kinerja yang SMART, menggunakan penyelarasan (cascading) disetiap level secara logis, serta memperhatikan kinerja bidang lain (crosscutting)",
+      "criteria": "6. Indikator Kinerja Utama (IKU) telah menggambarkan kondisi Kinerja Utama yang harus dicapai, tertuang secara berkelanjutan (sustainable - tidak sering diganti dalam 1 periode Perencanaan Strategis).",
+      "auditee_grade": "A",
+      "evaluator_grade": "A",
+      "note": "Dokumen IKU Pengadilan Agama Sampang telah tersedia secara formal dan menunjukkan keberlanjutan arah kinerja utama organisasi dalam beberapa periode reviu. Perubahan indikator yang terjadi masih dalam batas kewajaran karena dipengaruhi penyesuaian kebijakan Mahkamah Agung RI, penguatan indikator berbasis outcome, serta penyelarasan Renstra 2025–2029. Selain itu, satker telah menunjukkan adanya mekanisme formal reviu IKU melalui pembentukan tim penyusun dan penetapan SK reviu IKU secara berkala. Namun demikian, masih terdapat beberapa perubahan nomenklatur dan formulasi indikator antar periode yang perlu terus dijaga konsistensinya agar kesinambungan pengukuran kinerja jangka menengah tetap optimal.",
+      "recommendation": "Satker perlu mendo kumentasikan matriks perbandingan perubahan IKU antar periode reviu sebagai bentuk pengendalian dan justifikasi atas perubahan indikator yang dilakukan.",
+      "teacher_score": 100.0,
+      "assessor_note": "Catatan sudah sangat baik dan lengkap menganalisis korelasi antara nilai yang dipilih dan alasannya pada kolom \"Catatan\"."
+    },
+    {
+      "source": "Audit_4f2e7482_Result.pdf",
+      "pages": [
+        9,
+        10
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "2. Dokumen Perencanaan kinerja telah memenuhi standar yang baik, yaitu untuk mencapai hasil dengan ukuran kinerja yang SMART, menggunakan penyelarasan (cascading) disetiap level secara logis, serta memperhatikan kinerja bidang lain (crosscutting)",
+      "criteria": "7. Target yang ditetapkan dalam Perencanaan Kinerja dapat dicapai (achievable), menantang, dan realistis.",
+      "auditee_grade": "BB",
+      "evaluator_grade": "BB",
+      "note": "Dokumen perencanaan kinerja telah memuat target dan indikator yang terukur serta realistis untuk dicapai sesuai tugas fungsi Pengadilan Agama Sampang. Namun evidence pendukung yang disampaikan belum cukup lengkap untuk menunjukkan bahwa target disusun berdasarkan analisis trend capaian tahun sebelumnya, baseline kinerja, kapasitas SDM, dan dukungan anggaran secara terdokumentasi. Selain itu, aspek target yang “menantang” juga belum tergambar secara kuat pada seluruh indikator yang digunakan.",
+      "recommendation": "1. Melengkapi evidence penetapan target kinerja dengan analisis trend capaian tahun sebelumnya dan baseline kinerja organisasi. 2. Menyusun dokumen justifikasi target yang mempertimbangkan beban kerja, kapasitas SDM, dukungan anggaran, dan proyeksi capaian kinerja 3. Mendokumentasi kan hasil monitoring dan evaluasi capaian tahun sebelumnya sebagai dasar dalam menetapkan target pada Renstra dan PK tahun berjalan.",
+      "teacher_score": 60.0,
+      "assessor_note": "Catatan sudah cukup baik, kecenderungan argumentasi telah sesuai dengan huruf yang dipilih; namun, analisis belum cukup detail membuktikan terpenuhi/tidaknya kriteria ini."
+    },
+    {
+      "source": "Audit_4f2e7482_Result.pdf",
+      "pages": [
+        10
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "2. Dokumen Perencanaan kinerja telah memenuhi standar yang baik, yaitu untuk mencapai hasil dengan ukuran kinerja yang SMART, menggunakan penyelarasan (cascading) disetiap level secara logis, serta memperhatikan kinerja bidang lain (crosscutting)",
+      "criteria": "8. Setiap Dokumen Perencanaan Kinerja menggambarkan hubungan yang berkesinambungan, serta selaras antara Kondisi/Hasil yang akan dicapai di setiap level jabatan (Cascading).",
+      "auditee_grade": "B",
+      "evaluator_grade": "B",
+      "note": "Satker telah memiliki dokumen cascading/pohon kinerja serta keterhubungan dasar antara Renstra, PK, dan sebagian SKP pegawai. Namun masih diperlukan penguatan kualitas cascading agar indikator pada seluruh level jabatan benar-benar menggambarkan kontribusi langsung terhadap pencapaian sasaran organisasi.",
+      "recommendation": "1. Melakukan reviu menyeluruh terhadap cascading kinerja dari level satker hingga individu agar seluruh indikator memiliki hubungan kausalitas yang jelas. 2. Mengurangi indikator administratif rutin yang tidak berkontribusi langsung terhadap outcome organisasi.",
+      "teacher_score": 100.0,
+      "assessor_note": "Catatan sudah sangat baik dan lengkap menganalisis korelasi antara nilai yang dipilih dan alasannya pada kolom \"Catatan\"."
+    },
+    {
+      "source": "Audit_4f2e7482_Result.pdf",
+      "pages": [
+        10,
+        11
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "2. Dokumen Perencanaan kinerja telah memenuhi standar yang baik, yaitu untuk mencapai hasil dengan ukuran kinerja yang SMART, menggunakan penyelarasan (cascading) disetiap level secara logis, serta memperhatikan kinerja bidang lain (crosscutting)",
+      "criteria": "9. Perencanaan kinerja dapat memberikan informasi tentang hubungan kinerja, strategi, kebijakan, bahkan aktivitas antar bidang/dengan tugas dan fungsi lain yang berkaitan (Crosscutting).",
+      "auditee_grade": "B",
+      "evaluator_grade": "B",
+      "note": "Satker telah menunjukkan adanya praktik koordinasi dan keterkaitan lintas bidang/unit kerja dalam mendukung pencapaian sasaran organisasi. Namun dokumentasi crosscutting dalam perencanaan kinerja masih perlu diperkuat agar hubungan strategi, aktivitas, dan dukungan antar unit dapat tergambar lebih jelas dan terukur.",
+      "recommendation": "1. Memperkuat penggambaran hubungan lintas bidang/unit kerja dalam dokumen perencanaan kinerja dan pohon kinerja. 2.Menyusun mekanisme koordinasi lintas unit yang lebih jelas dalam pelaksanaan program dan kegiatan. 3.Memastikan setiap aktivitas crosscutting memiliki hubungan kausalitas yang terukur terhadap pencapaian sasaran organisasi.",
+      "teacher_score": 80.0,
+      "assessor_note": "Catatan sudah baik, namun analisis pada catatan hasil evaluasi belum kian mendalam dan lengkap."
+    },
+    {
+      "source": "Audit_4f2e7482_Result.pdf",
+      "pages": [
+        11
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "2. Dokumen Perencanaan kinerja telah memenuhi standar yang baik, yaitu untuk mencapai hasil dengan ukuran kinerja yang SMART, menggunakan penyelarasan (cascading) disetiap level secara logis, serta memperhatikan kinerja bidang lain (crosscutting)",
+      "criteria": "10. Setiap pegawai merumuskan dan menetapkan Perencanaan Kinerja.",
+      "auditee_grade": "BB",
+      "evaluator_grade": "BB",
+      "note": "Pengadilan Agama Sampang telah memiliki dan menetapkan dokumen Perjanjian Kinerja pegawai secara formal dan berjenjang. Evidence menunjukkan bahwa perencanaan kinerja individu telah diterapkan sampai level pegawai melalui dokumen PK yang ditandatangani pegawai dan atasan langsung. Namun demikian, bukti dukung yang disampaikan masih dominan menggunakan dokumen Perjanjian Kinerja Tahun 2024, sehingga evidence implementasi tahun berjalan 2025 belum sepenuhnya tergambar secara lengka",
+      "recommendation": "1.Melengkapi evidence Perjanjian Kinerja pegawai Tahun 2025 secara lengkap untuk seluruh level jabatan. 2.Memastikan seluruh PK individu tahun berjalan telah ditetapkan dan terdokumentasi sesuai periode evaluasi AKIP. 3.Memperkuat kualitas cascading indikator individu agar lebih terhubung dengan sasaran strategis organisasi.",
+      "teacher_score": 25.0,
+      "assessor_note": "Catatan yang diberikan belum selaras dengan nilai/huruf yg dipilih. Nilai BB seharusnya dipilih karena seluruh unsur kriteria telah terpenuhi. Catatan yang diberikan mengarah pada nilai B."
+    },
+    {
+      "source": "Audit_4f2e7482_Result.pdf",
+      "pages": [
+        11,
+        12,
+        13
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "3. Perencanaan Kinerja telah dimanfaatkan untuk mewujudkan hasil yang berkesinambungan",
+      "criteria": "1. Anggaran yang ditetapkan telah mengacu pada Kinerja yang ingin dicapai.",
+      "auditee_grade": "A",
+      "evaluator_grade": "BB",
+      "note": "Pengadilan Agama Sampang telah menunjukkan bahwa penyusunan dan pemanfaatan anggaran dilakukan dengan mempertimbangkan target kinerja organisasi. Hal tersebut terlihat dari adanya keterkaitan antara Perjanjian Kinerja, program kerja, rencana anggaran, monitoring pelaksanaan anggaran, revisi anggaran berbasis IKPA, serta dokumen pendukung perencanaan seperti TOR/RAB dan usulan program kegiatan. Selain itu, satker telah melakukan monitoring dan evaluasi pelaksanaan anggaran serta tindak lanjut hasil evaluasi sebagai bagian dari pengendalian pencapaian kinerja. Namun demikian, evidence yang disampaikan belum sepenuhnya menunjukkan keterhubungan yang komprehensif antara sasaran strategis, indikator kinerja, target output, dan alokasi anggaran secara terukur dalam bentuk matriks pendanaan atau mekanisme penganggaran berbasis outcome.Selain itu, satker telah melakukan monitoring dan evaluasi pelaksanaan anggaran serta tindak lanjut hasil evaluasi sebagai bagian dari pengendalian pencapaian kinerja. Namun demikian, evidence yang disampaikan belum sepenuhnya menunjukkan keterhubungan yang komprehensif antara sasaran strategis, indikator kinerja, target output, dan alokasi anggaran secara terukur dalam bentuk matriks pendanaan atau mekanisme penganggaran berbasis outcome.",
+      "recommendation": "Menyusun matriks keterkaitan sasaran kinerja dengan alokasi anggaran secara lebih terstruktur.",
+      "teacher_score": 25.0,
+      "assessor_note": "Catatan yang diberikan belum selaras dengan nilai/huruf yg dipilih. Nilai BB seharusnya dipilih karena seluruh unsur kriteria telah terpenuhi. Catatan yang diberikan mengarah pada nilai B atau lebih rendah."
+    },
+    {
+      "source": "Audit_4f2e7482_Result.pdf",
+      "pages": [
+        13,
+        14
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "3. Perencanaan Kinerja telah dimanfaatkan untuk mewujudkan hasil yang berkesinambungan",
+      "criteria": "2. Aktivitas yang dilaksanakan telah mendukung Kinerja yang ingin dicapai.",
+      "auditee_grade": "BB",
+      "evaluator_grade": "BB",
+      "note": "Pengadilan Agama Sampang telah melaksanakan berbagai aktivitas dan program kerja yang mendukung pencapaian kinerja organisasi. Hal tersebut terlihat dari adanya keterkaitan antara Perjanjian Kinerja, program kerja tahunan, pelaksanaan kegiatan, monitoring dan evaluasi pelaksanaan kegiatan, serta realisasi anggaran yang digunakan untuk mendukung target kinerja organisasi. Selain itu, satker telah melakukan pemantauan dan evaluasi terhadap pelaksanaan kegiatan sebagai bagian dari upaya memastikan aktivitas yang dijalankan tetap selaras dengan sasaran strategis dan target kinerja yang telah ditetapkan. Namun demikian, evidence yang disampaikan belum sepenuhnya menunjukkan pengukuran efektivitas masing-masing aktivitas terhadap pencapaian indikator kinerja secara terukur dan terdokumentasi secara komprehensif.",
+      "recommendation": "1.Menyusun mekanisme pengukuran efektivitas kegiatan terhadap pencapaian target kinerja secara lebih terukur. 2.Melakukan evaluasi berkala atas kontribusi masing-masing aktivitas terhadap capaian kinerja organisasi. 3.Mengoptimalkan penggunaan hasil monitoring dan evaluasi sebagai dasar perbaikan pelaksanaan kegiatan pada periode berikutnya.",
+      "teacher_score": 25.0,
+      "assessor_note": "Catatan yang diberikan belum selaras dengan nilai/huruf yg dipilih. Nilai BB seharusnya dipilih karena seluruh unsur kriteria telah terpenuhi. Catatan yang diberikan mengarah pada nilai B."
+    },
+    {
+      "source": "Audit_4f2e7482_Result.pdf",
+      "pages": [
+        14,
+        15
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "3. Perencanaan Kinerja telah dimanfaatkan untuk mewujudkan hasil yang berkesinambungan",
+      "criteria": "3. Target yang ditetapkan dalam Perencanaan Kinerja telah dicapai dengan baik, atau setidaknya masih on the right track.",
+      "auditee_grade": "BB",
+      "evaluator_grade": "BB",
+      "note": "Pengadilan Agama Sampang telah melakukan pemantauan dan evaluasi terhadap pencapaian target kinerja secara berkala melalui monitoring pelaksanaan kegiatan, laporan capaian kinerja, serta evaluasi realisasi program dan anggaran. Hal tersebut menunjukkan adanya upaya untuk memastikan target yang telah ditetapkan dalam Perencanaan Kinerja dapat tercapai sesuai dengan sasaran organisasi. Selain itu, satker juga telah melakukan penyesuaian dan tindak lanjut terhadap pelaksanaan kegiatan sebagai bagian dari pengendalian pencapaian target kinerja agar tetap berada pada jalur pencapaian yang telah direncanakan. Namun demikian, evidence yang disampaikan belum sepenuhnya menunjukkan analisis capaian target secara komprehensif, termasuk pengukuran tingkat ketercapaian masing-masing indikator kinerja, identifikasi deviasi capaian, serta langkah mitigasi terhadap target yang belum optimal.",
+      "recommendation": "Menyusun monitoring capaian kinerja yang memuat perbandingan target dan realisasi indikator kinerja secara berkala.",
+      "teacher_score": 80.0,
+      "assessor_note": "Catatan sudah baik, namun analisis pada catatan hasil evaluasi belum kian mendalam dan lengkap."
+    },
+    {
+      "source": "Audit_4f2e7482_Result.pdf",
+      "pages": [
+        15
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "3. Perencanaan Kinerja telah dimanfaatkan untuk mewujudkan hasil yang berkesinambungan",
+      "criteria": "4. Rencana aksi kinerja dapat berjalan dinamis karena capaian kinerja selalu dipantau secara berkala.",
+      "auditee_grade": "BB",
+      "evaluator_grade": "-",
+      "note": "-",
+      "recommendation": "-",
+      "teacher_score": 0.0,
+      "assessor_note": "-"
+    },
+    {
+      "source": "Audit_4f2e7482_Result.pdf",
+      "pages": [
+        16
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "3. Perencanaan Kinerja telah dimanfaatkan untuk mewujudkan hasil yang berkesinambungan",
+      "criteria": "5. Terdapat perbaikan/penyempurnaan Dokumen Perencanaan Kinerja yang ditetapkan dari hasil analisis perbaikan kinerja sebelumnya.",
+      "auditee_grade": "B",
+      "evaluator_grade": "-",
+      "note": "-",
+      "recommendation": "-",
+      "teacher_score": 0.0,
+      "assessor_note": "-"
+    },
+    {
+      "source": "Audit_4f2e7482_Result.pdf",
+      "pages": [
+        16
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "3. Perencanaan Kinerja telah dimanfaatkan untuk mewujudkan hasil yang berkesinambungan",
+      "criteria": "6. Terdapat perbaikan/penyempurnaan Dokumen Perencanaan Kinerja dalam mewujudkan kondisi/hasil yang lebih baik.",
+      "auditee_grade": "BB",
+      "evaluator_grade": "-",
+      "note": "-",
+      "recommendation": "-",
+      "teacher_score": 0.0,
+      "assessor_note": "-"
+    },
+    {
+      "source": "Audit_4f2e7482_Result.pdf",
+      "pages": [
+        16
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "3. Perencanaan Kinerja telah dimanfaatkan untuk mewujudkan hasil yang berkesinambungan",
+      "criteria": "7. Setiap unit/satuan kerja memahami dan peduli, serta berkomitmen dalam mencapai kinerja yang telah direncanakan.",
+      "auditee_grade": "A",
+      "evaluator_grade": "-",
+      "note": "-",
+      "recommendation": "-",
+      "teacher_score": 0.0,
+      "assessor_note": "-"
+    },
+    {
+      "source": "Audit_4f2e7482_Result.pdf",
+      "pages": [
+        16
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "3. Perencanaan Kinerja telah dimanfaatkan untuk mewujudkan hasil yang berkesinambungan",
+      "criteria": "8. Setiap Pegawai memahami dan peduli, serta berkomitmen dalam mencapai kinerja yang telah direncanakan.",
+      "auditee_grade": "A",
+      "evaluator_grade": "-",
+      "note": "-",
+      "recommendation": "-",
+      "teacher_score": 0.0,
+      "assessor_note": "-"
+    },
+    {
+      "source": "Audit_c3fd81d2_Result.pdf",
+      "pages": [
+        1
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "1. Dokumen Perencanaan kinerja telah tersedia",
+      "criteria": "1. Terdapat pedoman teknis perencanaan kinerja.",
+      "auditee_grade": "AA",
+      "evaluator_grade": "BB",
+      "note": "Satker telah memiliki pedoman teknis perencanaan kinerja. Namun, satker hanya mengandalkan regulasi pusat (SEKMA). Nilai maksimal diberikan jika satker memiliki turunan pedoman internal yang spesifik mengatur tata cara penyusunan IKU dan PK berjenjang",
+      "recommendation": "Satker disarankan menyusun Keputusan Ketua Satker tentang Pedoman Internal Perencanaan Kinerja yang mengadopsi aturan pusat agar sesuai dengan proses bisnis spesifik di unit kerja tersebut",
+      "teacher_score": 25.0,
+      "assessor_note": "Pertama, dokumen SK SEKMA yang dimaksud sah sebagai panduan yang diklaim oleh satuan kerja sebagai salah satu \"Badan Peradilan di bawah MA RI\" (lihat judul SK tersebut bagian Memutuskannya). Dengan demikian, penilaian Evaluator tidak tepat secara substansi. Kedua, terdapat disparitas antara nilai yang diberikan Evaluator (yakni \"BB\", yang berarti seluruh kriteria telah terpenuhi) dengan catatannya yg masih menilai ada yg belum terpenuhi sebanyak satu dokumen lagi, yakni pedoman internal yang spesifik mengatur tata cara penyusunan IKU dan PK berjenjang. Dengan demikian, seharusnya pemenuhan eviden kriteria ini adalah sekitar 50% atau bernilai \"C\". Dengan demikian, analisis atas kriteria ini dinilai kurang valid."
+    },
+    {
+      "source": "Audit_c3fd81d2_Result.pdf",
+      "pages": [
+        1
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "1. Dokumen Perencanaan kinerja telah tersedia",
+      "criteria": "2. Terdapat dokumen perencanaan kinerja jangka panjang.",
+      "auditee_grade": "AA",
+      "evaluator_grade": "AA",
+      "note": "Tidak diuji",
+      "recommendation": "Tidak diuji",
+      "teacher_score": 5.0,
+      "assessor_note": "Tidak ada catatan/tidak melakukan pengujian merupakan suatu kesalahan (nilai profesionalisme) dalam melaksanakan tugas pengawasan. Namun, karena Evaluator sudah memberikan penilaian, akan ada poin apresiasi."
+    },
+    {
+      "source": "Audit_c3fd81d2_Result.pdf",
+      "pages": [
+        1,
+        2
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "1. Dokumen Perencanaan kinerja telah tersedia",
+      "criteria": "3. Terdapat dokumen perencanaan kinerja jangka menengah.",
+      "auditee_grade": "AA",
+      "evaluator_grade": "AA",
+      "note": "Satker sudah melampirkan data dukung yang sesuai",
+      "recommendation": "-",
+      "teacher_score": 60.0,
+      "assessor_note": "Penilaian hanya bersifat normatif; sebatas menyatakan sesuai/tidak sesuai tanpa membedah data dukung."
+    },
+    {
+      "source": "Audit_c3fd81d2_Result.pdf",
+      "pages": [
+        2
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "1. Dokumen Perencanaan kinerja telah tersedia",
+      "criteria": "4. Terdapat dokumen perencanaan kinerja jangka pendek.",
+      "auditee_grade": "A",
+      "evaluator_grade": "B",
+      "note": "Satker hanya melampirkan dokumen RKT",
+      "recommendation": "Lengkapi dokumen PK dan RKA-KL",
+      "teacher_score": 25.0,
+      "assessor_note": "Terdapat disparitas antara nilai yang diberikan Evaluator (yakni \"B\", yang berarti setidaknya di atas 75% kriteria telah terpenuhi) dengan catatannya yg masih menilai ada yg belum terpenuhi sebanyak dua dokumen lagi, yakni a) PK dan b) RKA-KL. Dengan demikian, seharusnya pemenuhan eviden kriteria ini adalah sekitar 33% atau bernilai \"C\". Dengan demikian, analisis atas kriteria ini dinilai kurang valid."
+    },
+    {
+      "source": "Audit_c3fd81d2_Result.pdf",
+      "pages": [
+        2
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "1. Dokumen Perencanaan kinerja telah tersedia",
+      "criteria": "5. Terdapat dokumen perencanaan aktivitas yang mendukung kinerja.",
+      "auditee_grade": "A",
+      "evaluator_grade": "A",
+      "note": "Satker sudah memenuhi kelengkapan dokumen dan data dukung",
+      "recommendation": "-",
+      "teacher_score": 60.0,
+      "assessor_note": "Penilaian hanya bersifat normatif; sebatas menyatakan sesuai/tidak sesuai tanpa membedah data dukung."
+    },
+    {
+      "source": "Audit_c3fd81d2_Result.pdf",
+      "pages": [
+        2
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "1. Dokumen Perencanaan kinerja telah tersedia",
+      "criteria": "6. Terdapat dokumen perencanaan anggaran yang mendukung kinerja.",
+      "auditee_grade": "A",
+      "evaluator_grade": "B",
+      "note": "satker sudah melampirkan data dukung DIPA 01 dan DIPA 04",
+      "recommendation": "Lengkapi data pendukung KAK",
+      "teacher_score": 25.0,
+      "assessor_note": "terdapat disparitas antara nilai yang diberikan Evaluator (yakni \"B\", yang berarti setidaknya di atas 75% kriteria telah terpenuhi) dengan catatannya yg masih menilai ada yg belum terpenuhi sebanyak satu dokumen lagi, yakni KAK. Dengan demikian, seharusnya pemenuhan eviden kriteria ini adalah sekitar 66% (jika DIPA 01 dan 04 dipisah sebagai prasyarat) atau 50% (jika DIPA 01 dan 04 dianggap satu dokumen prasyarat, yakni DIPA), yang mana bernilai \"CC\" atau \"C\". Dengan demikian, analisis atas kriteria ini dinilai kurang valid."
+    },
+    {
+      "source": "Audit_c3fd81d2_Result.pdf",
+      "pages": [
+        3
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "1. Dokumen Perencanaan kinerja telah tersedia",
+      "criteria": "7. Setiap unit satuan kerja merumuskan dan menetapkan Perencanaan Kinerja.",
+      "auditee_grade": "A",
+      "evaluator_grade": "D",
+      "note": "Satker melampirkan data dukung tahun 2026 seharusnya tahun 2025",
+      "recommendation": "Lengkapi data dukung dengan tahun 2025",
+      "teacher_score": 25.0,
+      "assessor_note": "Analisis yang berfokus pada kesalahan periode (seharusnya 2025) sudah tepat, namun berkontrasdiksi dengan pemilihan nilai oleh Evaluator. Pemilihan nilai D berarti akurasi eviden milik Evaluatan setidaknya 1%, padahal secara naratif Evaluator menyatakan bahwa satu-satunya eviden milik satker (Program Kerja 2026) adalah salah (akurasi 0%); dengan demikain, seharusnya penilaian yang diberikan adalah \"E\"."
+    },
+    {
+      "source": "Audit_c3fd81d2_Result.pdf",
+      "pages": [
+        3
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "2. Dokumen Perencanaan kinerja telah memenuhi standar yang baik, yaitu untuk mencapai hasil dengan ukuran kinerja yang SMART, menggunakan penyelarasan (cascading) disetiap level secara logis, serta memperhatikan kinerja bidang lain (crosscutting)",
+      "criteria": "1. Dokumen Perencanaan Kinerja telah diformalkan.",
+      "auditee_grade": "AA",
+      "evaluator_grade": "B",
+      "note": "Satker tidak melampirkan data PK tahun 2021 dan 2022",
+      "recommendation": "Lengkapi data PK tahun 2021 dan 2022",
+      "teacher_score": 25.0,
+      "assessor_note": "Pemilihan grade sudah dinilai sesuai dengan catatan yang disajikan. Namun, Catatan Evaluator tidak relevan terhadap kriteria sama sekali."
+    },
+    {
+      "source": "Audit_c3fd81d2_Result.pdf",
+      "pages": [
+        3
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "2. Dokumen Perencanaan kinerja telah memenuhi standar yang baik, yaitu untuk mencapai hasil dengan ukuran kinerja yang SMART, menggunakan penyelarasan (cascading) disetiap level secara logis, serta memperhatikan kinerja bidang lain (crosscutting)",
+      "criteria": "2. Dokumen Perencanaan Kinerja telah dipublikasikan tepat waktu.",
+      "auditee_grade": "A",
+      "evaluator_grade": "A",
+      "note": "Satker telah melakukan publikasi pada web resmi",
+      "recommendation": "-",
+      "teacher_score": 20.0,
+      "assessor_note": "Catatan Evaluator tidak relevan terhadap kriteria sama sekali (ketepatan waktu publikasi)."
+    },
+    {
+      "source": "Audit_c3fd81d2_Result.pdf",
+      "pages": [
+        3,
+        4
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "2. Dokumen Perencanaan kinerja telah memenuhi standar yang baik, yaitu untuk mencapai hasil dengan ukuran kinerja yang SMART, menggunakan penyelarasan (cascading) disetiap level secara logis, serta memperhatikan kinerja bidang lain (crosscutting)",
+      "criteria": "3. Dokumen Perencanaan Kinerja telah menggambarkan Kebutuhan atas Kinerja sebenarnya yang perlu dicapai.",
+      "auditee_grade": "BB",
+      "evaluator_grade": "CC",
+      "note": "Satker tidak melampirkan LKjIP",
+      "recommendation": "Lengkapi dokumen LKjIP",
+      "teacher_score": 20.0,
+      "assessor_note": "Catatan Evaluator tidak relevan terhadap kriteria sama sekali (yakni seharusnya terkait \"kinerja berbasis kebutuhan\")."
+    },
+    {
+      "source": "Audit_c3fd81d2_Result.pdf",
+      "pages": [
+        4
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "2. Dokumen Perencanaan kinerja telah memenuhi standar yang baik, yaitu untuk mencapai hasil dengan ukuran kinerja yang SMART, menggunakan penyelarasan (cascading) disetiap level secara logis, serta memperhatikan kinerja bidang lain (crosscutting)",
+      "criteria": "4. Kualitas Rumusan Hasil (Tujuan/Sasaran) telah jelas menggambarkan kondisi kinerja yang akan dicapai.",
+      "auditee_grade": "A",
+      "evaluator_grade": "A",
+      "note": "Satker sudah melengkapi data dukung yang sesuai",
+      "recommendation": "-",
+      "teacher_score": 20.0,
+      "assessor_note": "Evaluator memberikan penjelasan yang nihil terkait alasan dipilihnya nilai A."
+    },
+    {
+      "source": "Audit_c3fd81d2_Result.pdf",
+      "pages": [
+        4
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "2. Dokumen Perencanaan kinerja telah memenuhi standar yang baik, yaitu untuk mencapai hasil dengan ukuran kinerja yang SMART, menggunakan penyelarasan (cascading) disetiap level secara logis, serta memperhatikan kinerja bidang lain (crosscutting)",
+      "criteria": "5. Ukuran Keberhasilan (Indikator Kinerja) telah memenuhi kriteria SMART.",
+      "auditee_grade": "BB",
+      "evaluator_grade": "A",
+      "note": "Satker sudah memenuhi kriteria",
+      "recommendation": "-",
+      "teacher_score": 20.0,
+      "assessor_note": "Evaluator memberikan penjelasan yang nihil terkait alasan dipilihnya nilai A."
+    },
+    {
+      "source": "Audit_c3fd81d2_Result.pdf",
+      "pages": [
+        4
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "2. Dokumen Perencanaan kinerja telah memenuhi standar yang baik, yaitu untuk mencapai hasil dengan ukuran kinerja yang SMART, menggunakan penyelarasan (cascading) disetiap level secara logis, serta memperhatikan kinerja bidang lain (crosscutting)",
+      "criteria": "6. Indikator Kinerja Utama (IKU) telah menggambarkan kondisi Kinerja Utama yang harus dicapai, tertuang secara berkelanjutan (sustainable - tidak sering diganti dalam 1 periode Perencanaan Strategis).",
+      "auditee_grade": "A",
+      "evaluator_grade": "A",
+      "note": "Satker sudah memberikan data dukung yang sesuai",
+      "recommendation": "-",
+      "teacher_score": 20.0,
+      "assessor_note": "Evaluator memberikan penjelasan yang nihil terkait alasan dipilihnya nilai A."
+    },
+    {
+      "source": "Audit_c3fd81d2_Result.pdf",
+      "pages": [
+        4,
+        5
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "2. Dokumen Perencanaan kinerja telah memenuhi standar yang baik, yaitu untuk mencapai hasil dengan ukuran kinerja yang SMART, menggunakan penyelarasan (cascading) disetiap level secara logis, serta memperhatikan kinerja bidang lain (crosscutting)",
+      "criteria": "7. Target yang ditetapkan dalam Perencanaan Kinerja dapat dicapai (achievable), menantang, dan realistis.",
+      "auditee_grade": "BB",
+      "evaluator_grade": "-",
+      "note": "-",
+      "recommendation": "-",
+      "teacher_score": 0.0,
+      "assessor_note": "-"
+    },
+    {
+      "source": "Audit_c3fd81d2_Result.pdf",
+      "pages": [
+        5
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "2. Dokumen Perencanaan kinerja telah memenuhi standar yang baik, yaitu untuk mencapai hasil dengan ukuran kinerja yang SMART, menggunakan penyelarasan (cascading) disetiap level secara logis, serta memperhatikan kinerja bidang lain (crosscutting)",
+      "criteria": "8. Setiap Dokumen Perencanaan Kinerja menggambarkan hubungan yang berkesinambungan, serta selaras antara Kondisi/Hasil yang akan dicapai di setiap level jabatan (Cascading).",
+      "auditee_grade": "B",
+      "evaluator_grade": "-",
+      "note": "-",
+      "recommendation": "-",
+      "teacher_score": 0.0,
+      "assessor_note": "-"
+    },
+    {
+      "source": "Audit_c3fd81d2_Result.pdf",
+      "pages": [
+        5
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "2. Dokumen Perencanaan kinerja telah memenuhi standar yang baik, yaitu untuk mencapai hasil dengan ukuran kinerja yang SMART, menggunakan penyelarasan (cascading) disetiap level secara logis, serta memperhatikan kinerja bidang lain (crosscutting)",
+      "criteria": "9. Perencanaan kinerja dapat memberikan informasi tentang hubungan kinerja, strategi, kebijakan, bahkan aktivitas antar bidang/dengan tugas dan fungsi lain yang berkaitan (Crosscutting).",
+      "auditee_grade": "B",
+      "evaluator_grade": "-",
+      "note": "-",
+      "recommendation": "-",
+      "teacher_score": 0.0,
+      "assessor_note": "-"
+    },
+    {
+      "source": "Audit_c3fd81d2_Result.pdf",
+      "pages": [
+        5
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "2. Dokumen Perencanaan kinerja telah memenuhi standar yang baik, yaitu untuk mencapai hasil dengan ukuran kinerja yang SMART, menggunakan penyelarasan (cascading) disetiap level secara logis, serta memperhatikan kinerja bidang lain (crosscutting)",
+      "criteria": "10. Setiap pegawai merumuskan dan menetapkan Perencanaan Kinerja.",
+      "auditee_grade": "BB",
+      "evaluator_grade": "-",
+      "note": "-",
+      "recommendation": "-",
+      "teacher_score": 0.0,
+      "assessor_note": "-"
+    },
+    {
+      "source": "Audit_c3fd81d2_Result.pdf",
+      "pages": [
+        5,
+        6
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "3. Perencanaan Kinerja telah dimanfaatkan untuk mewujudkan hasil yang berkesinambungan",
+      "criteria": "1. Anggaran yang ditetapkan telah mengacu pada Kinerja yang ingin dicapai.",
+      "auditee_grade": "A",
+      "evaluator_grade": "-",
+      "note": "-",
+      "recommendation": "-",
+      "teacher_score": 0.0,
+      "assessor_note": "-"
+    },
+    {
+      "source": "Audit_c3fd81d2_Result.pdf",
+      "pages": [
+        6
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "3. Perencanaan Kinerja telah dimanfaatkan untuk mewujudkan hasil yang berkesinambungan",
+      "criteria": "2. Aktivitas yang dilaksanakan telah mendukung Kinerja yang ingin dicapai.",
+      "auditee_grade": "BB",
+      "evaluator_grade": "-",
+      "note": "-",
+      "recommendation": "-",
+      "teacher_score": 0.0,
+      "assessor_note": "-"
+    },
+    {
+      "source": "Audit_c3fd81d2_Result.pdf",
+      "pages": [
+        6
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "3. Perencanaan Kinerja telah dimanfaatkan untuk mewujudkan hasil yang berkesinambungan",
+      "criteria": "3. Target yang ditetapkan dalam Perencanaan Kinerja telah dicapai dengan baik, atau setidaknya masih on the right track.",
+      "auditee_grade": "BB",
+      "evaluator_grade": "-",
+      "note": "-",
+      "recommendation": "-",
+      "teacher_score": 0.0,
+      "assessor_note": "-"
+    },
+    {
+      "source": "Audit_c3fd81d2_Result.pdf",
+      "pages": [
+        6
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "3. Perencanaan Kinerja telah dimanfaatkan untuk mewujudkan hasil yang berkesinambungan",
+      "criteria": "4. Rencana aksi kinerja dapat berjalan dinamis karena capaian kinerja selalu dipantau secara berkala.",
+      "auditee_grade": "BB",
+      "evaluator_grade": "-",
+      "note": "-",
+      "recommendation": "-",
+      "teacher_score": 0.0,
+      "assessor_note": "-"
+    },
+    {
+      "source": "Audit_c3fd81d2_Result.pdf",
+      "pages": [
+        6
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "3. Perencanaan Kinerja telah dimanfaatkan untuk mewujudkan hasil yang berkesinambungan",
+      "criteria": "5. Terdapat perbaikan/penyempurnaan Dokumen Perencanaan Kinerja yang ditetapkan dari hasil analisis perbaikan kinerja sebelumnya.",
+      "auditee_grade": "B",
+      "evaluator_grade": "-",
+      "note": "-",
+      "recommendation": "-",
+      "teacher_score": 0.0,
+      "assessor_note": "-"
+    },
+    {
+      "source": "Audit_c3fd81d2_Result.pdf",
+      "pages": [
+        6
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "3. Perencanaan Kinerja telah dimanfaatkan untuk mewujudkan hasil yang berkesinambungan",
+      "criteria": "6. Terdapat perbaikan/penyempurnaan Dokumen Perencanaan Kinerja dalam mewujudkan kondisi/hasil yang lebih baik.",
+      "auditee_grade": "BB",
+      "evaluator_grade": "-",
+      "note": "-",
+      "recommendation": "-",
+      "teacher_score": 0.0,
+      "assessor_note": "-"
+    },
+    {
+      "source": "Audit_c3fd81d2_Result.pdf",
+      "pages": [
+        6
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "3. Perencanaan Kinerja telah dimanfaatkan untuk mewujudkan hasil yang berkesinambungan",
+      "criteria": "7. Setiap unit/satuan kerja memahami dan peduli, serta berkomitmen dalam mencapai kinerja yang telah direncanakan.",
+      "auditee_grade": "A",
+      "evaluator_grade": "-",
+      "note": "-",
+      "recommendation": "-",
+      "teacher_score": 0.0,
+      "assessor_note": "-"
+    },
+    {
+      "source": "Audit_c3fd81d2_Result.pdf",
+      "pages": [
+        6
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "3. Perencanaan Kinerja telah dimanfaatkan untuk mewujudkan hasil yang berkesinambungan",
+      "criteria": "8. Setiap Pegawai memahami dan peduli, serta berkomitmen dalam mencapai kinerja yang telah direncanakan.",
+      "auditee_grade": "A",
+      "evaluator_grade": "-",
+      "note": "-",
+      "recommendation": "-",
+      "teacher_score": 0.0,
+      "assessor_note": "-"
+    },
+    {
+      "source": "Audit_d13cb490_Result.pdf",
+      "pages": [
+        1
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "1. Dokumen Perencanaan kinerja telah tersedia",
+      "criteria": "1. Terdapat pedoman teknis perencanaan kinerja.",
+      "auditee_grade": "AA",
+      "evaluator_grade": "BB",
+      "note": "PA Sampang telah melampirkan SEKMA tentang Pedoma Pelaksanaan Sistem Akuntabilitas Kinerja di Lingkungan Mahkamah Agung dan Badan Peradilan Di Bawahnya termasuk pedoman teknis perencanaan kinerja, yang dimana sudah sesuai dengan kriteria.",
+      "recommendation": "1.Agar membuat pedoman teknis perencanaan kinerja internal dari PA Sampang.",
+      "teacher_score": 25.0,
+      "assessor_note": "Pertama, dokumen SK SEKMA yang dimaksud sah sebagai panduan yang diklaim oleh satuan kerja sebagai salah satu \"Badan Peradilan di bawah MA RI\" (lihat judul SK tersebut bagian Memutuskannya). Dengan demikian, penilaian Evaluator tidak tepat secara substansi. Kedua, terdapat disparitas antara nilai yang diberikan Evaluator (yakni \"BB\", yang berarti seluruh kriteria telah terpenuhi) dengan catatannya yg masih menilai ada yg belum terpenuhi sebanyak satu dokumen lagi, yakni pedoman teknis perencanaan kinerja internal dari PA Sampang. Dengan demikian, seharusnya pemenuhan eviden kriteria ini adalah sekitar 50%, atau bernilai \"C\". Dengan demikian, analisis atas kriteria ini dinilai kurang valid."
+    },
+    {
+      "source": "Audit_d13cb490_Result.pdf",
+      "pages": [
+        1
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "1. Dokumen Perencanaan kinerja telah tersedia",
+      "criteria": "2. Terdapat dokumen perencanaan kinerja jangka panjang.",
+      "auditee_grade": "AA",
+      "evaluator_grade": "A",
+      "note": "udah terdapat dokumen perencanaan kinerja jangka panjang dengan melampirkan Cetak Biru Pembaruan Peradilan 2010-2035.",
+      "recommendation": "pertahankan.",
+      "teacher_score": 85.0,
+      "assessor_note": "Catatan sudah sangat baik, namun belum menyertakan alasan pemilihan nilai (huruf) nya untuk kriteria ini"
+    },
+    {
+      "source": "Audit_d13cb490_Result.pdf",
+      "pages": [
+        1,
+        2
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "1. Dokumen Perencanaan kinerja telah tersedia",
+      "criteria": "3. Terdapat dokumen perencanaan kinerja jangka menengah.",
+      "auditee_grade": "AA",
+      "evaluator_grade": "AA",
+      "note": "Sudah terdapat dokumen perencanaan kinerja jangka menengah dengan melampirkan rencana strategis PA Sampang tahun 2020-2024 dan 2025-2029.",
+      "recommendation": "pertahankan.",
+      "teacher_score": 85.0,
+      "assessor_note": "Catatan sudah sangat baik, namun belum menyertakan alasan pemilihan nilai (huruf) nya untuk kriteria ini"
+    },
+    {
+      "source": "Audit_d13cb490_Result.pdf",
+      "pages": [
+        2
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "1. Dokumen Perencanaan kinerja telah tersedia",
+      "criteria": "4. Terdapat dokumen perencanaan kinerja jangka pendek.",
+      "auditee_grade": "A",
+      "evaluator_grade": "B",
+      "note": "PA Sampang telah melampirkan dokumen RKT tahun 2021-2027 dan juga terdapat dokumen Perjanjian Kinerja (PK) PA Sampang, namun tidak terdapat dokumen RKA PA Sampang.",
+      "recommendation": "Agar dilampirkan dokumen RKA-KL.",
+      "teacher_score": 80.0,
+      "assessor_note": "Catatan sudah sangat baik, namun belum menyertakan alasan pemilihan nilai (huruf) nya untuk kriteria ini. Dokumen RKA yang dimintakan Evaluator tidak relevan sama sekali dengan kriteria ini."
+    },
+    {
+      "source": "Audit_d13cb490_Result.pdf",
+      "pages": [
+        2
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "1. Dokumen Perencanaan kinerja telah tersedia",
+      "criteria": "5. Terdapat dokumen perencanaan aktivitas yang mendukung kinerja.",
+      "auditee_grade": "A",
+      "evaluator_grade": "A",
+      "note": "PA Sampang telah melampirkan dokumen Program Kerja tahun 2024-2026 termasuk terdapat juga dokumen rencana aksi.",
+      "recommendation": "Peningkatan kedepannya agar dilampirkan Kerangka Acuan Kegiatan (KAK).",
+      "teacher_score": 85.0,
+      "assessor_note": "Catatan sudah sangat baik, namun belum menyertakan alasan pemilihan nilai (huruf) nya untuk kriteria ini"
+    },
+    {
+      "source": "Audit_d13cb490_Result.pdf",
+      "pages": [
+        2
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "1. Dokumen Perencanaan kinerja telah tersedia",
+      "criteria": "6. Terdapat dokumen perencanaan anggaran yang mendukung kinerja.",
+      "auditee_grade": "A",
+      "evaluator_grade": "C",
+      "note": "PA Sampang telah melampirkan dokumen perencanaan anggaran yaitu dokumen DIPA 01 dan DIPA 04 tahun 2025 dan 2026 , dokumen RKT namun tidak terdapat dokumen RKA, RAB, dan KAK/TOR.",
+      "recommendation": "Agar dilengkapi dokumen RKA, RAB, dan KAK/TOR.",
+      "teacher_score": 70.0,
+      "assessor_note": "Dokumen turunan DIPA sebagaimana yang disebutkan Evaluator (RKA, RAB, dst.) tidak menjadi eviden wajib pada kriteria ini. DIPA saja sudah memenuhi kriteria yg dimaksud. Namun, akurasi pemberian nilai terhadap catatannya patut diberikan poin apresiasi."
+    },
+    {
+      "source": "Audit_d13cb490_Result.pdf",
+      "pages": [
+        2,
+        3
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "1. Dokumen Perencanaan kinerja telah tersedia",
+      "criteria": "7. Setiap unit satuan kerja merumuskan dan menetapkan Perencanaan Kinerja.",
+      "auditee_grade": "A",
+      "evaluator_grade": "BB",
+      "note": "PA Sampang telah melampirkan dokumen program kerja tahun 2026, termasuk didalamnya terdapat matrik program kerja.",
+      "recommendation": "Agar dilengkapi dengan dokumen perencanaan kinerja yang menggambarkan setiap unit satuan kerja merumuskan dan menetapkan Perencanaan Kinerja.",
+      "teacher_score": 10.0,
+      "assessor_note": "Evaluator gagal menangkap kesalahan administrasi eviden oleh Evaluatan, yakni perihal periode eviden yg diberikan (seharusnya tahun 2025, bukan 2026). Namun, hasil analisisnya patut diberikan poin apresiasi."
+    },
+    {
+      "source": "Audit_d13cb490_Result.pdf",
+      "pages": [
+        3
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "2. Dokumen Perencanaan kinerja telah memenuhi standar yang baik, yaitu untuk mencapai hasil dengan ukuran kinerja yang SMART, menggunakan penyelarasan (cascading) disetiap level secara logis, serta memperhatikan kinerja bidang lain (crosscutting)",
+      "criteria": "1. Dokumen Perencanaan Kinerja telah diformalkan.",
+      "auditee_grade": "AA",
+      "evaluator_grade": "A",
+      "note": "PA Sampang telah melampirkan Renstra 2020-2024 dan 2025-2029 yang telah diformalkan, RKT 2021-2027 yang telah diformalkan, Perjanjian Kinerja tahun 2023 2024 2026 yang telah diformalkan, RKT 2021-2027 yang telah diformalkan, Reviu Perjanjian Kinerja 2025 yang telah diformalkan; Rencana Aksi telah dilampirkan pada indikator lain.",
+      "recommendation": "Pertahankan.",
+      "teacher_score": 25.0,
+      "assessor_note": "Catatan yang diberikan belum selaras dengan nilai/huruf yg dipilih. Nilai A seharusnya dipilih karena ada hal lain yang patut diapresiasi oleh Evaluator. Catatan yang diberikan mengarah pada nilai BB."
+    },
+    {
+      "source": "Audit_d13cb490_Result.pdf",
+      "pages": [
+        3
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "2. Dokumen Perencanaan kinerja telah memenuhi standar yang baik, yaitu untuk mencapai hasil dengan ukuran kinerja yang SMART, menggunakan penyelarasan (cascading) disetiap level secara logis, serta memperhatikan kinerja bidang lain (crosscutting)",
+      "criteria": "2. Dokumen Perencanaan Kinerja telah dipublikasikan tepat waktu.",
+      "auditee_grade": "A",
+      "evaluator_grade": "B",
+      "note": "PA Sampang telah menjalankan kewajiban publikasi dokumen Renstra namun tidak terdapat dokumen PK pada website PA Sampang.",
+      "recommendation": "Agar dipublikasikan juga Perjanjian Kinerja pada website PA Sampang.",
+      "teacher_score": 20.0,
+      "assessor_note": "Catatan Evaluator tidak relevan terhadap kriteria sama sekali (ketepatan waktu publikasi)."
+    },
+    {
+      "source": "Audit_d13cb490_Result.pdf",
+      "pages": [
+        3,
+        4
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "2. Dokumen Perencanaan kinerja telah memenuhi standar yang baik, yaitu untuk mencapai hasil dengan ukuran kinerja yang SMART, menggunakan penyelarasan (cascading) disetiap level secara logis, serta memperhatikan kinerja bidang lain (crosscutting)",
+      "criteria": "3. Dokumen Perencanaan Kinerja telah menggambarkan Kebutuhan atas Kinerja sebenarnya yang perlu dicapai.",
+      "auditee_grade": "BB",
+      "evaluator_grade": "CC",
+      "note": "PA Sampang telah melampirkan Cetak Biru Pembaruan Peradilan 2010-2035, Renstra 2025-2029, RKT 2021-2027, PK 2023 2024 dan 2026, Reviu PK 2025; Renstra telah selaras dengan PK 2025, 2026, dan 2027 namun tidak dilampirkan dokumen reviu renstra dan LKjIP.",
+      "recommendation": "Agar dilengkapi dengan melampirkan dokumen reviu renstra dan LKjIP.",
+      "teacher_score": 20.0,
+      "assessor_note": "Catatan Evaluator tidak relevan terhadap kriteria sama sekali (yakni seharusnya terkait \"kinerja berbasis kebutuhan\")."
+    },
+    {
+      "source": "Audit_d13cb490_Result.pdf",
+      "pages": [
+        4
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "2. Dokumen Perencanaan kinerja telah memenuhi standar yang baik, yaitu untuk mencapai hasil dengan ukuran kinerja yang SMART, menggunakan penyelarasan (cascading) disetiap level secara logis, serta memperhatikan kinerja bidang lain (crosscutting)",
+      "criteria": "4. Kualitas Rumusan Hasil (Tujuan/Sasaran) telah jelas menggambarkan kondisi kinerja yang akan dicapai.",
+      "auditee_grade": "A",
+      "evaluator_grade": "A",
+      "note": "Rumusan Tujuan dan Sasaran PA Sampang telah menggambarkan kondisi kinerja yang akan dicapai secara jelas pada dokumen renstra yang dilampirkan.",
+      "recommendation": "Jangan hanya terpaku pada angka persentase. Dalam laporan tahunan, sertakan analisis mendalam mengenai mengapa target tersebut tercapai atau tidak tercapai, serta dampaknya langsung bagi masyarakat pencari keadilan di Sampang.",
+      "teacher_score": 25.0,
+      "assessor_note": "Catatan yang diberikan belum selaras dengan nilai/huruf yg dipilih. Nilai A seharusnya dipilih karena ada hal lain yang patut diapresiasi oleh Evaluator. Catatan yang diberikan mengarah pada nilai BB."
+    },
+    {
+      "source": "Audit_d13cb490_Result.pdf",
+      "pages": [
+        4
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "2. Dokumen Perencanaan kinerja telah memenuhi standar yang baik, yaitu untuk mencapai hasil dengan ukuran kinerja yang SMART, menggunakan penyelarasan (cascading) disetiap level secara logis, serta memperhatikan kinerja bidang lain (crosscutting)",
+      "criteria": "5. Ukuran Keberhasilan (Indikator Kinerja) telah memenuhi kriteria SMART.",
+      "auditee_grade": "BB",
+      "evaluator_grade": "A",
+      "note": "Indikator kinerja PA Sampang telah memenuhi kriteria SMART.",
+      "recommendation": "Jika suatu indikator selalu mencapai 100% dengan sangat mudah di pertengahan tahun, direkomendasikan untuk menaikkan ambang batas target pada tahun berikutnya agar terciptanya inovasi.",
+      "teacher_score": 25.0,
+      "assessor_note": "Catatan yang diberikan belum selaras dengan nilai/huruf yg dipilih. Nilai A seharusnya dipilih karena ada hal lain yang patut diapresiasi oleh Evaluator. Catatan yang diberikan mengarah pada nilai BB."
+    },
+    {
+      "source": "Audit_d13cb490_Result.pdf",
+      "pages": [
+        4
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "2. Dokumen Perencanaan kinerja telah memenuhi standar yang baik, yaitu untuk mencapai hasil dengan ukuran kinerja yang SMART, menggunakan penyelarasan (cascading) disetiap level secara logis, serta memperhatikan kinerja bidang lain (crosscutting)",
+      "criteria": "6. Indikator Kinerja Utama (IKU) telah menggambarkan kondisi Kinerja Utama yang harus dicapai, tertuang secara berkelanjutan (sustainable - tidak sering diganti dalam 1 periode Perencanaan Strategis).",
+      "auditee_grade": "A",
+      "evaluator_grade": "A",
+      "note": "telah melampirkan dokumen IKU 2022, Reviu IKU 2022-2025, dan IKU 2026; terdapat perubahan IKU pada 2026 yang dikarenakan adanya penyesuaian pada IKU Mahkamah Agung.",
+      "recommendation": "Disarankan untuk melakukan evaluasi pada besaran target setiap tahun agar tetap relevan dengan kondisi sumber daya terbaru.",
+      "teacher_score": 25.0,
+      "assessor_note": "Catatan yang diberikan belum selaras dengan nilai/huruf yg dipilih. Nilai A seharusnya dipilih karena ada hal lain yang patut diapresiasi oleh Evaluator. Catatan yang diberikan mengarah pada nilai BB."
+    },
+    {
+      "source": "Audit_d13cb490_Result.pdf",
+      "pages": [
+        4,
+        5
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "2. Dokumen Perencanaan kinerja telah memenuhi standar yang baik, yaitu untuk mencapai hasil dengan ukuran kinerja yang SMART, menggunakan penyelarasan (cascading) disetiap level secara logis, serta memperhatikan kinerja bidang lain (crosscutting)",
+      "criteria": "7. Target yang ditetapkan dalam Perencanaan Kinerja dapat dicapai (achievable), menantang, dan realistis.",
+      "auditee_grade": "BB",
+      "evaluator_grade": "CC",
+      "note": "Dokumen renstra yang dilampirkan PA Sampang hanya pada BAB 4.",
+      "recommendation": "Agar dilampirkan renstra seutuhnya.",
+      "teacher_score": 20.0,
+      "assessor_note": "Catatan Evaluator tidak relevan terhadap kriteria sama sekali (yakni seharusnya terkait \"menganalisis kualitas realistis suatu target kinerja\")."
+    },
+    {
+      "source": "Audit_d13cb490_Result.pdf",
+      "pages": [
+        5
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "2. Dokumen Perencanaan kinerja telah memenuhi standar yang baik, yaitu untuk mencapai hasil dengan ukuran kinerja yang SMART, menggunakan penyelarasan (cascading) disetiap level secara logis, serta memperhatikan kinerja bidang lain (crosscutting)",
+      "criteria": "8. Setiap Dokumen Perencanaan Kinerja menggambarkan hubungan yang berkesinambungan, serta selaras antara Kondisi/Hasil yang akan dicapai di setiap level jabatan (Cascading).",
+      "auditee_grade": "B",
+      "evaluator_grade": "CC",
+      "note": "PA Sampang telah melampirkan Cetak Biru Pembaruan Peradilan, Renstra 2025-2029, dan RKT 2021-2027; dokumen PK telah dilampirkan pada indikator lain namun tidak terdapat dokumen Renja dan SKP sehingga tidak dapat menilai keselarasan.",
+      "recommendation": "Agar dilengkapi dokumen Renja dan SKP.",
+      "teacher_score": 100.0,
+      "assessor_note": "Catatan sudah sangat baik dan lengkap menganalisis korelasi antara nilai yang dipilih dan alasannya pada kolom \"Catatan\"."
+    },
+    {
+      "source": "Audit_d13cb490_Result.pdf",
+      "pages": [
+        5
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "2. Dokumen Perencanaan kinerja telah memenuhi standar yang baik, yaitu untuk mencapai hasil dengan ukuran kinerja yang SMART, menggunakan penyelarasan (cascading) disetiap level secara logis, serta memperhatikan kinerja bidang lain (crosscutting)",
+      "criteria": "9. Perencanaan kinerja dapat memberikan informasi tentang hubungan kinerja, strategi, kebijakan, bahkan aktivitas antar bidang/dengan tugas dan fungsi lain yang berkaitan (Crosscutting).",
+      "auditee_grade": "B",
+      "evaluator_grade": "E",
+      "note": "PA Sampang tidak melampirkan dokumen sesuai kriteria.",
+      "recommendation": "Lampirkan dokumen Pohon kinerja crosscutting, dokumen kerjasama (Mou, PKS atau dokumen lain yang relevan) laporan/ringkasan kegiatan, atau dokumen lainnya yang relevan.",
+      "teacher_score": 80.0,
+      "assessor_note": "Catatan sudah baik, namun analisis pada catatan hasil evaluasi belum kian mendalam dan lengkap."
+    },
+    {
+      "source": "Audit_d13cb490_Result.pdf",
+      "pages": [
+        5
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "2. Dokumen Perencanaan kinerja telah memenuhi standar yang baik, yaitu untuk mencapai hasil dengan ukuran kinerja yang SMART, menggunakan penyelarasan (cascading) disetiap level secara logis, serta memperhatikan kinerja bidang lain (crosscutting)",
+      "criteria": "10. Setiap pegawai merumuskan dan menetapkan Perencanaan Kinerja.",
+      "auditee_grade": "BB",
+      "evaluator_grade": "E",
+      "note": "PA Sampang tidak melampirkan dokumen perencanaan kinerja setiap pegawai.",
+      "recommendation": "Lampirkan dokumen Rencana SKP Pegawai yang mewakili seluruh jabatan dalam satuan kerja.",
+      "teacher_score": 60.0,
+      "assessor_note": "Catatan sudah cukup baik, kecenderungan argumentasi telah sesuai dengan huruf yang dipilih; namun, analisis belum cukup detail membuktikan terpenuhi/tidaknya kriteria ini."
+    },
+    {
+      "source": "Audit_d13cb490_Result.pdf",
+      "pages": [
+        6
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "3. Perencanaan Kinerja telah dimanfaatkan untuk mewujudkan hasil yang berkesinambungan",
+      "criteria": "1. Anggaran yang ditetapkan telah mengacu pada Kinerja yang ingin dicapai.",
+      "auditee_grade": "A",
+      "evaluator_grade": "B",
+      "note": "PA Sampang telah melampirkan DIPA 01 dan DIPA 04 tahun 2025 dan 2026, dokumen Renstra dan RKT telah dilampirkan pada indikator lain, anggaran yang ditetapkan sebagian besar telah mengacu pada kinerja yang ingin dicapai.",
+      "recommendation": "Lengkapi dokumen RKA.",
+      "teacher_score": 100.0,
+      "assessor_note": "Catatan sudah sangat baik dan lengkap menganalisis korelasi antara nilai yang dipilih dan alasannya pada kolom \"Catatan\"."
+    },
+    {
+      "source": "Audit_d13cb490_Result.pdf",
+      "pages": [
+        6
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "3. Perencanaan Kinerja telah dimanfaatkan untuk mewujudkan hasil yang berkesinambungan",
+      "criteria": "2. Aktivitas yang dilaksanakan telah mendukung Kinerja yang ingin dicapai.",
+      "auditee_grade": "BB",
+      "evaluator_grade": "CC",
+      "note": "PA Sampang telah melampirkan dokumen Rencana Aksi Kinerja 2026, dokumen PK telah dilampirkan pada indikator lain, namun tidak dilampirkan dokumen RKA dan KAK/TOR, Rencana Aksi telah mendukung kinerja",
+      "recommendation": "Agar dilengkapi dengan mengupload dokumen RKA dan KAK/TOR, Rencana Aksi",
+      "teacher_score": 60.0,
+      "assessor_note": "Catatan sudah cukup baik, kecenderungan argumentasi telah sesuai dengan huruf yang dipilih; namun, analisis belum cukup detail membuktikan terpenuhi/tidaknya kriteria ini."
+    },
+    {
+      "source": "Audit_d13cb490_Result.pdf",
+      "pages": [
+        6
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "3. Perencanaan Kinerja telah dimanfaatkan untuk mewujudkan hasil yang berkesinambungan",
+      "criteria": "3. Target yang ditetapkan dalam Perencanaan Kinerja telah dicapai dengan baik, atau setidaknya masih on the right track.",
+      "auditee_grade": "BB",
+      "evaluator_grade": "D",
+      "note": "PA Sampang tidak melampirkan dokumen yang dapat digunakan untuk menganalisis capaian Perencanaan Kinerja.",
+      "recommendation": "Lampirkan Capaian atau Laporan Kinerja Triwulanan.",
+      "teacher_score": 25.0,
+      "assessor_note": "Catatan yang diberikan belum selaras dengan nilai/huruf yg dipilih. Nilai D seharusnya dipilih jika masih ada sebagian kecil unsur kriteria terpenuhi. Catatan yang diberikan mengarah pada nilai E (\"tidak ada yang sesuai\")."
+    },
+    {
+      "source": "Audit_d13cb490_Result.pdf",
+      "pages": [
+        6,
+        7
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "3. Perencanaan Kinerja telah dimanfaatkan untuk mewujudkan hasil yang berkesinambungan",
+      "criteria": "4. Rencana aksi kinerja dapat berjalan dinamis karena capaian kinerja selalu dipantau secara berkala.",
+      "auditee_grade": "BB",
+      "evaluator_grade": "A",
+      "note": "PA Sampang melampirkan Rencana Aksi Kinerja 2024 dan 2026, Reviu Rencana Aksi Kinerja 2025, Laporan Capaian Kinerja 2025, Monev Rencana Aksi Triwulanan 2025, dan Daftar Hadir Monev berkala 2025.",
+      "recommendation": "Pertahankan.",
+      "teacher_score": 25.0,
+      "assessor_note": "Catatan yang diberikan belum selaras dengan nilai/huruf yg dipilih. Nilai A seharusnya dipilih karena ada hal lain yang patut diapresiasi oleh Evaluator. Catatan yang diberikan mengarah pada nilai B atau lebih rendah."
+    },
+    {
+      "source": "Audit_d13cb490_Result.pdf",
+      "pages": [
+        7
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "3. Perencanaan Kinerja telah dimanfaatkan untuk mewujudkan hasil yang berkesinambungan",
+      "criteria": "5. Terdapat perbaikan/penyempurnaan Dokumen Perencanaan Kinerja yang ditetapkan dari hasil analisis perbaikan kinerja sebelumnya.",
+      "auditee_grade": "B",
+      "evaluator_grade": "CC",
+      "note": "PA Sampang elah melampirkan Rencana Aksi Kinerja 2024 dan 2026, Reviu Rencana Aksi Kinerja 2025, Laporan Capaian Kinerja 2025, Monev Rencana Aksi Triwulanan 2025, dan Daftar Hadir Monev berkala 2025.",
+      "recommendation": "Lengkapi dokumen PK tahun berjalan, Laporan Kinerja tahun sebelumnya .",
+      "teacher_score": 20.0,
+      "assessor_note": "Catatan Evaluator tidak relevan terhadap kriteria sama sekali (yakni seharusnya terkait \"kemanfaatan analisa kinerja sebelumnya terhadap perencanaan untuk kinerja selanjutnya\")."
+    },
+    {
+      "source": "Audit_d13cb490_Result.pdf",
+      "pages": [
+        7
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "3. Perencanaan Kinerja telah dimanfaatkan untuk mewujudkan hasil yang berkesinambungan",
+      "criteria": "6. Terdapat perbaikan/penyempurnaan Dokumen Perencanaan Kinerja dalam mewujudkan kondisi/hasil yang lebih baik.",
+      "auditee_grade": "BB",
+      "evaluator_grade": "B",
+      "note": "PA Sampang telah melampirkan dokumen RKT 2021-2027 namun tidak dilampirkan dokumen Reviu RKT untuk melihat permasalahan yang dihadapi dan penyesuaiannya.",
+      "recommendation": "Agar dilengkapi dokumen Reviu RKT.",
+      "teacher_score": 20.0,
+      "assessor_note": "Catatan Evaluator tidak relevan terhadap kriteria sama sekali (yakni seharusnya terkait \"membaiknya perencanaan kinerja selanjutnya\")."
+    },
+    {
+      "source": "Audit_d13cb490_Result.pdf",
+      "pages": [
+        7
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "3. Perencanaan Kinerja telah dimanfaatkan untuk mewujudkan hasil yang berkesinambungan",
+      "criteria": "7. Setiap unit/satuan kerja memahami dan peduli, serta berkomitmen dalam mencapai kinerja yang telah direncanakan.",
+      "auditee_grade": "A",
+      "evaluator_grade": "BB",
+      "note": "PA Sampang melampirkan daftar hadir, notulensi rapat, dan dokumentasi tahun 2025.",
+      "recommendation": "Pertahankan dan tingkatkan.",
+      "teacher_score": 20.0,
+      "assessor_note": "Catatan Evaluator tidak relevan terhadap kriteria sama sekali (yakni seharusnya terkait \"seberapa berkomitmen unit di dalam satker ingin mencapai kinerjanya\")."
+    },
+    {
+      "source": "Audit_d13cb490_Result.pdf",
+      "pages": [
+        7
+      ],
+      "category": "1. Perencanaan Kinerja",
+      "subcategory": "3. Perencanaan Kinerja telah dimanfaatkan untuk mewujudkan hasil yang berkesinambungan",
+      "criteria": "8. Setiap Pegawai memahami dan peduli, serta berkomitmen dalam mencapai kinerja yang telah direncanakan.",
+      "auditee_grade": "A",
+      "evaluator_grade": "D",
+      "note": "PA Sampang melampirkan daftar hadir, notulensi rapat, dan dokumentasi tahun 2025.",
+      "recommendation": "Lengkapi dokumen realisasi SKP Pegawai.",
+      "teacher_score": 20.0,
+      "assessor_note": "Catatan Evaluator tidak relevan terhadap kriteria sama sekali (yakni seharusnya terkait \"seberapa berkomitmen para pegawai di dalam satker ingin mencapai kinerjanya\")."
+    }
+  ],
+  "source_extract_version": "2026-09-29-v1",
+  "rubric_version": "2026-09-29-chatgpt-v1"
+}
