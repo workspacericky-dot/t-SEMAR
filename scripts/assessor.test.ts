@@ -370,3 +370,22 @@ test('import of newly exported package preserves previously approved pairs', asy
         assert.equal(Number(official.rows[0].teacher_score), 85);
     } finally { await db.close(); }
 });
+
+import { AUDIT_CRITERIA_TEMPLATE } from '../src/lib/data/criteria';
+
+test('export accepts the entire actual application template across all twelve subcomponents', () => {
+    const items = AUDIT_CRITERIA_TEMPLATE.map((item, index) => ({ ...itemFixture(), ...item,
+        id: `10000000-0000-4000-8000-${String(index + 1).padStart(12, '0')}` }));
+    const payload = createExamPackage(examFixture, items, 2025);
+    assert.equal(payload.expected_item_count, AUDIT_CRITERIA_TEMPLATE.length);
+    assert.equal(new Set(payload.items.map(item => item.category)).size, 4);
+    assert.equal(new Set(payload.items.map(item => item.category + item.subcategory)).size, 12);
+    const expected = ['keberadaan', 'kualitas', 'pemanfaatan'];
+    for (const item of payload.items) {
+        // Ground truth from the established three subcomponents per category of this fixed template.
+        const index = Number(item.subcategory.match(/^([123])\./)?.[1]);
+        assert.equal(item.assessment_perspective, expected[index - 1]);
+    }
+    assert.throws(() => assessmentPerspective('1. Nama subkomponen baru', '1. Perencanaan Kinerja'), /tidak jelas/);
+    assert.throws(() => assessmentPerspective('1. Dokumen Perencanaan kinerja telah tersedia', 'Komponen tidak dikenal'), /tidak jelas/);
+});

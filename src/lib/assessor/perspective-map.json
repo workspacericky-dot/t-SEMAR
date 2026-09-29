@@ -1,0 +1,62 @@
+[
+  {
+    "category": "1. Perencanaan Kinerja",
+    "subcategory": "1. Dokumen Perencanaan kinerja telah tersedia",
+    "perspective": "keberadaan"
+  },
+  {
+    "category": "1. Perencanaan Kinerja",
+    "subcategory": "2. Dokumen Perencanaan kinerja telah memenuhi standar yang baik, yaitu untuk mencapai hasil dengan ukuran kinerja yang SMART, menggunakan penyelarasan (cascading) disetiap level secara logis, serta memperhatikan kinerja bidang lain (crosscutting)",
+    "perspective": "kualitas"
+  },
+  {
+    "category": "1. Perencanaan Kinerja",
+    "subcategory": "3. Perencanaan Kinerja telah dimanfaatkan untuk mewujudkan hasil yang berkesinambungan",
+    "perspective": "pemanfaatan"
+  },
+  {
+    "category": "2. Pengukuran Kinerja",
+    "subcategory": "1. Pengukuran Kinerja telah dilakukan",
+    "perspective": "keberadaan"
+  },
+  {
+    "category": "2. Pengukuran Kinerja",
+    "subcategory": "2. Pengukuran Kinerja telah menjadi kebutuhan dalam mewujudkan Kinerja secara Efektif dan Efisien dan telah dilakukan secara berjenjang dan berkelanjutan",
+    "perspective": "kualitas"
+  },
+  {
+    "category": "2. Pengukuran Kinerja",
+    "subcategory": "3. Pengukuran Kinerja telah dijadikan dasar dalam pemberian Reward dan Punishment, serta penyesuaian strategi dalam mencapai kinerja yang efektif dan efisien",
+    "perspective": "pemanfaatan"
+  },
+  {
+    "category": "3. Pelaporan Kinerja",
+    "subcategory": "1. Terdapat Dokumen Laporan yang menggambarkan Kinerja",
+    "perspective": "keberadaan"
+  },
+  {
+    "category": "3. Pelaporan Kinerja",
+    "subcategory": "2. Dokumen Laporan Kinerja telah memenuhi Standar yang menggambarkan Kualitas atas Pencapaian Kinerja, informasi keberhasilan / kegagalan kinerja serta upaya perbaikan / penyempurnaannya",
+    "perspective": "kualitas"
+  },
+  {
+    "category": "3. Pelaporan Kinerja",
+    "subcategory": "3. Pelaporan Kinerja telah memberikan dampak yang besar dalam penyesuaian strategi / kebijakan dalam mencapai kinerja berikutnya",
+    "perspective": "pemanfaatan"
+  },
+  {
+    "category": "4. Evaluasi Akuntabilitas Kinerja Internal",
+    "subcategory": "1. Evaluasi Akuntabilitas Kinerja Internal telah dilaksanakan",
+    "perspective": "keberadaan"
+  },
+  {
+    "category": "4. Evaluasi Akuntabilitas Kinerja Internal",
+    "subcategory": "2. Evaluasi Akuntabilitas Kinerja Internal telah dilaksanakan secara berkualitas dengan Sumber Daya yang memadai",
+    "perspective": "kualitas"
+  },
+  {
+    "category": "4. Evaluasi Akuntabilitas Kinerja Internal",
+    "subcategory": "3. Implementasi SAKIP telah meningkat karena evaluasi Akuntabilitas Kinerja Internal sehingga memberikan kesan yang nyata (dampak) dalam efektifitas dan efisiensi Kinerja",
+    "perspective": "pemanfaatan"
+  }
+]

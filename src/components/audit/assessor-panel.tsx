@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { AssessorExamExport } from './assessor-exam-export';
 import { Check, Download, Loader2, RefreshCw, Sparkles, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 import type { AuditItem } from '@/types/database';
@@ -19,8 +20,6 @@ export function AssessorPanel({ auditId, items, onApproved, busyItems, unsavedIt
     const [busy, setBusy] = useState('');
     const [error, setError] = useState('');
     const [importText, setImportText] = useState('');
-    const [referenceYear, setReferenceYear] = useState('');
-    const [exportInfo, setExportInfo] = useState('');
     const [importInfo, setImportInfo] = useState('');
     const hasUnsaved = unsavedItems.size > 0 || busyItems.size > 0;
 
@@ -61,27 +60,6 @@ export function AssessorPanel({ auditId, items, onApproved, busyItems, unsavedIt
         const edit = review(rec);
         if (!edit.score.trim()) return false;
         try { validateApproval(Number(edit.score), edit.note); return true; } catch { return false; }
-    }
-
-    async function exportExam() {
-        setBusy('export'); setError('');
-        try {
-            const year = referenceYear.trim() ? Number(referenceYear) : undefined;
-            if (year !== undefined && (!Number.isInteger(year) || year < 1999 || year > 2199)) {
-                setError('Isi tahun referensi bulat 1999-2199 atau biarkan kosong untuk tahun ujian dikurangi satu.'); return;
-            }
-            const result = await exportAssessorExam(auditId, year);
-            if (result.error || !result.payload) { setError(result.error || 'Ekspor gagal.'); return; }
-            const payload = result.payload;
-            const url = URL.createObjectURL(new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' }));
-            const anchor = document.createElement('a');
-            anchor.href = url; anchor.download = `tsemar-${payload.exam_type}-${auditId.slice(0, 8)}-${payload.package_id.slice(0, 8)}.json`;
-            document.body.appendChild(anchor); anchor.click(); anchor.remove();
-            window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-            setExportInfo(`Paket ${payload.package_id.slice(0, 8)}: ${payload.expected_item_count} kriteria dari seluruh komponen. Tahun evaluasi ${payload.evaluation_year}; tahun referensi ${payload.reference_year}.`);
-            toast.success('Paket seluruh ujian berhasil diekspor. Unggah file ini ke ChatGPT.');
-        } catch { setError('Ekspor gagal. Silakan coba kembali.'); }
-        finally { setBusy(''); }
     }
 
     async function importExam() {
@@ -133,7 +111,7 @@ export function AssessorPanel({ auditId, items, onApproved, busyItems, unsavedIt
                 <h3 className="font-medium text-sm">Cara menggunakan sebagai dosen</h3>
                 <ol className="list-decimal pl-5 text-sm space-y-1">
                     <li>Siapkan Project ChatGPT menggunakan bahan di panduan setup di bawah.</li>
-                    <li>Klik <strong>Ekspor seluruh ujian siswa</strong>. Unggah file JSON ke chat baru dalam Project, pilih mode Thinking/reasoning, lalu kirim prompt analisis.</li>
+                    <li>Klik <strong>Ekspor seluruh ujian siswa</strong>, lalu <strong>Unduh paket JSON</strong> setelah paket siap. Unggah file JSON ke chat baru dalam Project, pilih mode Thinking/reasoning, lalu kirim prompt analisis.</li>
                     <li>Salin satu JSON hasil lengkap atau unduh file JSON dari ChatGPT. Tempel atau unggah di bagian impor.</li>
                     <li>Klik <strong>Impor sebagai draft</strong>, review usulan nilai dan catatan, lalu approve per kriteria atau komponen.</li>
                 </ol>
@@ -154,16 +132,9 @@ export function AssessorPanel({ auditId, items, onApproved, busyItems, unsavedIt
                         <p>Pakai prompt nomor 1 di Prompt lengkap untuk memeriksa setup. Untuk menilai setiap siswa, lampirkan ekspor dan gunakan prompt nomor 2. Jika format gagal divalidasi aplikasi, gunakan prompt nomor 4 dengan pesan kesalahannya.</p>
                     </div>
                 </details>
-                <div className="flex flex-wrap items-end gap-3">
-                    <label className="text-xs">Tahun referensi (opsional)
-                        <input aria-label="Tahun referensi" type="number" min={1999} max={2199} step={1} value={referenceYear} disabled={!!busy}
-                            onChange={event => setReferenceYear(event.target.value)} placeholder="Default: tahun ujian - 1"
-                            className="mt-1 block w-56 rounded-lg border p-2 bg-white dark:bg-slate-900" />
-                    </label>
-                    <button className={button} disabled={!!busy || hasUnsaved} onClick={exportExam}>
-                        {busy === 'export' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />} Ekspor seluruh ujian siswa
-                    </button>
-                </div>
+                <AssessorExamExport auditId={auditId} createPackage={exportAssessorExam} busy={!!busy}
+                    disabledReason={hasUnsaved ? 'Selesaikan penyimpanan perubahan pada tabel sebelum ekspor.' : ''}
+                    onBusyChange={value => setBusy(value ? 'export' : '')} />
                 <button className={button} disabled={!!busy} onClick={async () => {
                     try {
                         const response = await fetch('/assessor-chatgpt/ANALYSIS_PROMPT.txt');
@@ -175,7 +146,6 @@ export function AssessorPanel({ auditId, items, onApproved, busyItems, unsavedIt
                 <p className="text-xs">{items.length} kriteria: {Array.from(new Set(items.map(item => item.category))).map(category => `${category} (${items.filter(item => item.category === category).length})`).join(' | ')}</p>
                 {hasUnsaved && <p className="text-xs text-amber-700">Selesaikan penyimpanan perubahan pada tabel sebelum ekspor atau impor.</p>}
                 <p className="text-xs text-slate-500">Ekspor selalu mencakup seluruh kriteria yang ditugaskan pada ujian siswa ini, termasuk baris yang tidak terlihat karena filter. Tahun referensi dipakai untuk menafsirkan periode; sesuaikan dengan kebijakan ujian Anda.</p>
-                {exportInfo && <p role="status" className="text-xs">{exportInfo}</p>}
             </div>
             <details className="rounded-xl border border-slate-200 p-4 dark:border-slate-700" open>
                 <summary className="cursor-pointer font-medium text-sm">Impor hasil ChatGPT</summary>

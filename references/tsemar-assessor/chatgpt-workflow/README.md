@@ -17,7 +17,7 @@ Migrasi produksi belum dijalankan dari workspace ini. Server memakai konfigurasi
 2. Buka **Panduan setup Project & prompt analisis** pada panel Rekomendasi Asesor.
 3. Buat Project **t-SEMAR Assistive Assessor** di ChatGPT. Tempel isi PROJECT_INSTRUCTIONS.md ke Instructions. Unggah KNOWLEDGE.md, OUTPUT_CONTRACT.md, output.schema.json, dan CALIBRATION.json sebagai sumber tetap. Kalibrasi dosen diambil dari repositori GitHub yang telah dipublikasikan atas persetujuan pemilik; tautannya tersedia di panel.
 4. Gunakan prompt nomor 1 pada PROMPTS.md untuk memeriksa setup. File lokal perlu diunggah ke Project; membuka file di IDE tidak membuat ChatGPT dapat membacanya.
-5. Tentukan tahun referensi bila perlu (default tahun ujian dikurangi satu). Klik **Ekspor seluruh ujian siswa**.
+5. Tentukan tahun referensi bila perlu (default tahun ujian dikurangi satu). Klik **Ekspor seluruh ujian siswa**, tunggu status Paket siap, lalu klik **Unduh paket JSON**. Tautan unduhan tetap tersedia untuk mencoba lagi tanpa membuat paket baru.
 6. Buat chat baru dalam Project untuk siswa tersebut, pilih mode Thinking/reasoning yang tersedia, unggah paket JSON, dan kirim prompt nomor 2 melalui **Salin prompt analisis**. Prompt tidak mengubah pilihan mode pada antarmuka.
 7. Ambil satu JSON hasil lengkap. Pada **Impor hasil ChatGPT**, unggah file atau tempel JSON, lalu klik **Impor sebagai draft**.
 8. Review seluruh komponen: jawaban siswa, usulan nilai, draft Catatan Asesor, diagnosis, alasan, dan flag. Edit seperlunya. Jika score:null, isi nilai manual dahulu.
@@ -45,7 +45,7 @@ Satu siswa + satu ujian = satu paket seluruh kriteria yang ditugaskan, termasuk 
 
 File bernama `tsemar-<midterm/final>-<audit_id pendek>-<package_id pendek>.json`. Tidak memuat nama akun, NIP, email, eviden, feedback dosen sebelumnya, atau jawaban siswa lain. Teks bebas jawaban dapat tetap memuat nama; dosen dapat memeriksa JSON sebelum mengunggahnya. Aplikasi tidak menjamin anonimisasi teks bebas.
 
-Metadata mencakup schema/rubrik, package_id, audit_id, waktu ekspor, tahun evaluasi dan referensi, scope entire_student_exam, jumlah kriteria, dan 24 definisi grade per perspektif. Setiap item mencakup ID, sort_order, hierarchy, perspektif, Jwb Auditee, Jwb Evaluator, Catatan, Rekomendasi, dan fingerprint. Perspektif dipetakan dari nama subkomponen keberadaan/kualitas/pemanfaatan (kemanfaatan juga dikenali); pemetaan ambigu memblokir ekspor.
+Metadata mencakup schema/rubrik, package_id, audit_id, waktu ekspor, tahun evaluasi dan referensi, scope entire_student_exam, jumlah kriteria, dan 24 definisi grade per perspektif. Setiap item mencakup ID, sort_order, hierarchy, perspektif, Jwb Auditee, Jwb Evaluator, Catatan, Rekomendasi, dan fingerprint. Perspektif memakai pemetaan eksplisit dua belas nama subkomponen template asli pada perspective-map.json, dipasangkan dengan kategori induk. Label keberadaan/kualitas/pemanfaatan (kemanfaatan juga dikenali) tetap didukung; nomor saja tidak dipakai untuk menebak subkomponen baru. Pemetaan ambigu memblokir ekspor dan pesannya tampil di dekat tombol.
 
 Manifest server menyimpan payload ekspor, snapshot jawaban, snapshot feedback dosen, dan versi draft saat ekspor. Snapshot feedback dan versi draft tidak dikirim ke ChatGPT. SHA-256 dibuat atas JSON dengan key field input diurutkan alfabetis, UTF-8 dan separator tanpa spasi; null jawaban dinormalisasi menjadi string kosong tanpa mengubah whitespace lainnya. Hash bukan signature atau bukti autentikasi; impor harus cocok dengan manifest yang tersimpan.
 

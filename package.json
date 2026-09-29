@@ -7,7 +7,7 @@
     "build": "npm run sync:assessor && next build",
     "start": "next start",
     "lint": "eslint",
-    "test:assessor": "node --import tsx --test scripts/assessor.test.ts",
+    "test:assessor": "node --import tsx --test scripts/assessor.test.ts scripts/assessor-export.test.ts",
     "sync:assessor": "node scripts/sync-assessor-chatgpt.mjs"
   },
   "dependencies": {
@@ -38,11 +38,14 @@
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.8",
     "@tailwindcss/postcss": "^4",
+    "@testing-library/react": "^16.3.3",
+    "@types/jsdom": "^30.0.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "jsdom": "^30.1.1",
     "shadcn": "^3.8.4",
     "tailwindcss": "^4",
     "tsx": "^4.23.15",

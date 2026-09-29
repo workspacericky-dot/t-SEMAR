@@ -60,6 +60,16 @@ export async function exportAssessorExam(auditId: string, referenceYear?: number
     } catch (error) { return { error: errorMessage(error) }; }
 }
 
+export async function getAssessorExportDownload(auditId: string, packageId: string) {
+    try {
+        const { admin, audit } = await assessorContext(auditId);
+        assertExamFinished(audit);
+        const { data: manifest, error } = await admin.from('assessor_export_packages').select('payload').eq('id', packageId).eq('audit_id', auditId).single();
+        if (error || !manifest) throw new Error('Paket ekspor tidak ditemukan. Kembali ke ujian dan buat paket ekspor baru.');
+        return { payload: manifest.payload as ExamPackage };
+    } catch (error) { return { error: errorMessage(error) }; }
+}
+
 export async function importAssessorExam(auditId: string, text: string) {
     try {
         const { admin, audit, userId } = await assessorContext(auditId);

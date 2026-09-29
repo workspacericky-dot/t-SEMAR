@@ -4,6 +4,7 @@ import addFormats from 'ajv-formats';
 import exportSchema from '../../../references/tsemar-assessor/chatgpt-workflow/export.schema.json';
 import outputSchema from '../../../references/tsemar-assessor/chatgpt-workflow/output.schema.json';
 import reference from './reference.public.json';
+import perspectiveMap from './perspective-map.json';
 import { reasoningInput } from './reasoning';
 import type { Audit, AuditItem } from '@/types/database';
 
@@ -33,7 +34,13 @@ addFormats(ajv);
 const validateExport = ajv.compile(exportSchema);
 const validateOutput = ajv.compile(outputSchema);
 
-export function assessmentPerspective(subcategory: string): Perspective {
+export function assessmentPerspective(subcategory: string, category?: string): Perspective {
+    const normalize = (value: string) => value.toLowerCase().replace(/\s+/g, ' ').trim();
+    // Explicit mappings for actual t-SEMAR subcomponents, scoped to the parent component.
+    // A numeric prefix alone is never used to infer the perspective of an unfamiliar title.
+    const known = category && perspectiveMap.find(entry => normalize(entry.category) === normalize(category)
+        && normalize(entry.subcategory) === normalize(subcategory));
+    if (known) return known.perspective as Perspective;
     const text = subcategory.toLowerCase();
     const found = (['keberadaan', 'kualitas', 'pemanfaatan'] as const).filter(word =>
         new RegExp(`\\b${word}\\b`).test(text) || (word === 'pemanfaatan' && /\bkemanfaatan\b/.test(text)));
@@ -43,7 +50,7 @@ export function assessmentPerspective(subcategory: string): Perspective {
 function exportItem(item: AuditItem) {
     const input = {
         item_id: item.id, sort_order: item.sort_order, ...reasoningInput(item),
-        assessment_perspective: assessmentPerspective(item.subcategory),
+        assessment_perspective: assessmentPerspective(item.subcategory, item.category),
     };
     const input_fingerprint = createHash('sha256').update(JSON.stringify(Object.fromEntries(Object.entries(input).sort(([a], [b]) => a.localeCompare(b)))), 'utf8').digest('hex');
     return { ...input, input_fingerprint };
